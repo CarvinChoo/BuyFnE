@@ -16,22 +16,29 @@ export default function App() {
           backgroundColor: "dodgerblue",
           width: 100,
           height: 100,
-          //Borders
-          // borderWidth: 10,
-          // borderColor: "royalblue",
-          // borderRadius: 50, // radius need to be at least 50% of the width and height to be a circle
-          // borderTopWidth: 20,
-          // borderTopLeftRadius: 50,
-
-          //Shadows
-          // Only usable in iOS
-          // shadowColor: "grey",
-          // shadowOffset: { width: 10, height: 10 },
-          // shadowOpacity: 1,
-          // shadowRadius:10,
-
-          // Only usable in Android
-          //elevation: 20,
+          //Padding
+          padding: 20,
+          paddingHorizontal: 10, // overwrites general padding option
+          paddingLeft: 30, //Overwrites horizontal padding
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: "gold",
+            width: 50,
+            height: 50,
+          }}
+        ></View>
+      </View>
+      <View
+        style={{
+          backgroundColor: "tomato",
+          width: 100,
+          height: 100,
+          //Margin
+          margin: 20,
+          marginVertical: 30, //Overwrites if conflicting
+          marginRight: 50, // Overwrites if conflicting
         }}
       ></View>
     </View>
