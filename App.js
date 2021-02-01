@@ -11,36 +11,25 @@ export default function App() {
         alignItems: "center",
       }}
     >
-      <View
+      <Text
         style={{
-          backgroundColor: "dodgerblue",
-          width: 100,
-          height: 100,
-          //Padding
-          padding: 20,
-          paddingHorizontal: 10, // overwrites general padding option
-          paddingLeft: 30, //Overwrites horizontal padding
+          // Font options : https://github.com/react-native-training/react-native-fonts
+          // custom fonts : search for Expo custom fonts
+          // fontFamily: "Roboto", // changes font type, each OS has its own list of fonts
+          // These properties are only available to <Text> components, will not work on others
+          fontSize: 30,
+          fontStyle: "italic",
+          fontWeight: "700", // font thickness
+          color: "tomato",
+          textTransform: "capitalize",
+          // textDecorationLine: "line-through", // underlines or crosses out text
+          textAlign: "center", //align text, "justify" spreads the text so each end of line text touches the side
+          lineHeight: 30, // space between lines
         }}
       >
-        <View
-          style={{
-            backgroundColor: "gold",
-            width: 50,
-            height: 50,
-          }}
-        ></View>
-      </View>
-      <View
-        style={{
-          backgroundColor: "tomato",
-          width: 100,
-          height: 100,
-          //Margin
-          margin: 20,
-          marginVertical: 30, //Overwrites if conflicting
-          marginRight: 50, // Overwrites if conflicting
-        }}
-      ></View>
+        I love React Native! This is my First React Native app! Here is somemore
+        text!
+      </Text>
     </View>
   );
 }
