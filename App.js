@@ -16,15 +16,7 @@ export default function App() {
       <View
         style={{
           backgroundColor: "dodgerblue",
-          // flexBasis: 100, // if element primay axis is vertical, this can be used to set width , if horizontal, it is used to set height
-          // virtually identical to width or height
-          //flexGrow: 1, // same as setting flex property but does not require refresh
-          // same as
-          // flex: 1,
-          width: 400,
-          // flexShrink: 1, // if there is overflow, this item will resize so other items can fit
-          // same as
-          flex: -1,
+          width: 100,
           height: 100,
         }}
       />
@@ -33,6 +25,12 @@ export default function App() {
           backgroundColor: "gold",
           width: 100,
           height: 100,
+          top: 20,
+          // bottom: 20,
+          left: 20,
+          // right: 20,
+          position: "absolute", //default positioning of all elements are "relative"
+          // absolute will position elemnt relative to its parent container, ignore flex
         }}
       />
       <View
