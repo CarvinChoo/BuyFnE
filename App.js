@@ -1,14 +1,30 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Button, Platform, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Button,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import {
+  useDimensions,
+  useDeviceOrientation,
+} from "@react-native-community/hooks";
 export default function App() {
+  // console.log(useDimensions()); // returns accurate dimensions when rotation happens
+  const { landscape } = useDeviceOrientation(); //returns if landscape or portait
   return (
-    //SafeAreaView only works for iOS
-    // An array of styles, the right always overwrites the left
-    <SafeAreaView style={[styles.container, containerStyle]}>
-      <Button title='Click Me' onPress={() => console.log("Button Pressed")} />
+    <SafeAreaView style={styles.container}>
+      <View
+        style={{
+          backgroundColor: "dodgerblue",
+          width: "100%",
+          height: landscape ? "100%" : "30%", // if rotation is in landscape mode, it will set height to 100%
+        }}
+      ></View>
       <StatusBar style='auto' />
     </SafeAreaView>
   );
