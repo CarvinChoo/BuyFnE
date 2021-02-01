@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
     ...Platform.select({
       // "..." spreads the properties of the object returned by Platform.select into the "text" object
       // returns on of the objects inside it e.g. ios or android, depending on the platform
-      textStyle: "italic",
       ios: {
         fontSize: 20,
         fontFamily: "Avenir",
@@ -20,7 +19,6 @@ const styles = StyleSheet.create({
       },
       android: {
         fontSize: 18,
-        fontFamily: "Roboto",
         color: "blue",
       },
     }),
