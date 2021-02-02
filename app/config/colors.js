@@ -3,4 +3,5 @@ export default {
   cyan: "#4ecdc4",
   black: "#000",
   white: "#fff",
+  muted: "#6e6969",
 };
