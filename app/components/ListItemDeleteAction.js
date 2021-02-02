@@ -2,11 +2,15 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import colors from "../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-function ListItemDeleteAction(props) {
+import {
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
+function ListItemDeleteAction({ onPress }) {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <MaterialCommunityIcons name='trash-can' size={35} color={colors.white} />
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -14,6 +18,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.danger,
     width: 70,
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { FlatList, StyleSheet, Platform, StatusBar, View } from "react-native";
 
 import Screen from "../components/Screen";
@@ -8,7 +8,7 @@ import ListItemSeperator from "../components/ListItemSeperator";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import ListItemDeleteAction from "../components/ListItemDeleteAction";
 
-const messages = [
+const initialMessages = [
   // hardcoded, will be pulled later in backend
   {
     id: 1,
@@ -24,6 +24,18 @@ const messages = [
   },
 ];
 function MessagesScreen(props) {
+  const [messages, setMessages] = useState(initialMessages); // destructuring syntax
+  //useState(initialMessages) returns an array, 1st element of the array is inital state variable
+  // 2nd element of the array is the function name to be used to set the state
+
+  //This is a function
+  const handleDelete = (message) => {
+    // "message" means passing a message object into the below function
+    //Delete message from "messages" array
+    setMessages(messages.filter((m) => m.id !== message.id)); //filters only non-matching ids and removes the matching ones
+
+    //.Call.the.Server
+  };
   return (
     // <View style={styles.screen}></View> // only use on android if SafeAreaView does not work
     <Screen>
@@ -36,7 +48,9 @@ function MessagesScreen(props) {
             subTitle={item.description}
             image={item.image}
             onPress={() => console.log("Message Selected", item)}
-            renderRightActions={ListItemDeleteAction}
+            renderRightActions={() => (
+              <ListItemDeleteAction onPress={() => handleDelete(item)} />
+            )}
           />
         )} // destructure "item" object  extract out "item" properties to be passed into ListItem
         ItemSeparatorComponent={ListItemSeperator} // a properties that requires an object to be used to seperate each item in "messages" array
