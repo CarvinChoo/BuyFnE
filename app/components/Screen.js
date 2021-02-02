@@ -17,8 +17,7 @@ const styles = StyleSheet.create({
   screen: {
     // only use if SafeAreaView does not work
     paddingTop: Constants.statusBarHeight,
-    backgroundColor: "yellow",
-    flex: 1,
+    flex: 1, //remember this so it stretch to the whole screen
   },
 });
 export default Screen;
