@@ -33,6 +33,7 @@ function MessagesScreen(props) {
             title={item.title}
             subTitle={item.description}
             image={item.image}
+            onPress={() => console.log("Message Selected", item)}
           />
         )} // destructure "item" object  extract out "item" properties to be passed into ListItem
         ItemSeparatorComponent={ListItemSeperator} // a properties that requires an object to be used to seperate each item in "messages" array
