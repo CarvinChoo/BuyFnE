@@ -19,8 +19,21 @@ function WelcomeScreen(props) {
         />
       </View>
       <View style={styles.buttonscontainer}>
-        <AppButton title='Login' />
-        <AppButton title='Register' color='cyan' />
+        <AppButton
+          title='Guest'
+          color='darkorange'
+          onPress={() => alert("Guest Tapped")}
+        />
+        <AppButton
+          title='Login'
+          color='brightred'
+          onPress={() => alert("Login Tapped")}
+        />
+        <AppButton
+          title='Register'
+          color='cyan'
+          onPress={() => alert("Register Tapped")}
+        />
       </View>
       <StatusBar style='auto' />
     </ImageBackground>
@@ -35,7 +48,7 @@ const styles = StyleSheet.create({
   },
   buttonscontainer: {
     padding: 20,
-    width: "100%",
+    width: "90%",
   },
   logo: {
     width: 200,
