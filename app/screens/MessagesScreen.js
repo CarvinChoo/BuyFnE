@@ -27,6 +27,7 @@ function MessagesScreen(props) {
   const [messages, setMessages] = useState(initialMessages); // destructuring syntax
   //useState(initialMessages) returns an array, 1st element of the array is inital state variable
   // 2nd element of the array is the function name to be used to set the state
+  const [refreshing, setRefreshing] = useState(false);
 
   //This is a function
   const handleDelete = (message) => {
@@ -54,6 +55,19 @@ function MessagesScreen(props) {
           />
         )} // destructure "item" object  extract out "item" properties to be passed into ListItem
         ItemSeparatorComponent={ListItemSeperator} // a properties that requires an object to be used to seperate each item in "messages" array
+        refreshing={refreshing} // used to refresh page
+        onRefresh={() => {
+          // usually used to retreive from server
+          setMessages([
+            // set state of Messages
+            {
+              id: 2,
+              title: "T2",
+              description: "D2",
+              image: require("../assets/HnMlogo.png"),
+            },
+          ]);
+        }}
       />
     </Screen>
   );
