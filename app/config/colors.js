@@ -9,4 +9,5 @@ export default {
   darkgrey: "#a9a9a9",
   lsblue: "#b0c4de",
   lightg: "#f8f4f4",
+  danger: "#ff5252",
 };
