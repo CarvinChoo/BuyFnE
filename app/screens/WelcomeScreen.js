@@ -3,10 +3,12 @@ import { StatusBar } from "expo-status-bar";
 import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
 
 import colors from "../config/colors";
+import AppButton from "../components/AppButton";
 
 function WelcomeScreen(props) {
   return (
     <ImageBackground
+      // blurRadius={2}
       style={styles.background}
       source={require("../assets/background.jpg")}
     >
@@ -16,8 +18,10 @@ function WelcomeScreen(props) {
           source={require("../assets/buyfneLogo.png")}
         />
       </View>
-      <View style={styles.loginButton}></View>
-      <View style={styles.registerButton}></View>
+      <View style={styles.buttonscontainer}>
+        <AppButton title='Login' />
+        <AppButton title='Register' color='cyan' />
+      </View>
       <StatusBar style='auto' />
     </ImageBackground>
   );
@@ -29,19 +33,13 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
   },
-  loginButton: {
+  buttonscontainer: {
+    padding: 20,
     width: "100%",
-    height: "10%",
-    backgroundColor: colors.brightred,
-  },
-  registerButton: {
-    width: "100%",
-    height: "10%",
-    backgroundColor: colors.cyan,
   },
   logo: {
-    width: 180,
-    height: 180,
+    width: 200,
+    height: 200,
   },
   logoContainer: {
     alignItems: "center",
