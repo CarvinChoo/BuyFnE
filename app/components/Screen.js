@@ -3,8 +3,8 @@ import Constants from "expo-constants";
 import { SafeAreaView, StyleSheet, Stylesheet } from "react-native"; // SafeAreaView imported from here does not work for android
 //import { SafeAreaView } from "react-native-safe-area-context";     // SafeAreaView here works for android
 
-function Screen({ children }) {
-  return <SafeAreaView style={styles.screen}>{children}</SafeAreaView>;
+function Screen({ children, style }) {
+  return <SafeAreaView style={[styles.screen, style]}>{children}</SafeAreaView>;
 }
 
 const styles = StyleSheet.create({

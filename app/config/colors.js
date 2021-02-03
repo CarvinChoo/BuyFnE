@@ -7,7 +7,8 @@ export default {
   darkorange: "#ff8c00",
   grey: "#808080",
   darkgrey: "#a9a9a9",
+  dimgrey: "#696969",
   lsblue: "#b0c4de",
-  lightg: "#f8f4f4",
+  whitegrey: "#E8E3E1",
   danger: "#ff5252",
 };
