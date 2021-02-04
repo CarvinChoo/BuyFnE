@@ -16,6 +16,7 @@ import AppTextInput from "./app/components/AppTextInput";
 import AppPicker from "./app/components/AppPicker";
 import AppText from "./app/components/AppText";
 import LoginScreen from "./app/screens/LoginScreen";
+import ListingEditScreen from "./app/screens/ListingEditScreen";
 
 export default function App() {
   // return <ListingDetailsScreen />;
@@ -25,7 +26,7 @@ export default function App() {
   // return <AccountScreen />;
   // return <ListingsScreen />;
 
-  return <LoginScreen />;
+  return <ListingEditScreen />;
 }
 
 const styles = StyleSheet.create({
