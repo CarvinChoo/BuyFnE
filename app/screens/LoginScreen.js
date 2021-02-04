@@ -9,6 +9,7 @@ import AppText from "../components/AppText";
 import Screen from "../components/Screen";
 import Error_Message from "../components/Error_Message";
 import AppFormField from "../components/AppFormField";
+import SubmitButton from "../components/SubmitButton";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -33,13 +34,9 @@ function LoginScreen(props) {
           validationSchema={validationSchema} //setting the schema to follow
         >
           {/* errors contains all the errors the form has encountered */}
-          {({
-            handleChange,
-            handleSubmit,
-            errors,
-            setFieldTouched, //
-            touched,
-          }) => (
+          {() => (
+            //   { handleChange,handleSubmit,errors,setFieldTouched,touched,}
+            // After using useFormikContext on other files, do not need to pass any more properties into function
             <>
               <AppFormField
                 name='email'
@@ -60,7 +57,7 @@ function LoginScreen(props) {
                 secureTextEntry
               />
 
-              <AppButton title='Login' onPress={handleSubmit} />
+              <SubmitButton title='Login' />
             </>
           )}
         </Formik>
