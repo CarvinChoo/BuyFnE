@@ -32,28 +32,42 @@ function LoginScreen(props) {
           validationSchema={validationSchema} //setting the schema to follow
         >
           {/* errors contains all the errors the form has encountered */}
-          {({ handleChange, handleSubmit, errors }) => (
+          {({
+            handleChange,
+            handleSubmit,
+            errors,
+            setFieldTouched, //
+            touched,
+          }) => (
             <>
               <AppTextInput
                 autoCapitalize='none'
                 autoCorrect={false}
                 icon='email'
                 keyboardType='email-address'
+                onBlur={() => setFieldTouched("email")} // when user leave the field, trigger an event
                 onChangeText={handleChange("email")}
                 placeholder='Email'
                 textContentType='emailAddress'
               />
-              <Error_Message error={errors.email} />
+              <Error_Message
+                error={errors.email}
+                visible={touched.email} // only render message when field has been touched
+              />
               <AppTextInput
-                autoCapitalize='none' //remove auto cap
-                autoCorrect={false} // remove auto correct
+                autoCapitalize='none'
+                autoCorrect={false}
                 icon='lock'
+                onBlur={() => setFieldTouched("password")} // when user leave the field, trigger an event
                 onChangeText={handleChange("password")}
                 placeholder='Password'
-                textContentType='password' // only for iOS, autofills from user keychain
-                secureTextEntry //hide text as they are typed
+                textContentType='password'
+                secureTextEntry
               />
-              <Error_Message error={errors.password} />
+              <Error_Message
+                error={errors.password}
+                visible={touched.password} // only render message when field has been touched
+              />
               <AppButton title='Login' onPress={handleSubmit} />
             </>
           )}
