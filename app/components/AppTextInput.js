@@ -19,6 +19,7 @@ function AppTextInput({ icon, ...otherProps }) {
         />
       )}
       <TextInput
+        placeholderTextColor={colors.muted}
         style={defaultStyles.text}
         {...otherProps} // spread all other properties given in argument into this component
       />
