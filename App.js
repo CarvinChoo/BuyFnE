@@ -12,6 +12,7 @@ import Icon from "./app/components/Icon";
 import ListItem from "./app/components/ListItem";
 import AccountScreen from "./app/screens/AccountScreen";
 import ListingsScreen from "./app/screens/ListingsScreen";
+import AppTextInput from "./app/components/AppTextInput";
 
 export default function App() {
   // return <ListingDetailsScreen />;
@@ -20,24 +21,10 @@ export default function App() {
   // return <MessagesScreen />;
   // return <AccountScreen />;
   // return <ListingsScreen />;
-  const [firstName, setFirstName] = useState(""); //state of text
   return (
+    // <Screen> will make sure every component does not overlap with status bar
     <Screen>
-      {/* updated as user types something */}
-      <Text>{firstName}</Text>
-      <TextInput
-        // secureTextEntry={true} //hides text like a password
-        secureTextEntry //can also just use properties name to auto set to true
-        clearButtonMode='always' //only works on iOS, shows a clear all button in text box
-        keyboardType='numeric' // sets keyboard used, use alt-space to see types
-        maxLength={5} // max length user can type
-        onChangeText={(text) => setFirstName(text)} // will activate as user types something into text box, for now it sets the state for firstName
-        placeholder='First Name' // default background shown text if nothing is typed.
-        style={{
-          borderBottomColor: "#ccc", //a bottom border color
-          borderBottomWidth: 1, //a bottom border width
-        }}
-      />
+      <AppTextInput placeholder='Username' icon='email' />
     </Screen>
   );
 }

@@ -11,4 +11,5 @@ export default {
   lsblue: "#b0c4de",
   whitegrey: "#E8E3E1",
   danger: "#ff5252",
+  darkgray: "#0c0c0c",
 };
