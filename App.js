@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
 
 import ViewImageScreen from "./app/screens/ViewImageScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
@@ -21,10 +21,15 @@ export default function App() {
   // return <MessagesScreen />;
   // return <AccountScreen />;
   // return <ListingsScreen />;
+  const [isNew, setIsNew] = useState(false);
+
   return (
     // <Screen> will make sure every component does not overlap with status bar
     <Screen>
-      <AppTextInput placeholder='Username' icon='email' />
+      <Switch // a togglable switch button
+        value={isNew}
+        onValueChange={(newValue) => setIsNew(newValue)} // On value change, newValue is inputted value, which is sent to setIsNew()
+      />
     </Screen>
   );
 }
