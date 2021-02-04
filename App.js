@@ -15,6 +15,7 @@ import ListingsScreen from "./app/screens/ListingsScreen";
 import AppTextInput from "./app/components/AppTextInput";
 import AppPicker from "./app/components/AppPicker";
 import AppText from "./app/components/AppText";
+import LoginScreen from "./app/screens/LoginScreen";
 
 export default function App() {
   // return <ListingDetailsScreen />;
@@ -23,27 +24,8 @@ export default function App() {
   // return <MessagesScreen />;
   // return <AccountScreen />;
   // return <ListingsScreen />;
-  const categories = [
-    // for testing
-    { label: "Furniture", value: 1 },
-    { label: "Clothing", value: 2 },
-    { label: "Cameras", value: 3 },
-  ];
-  const [category, setCategory] = useState(); // type categories[x] if want to set default category
 
-  return (
-    // <Screen> will make sure every component does not overlap with status bar
-    <Screen>
-      <AppPicker
-        selectedItem={category}
-        onSelectItem={(item) => setCategory(item)}
-        items={categories}
-        icon='apps'
-        placeholder='Category'
-      />
-      <AppTextInput icon='email' placeholder='Email' />
-    </Screen>
-  );
+  return <LoginScreen />;
 }
 
 const styles = StyleSheet.create({

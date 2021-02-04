@@ -4,7 +4,12 @@ import colors from "../config/colors";
 function AppButton({ title, onPress, color }) {
   return (
     <TouchableHighlight
-      style={[styles.button, { backgroundColor: colors[color] }]} // accessing property in colors using name index e.g.
+      style={[
+        styles.button,
+        color
+          ? { backgroundColor: colors[color] }
+          : { backgroundColor: colors.brightred },
+      ]} // accessing property in colors using name index e.g.
       onPress={onPress} //if color is "cyan", colors["cyan"] will reference cyan from colors.js
     >
       <Text style={styles.text}>{title}</Text>
@@ -14,7 +19,6 @@ function AppButton({ title, onPress, color }) {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: colors.brightred,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
