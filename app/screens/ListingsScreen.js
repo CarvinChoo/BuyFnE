@@ -1,7 +1,7 @@
 import React from "react";
 import { FlatList, StyleSheet } from "react-native";
 import Card from "../components/Card";
-import ListItemSeperator from "../components/ListItemSeperator";
+import ListItemSeperator from "../components/lists/ListItemSeperator";
 
 import Screen from "../components/Screen";
 import colors from "../config/colors";

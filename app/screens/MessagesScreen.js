@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { FlatList, StyleSheet, Platform, StatusBar, View } from "react-native";
 
 import Screen from "../components/Screen";
-import ListItem from "../components/ListItem";
+import ListItem from "../components/lists/ListItem";
 import colors from "../config/colors";
-import ListItemSeperator from "../components/ListItemSeperator";
+import ListItemSeperator from "../components/lists/ListItemSeperator";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import ListItemDeleteAction from "../components/ListItemDeleteAction";
+import ListItemDeleteAction from "../components/lists/ListItemDeleteAction";
 
 const initialMessages = [
   // hardcoded, will be pulled later in backend
