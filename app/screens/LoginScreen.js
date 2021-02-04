@@ -5,8 +5,9 @@ import * as Yup from "yup"; // use to validation
 
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
-import Screen from "../components/Screen";
 import AppText from "../components/AppText";
+import Screen from "../components/Screen";
+import Error_Message from "../components/Error_Message";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -42,7 +43,7 @@ function LoginScreen(props) {
                 placeholder='Email'
                 textContentType='emailAddress'
               />
-              <AppText style={{ color: "red" }}>{errors.email}</AppText>
+              <Error_Message error={errors.email} />
               <AppTextInput
                 autoCapitalize='none' //remove auto cap
                 autoCorrect={false} // remove auto correct
@@ -52,7 +53,7 @@ function LoginScreen(props) {
                 textContentType='password' // only for iOS, autofills from user keychain
                 secureTextEntry //hide text as they are typed
               />
-              <AppText style={{ color: "red" }}>{errors.password}</AppText>
+              <Error_Message error={errors.password} />
               <AppButton title='Login' onPress={handleSubmit} />
             </>
           )}
