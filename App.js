@@ -20,7 +20,7 @@ export default function App() {
   // return <MessagesScreen />;
   // return <AccountScreen />;
   // return <ListingsScreen />;
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = useState(""); //state of text
   return (
     <Screen>
       {/* updated as user types something */}
