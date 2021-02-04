@@ -13,6 +13,8 @@ import ListItem from "./app/components/ListItem";
 import AccountScreen from "./app/screens/AccountScreen";
 import ListingsScreen from "./app/screens/ListingsScreen";
 import AppTextInput from "./app/components/AppTextInput";
+import AppPicker from "./app/components/AppPicker";
+import AppText from "./app/components/AppText";
 
 export default function App() {
   // return <ListingDetailsScreen />;
@@ -26,10 +28,8 @@ export default function App() {
   return (
     // <Screen> will make sure every component does not overlap with status bar
     <Screen>
-      <Switch // a togglable switch button
-        value={isNew}
-        onValueChange={(newValue) => setIsNew(newValue)} // On value change, newValue is inputted value, which is sent to setIsNew()
-      />
+      <AppPicker icon='apps' placeholder='Category' />
+      <AppTextInput icon='email' placeholder='Email' />
     </Screen>
   );
 }
