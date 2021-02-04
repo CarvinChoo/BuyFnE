@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   Button,
+  FlatList,
   Modal,
   Platform,
   StyleSheet,
@@ -14,9 +15,9 @@ import colors from "../config/colors";
 import defaultStyles from "../config/styles";
 import Screen from "./Screen";
 import AppText from "./AppText";
+import PickerItem from "./PickerItem";
 
-function AppPicker({ icon, placeholder, ...otherProps }) {
-  //"...otherProps" copies all other properties given in the argument that isn't specified before
+function AppPicker({ icon, items, selectedItem, onSelectItem, placeholder }) {
   // Text box Bar with conditional icon and dynamic text rendering
   const [modalVisible, setModalVisible] = useState(false);
   return (
@@ -32,7 +33,10 @@ function AppPicker({ icon, placeholder, ...otherProps }) {
               style={styles.icon}
             />
           )}
-          <AppText style={styles.text}>{placeholder}</AppText>
+          {/* Renders placeholder if nothing selected, renders item name if selected */}
+          <AppText style={styles.text}>
+            {selectedItem ? selectedItem.label : placeholder}
+          </AppText>
           <MaterialCommunityIcons
             name='chevron-down'
             size={25}
@@ -40,14 +44,29 @@ function AppPicker({ icon, placeholder, ...otherProps }) {
           />
         </View>
       </TouchableWithoutFeedback>
-      <Modal visible={modalVisible} animationType='slide'>
-        {Platform.OS === "android" ? ( //because <Screen> causes android to have too much vertical margin
+
+      <Modal // used to display List
+        visible={modalVisible}
+        animationType='slide'
+      >
+        <Screen // Screen component causing android to have addition header
+          style={{ paddingTop: 0 }} // removes padding on top
+        >
           <Button title='Close' onPress={() => setModalVisible(false)} />
-        ) : (
-          <Screen>
-            <Button title='Close' onPress={() => setModalVisible(false)} />
-          </Screen>
-        )}
+          <FlatList
+            data={items}
+            keyExtractor={(item) => item.value.toString()}
+            renderItem={({ item }) => (
+              <PickerItem
+                label={item.label}
+                onPress={() => {
+                  setModalVisible(false);
+                  onSelectItem(item); //passes item into onSelectItem function which is done on App.js to set category state
+                }}
+              />
+            )}
+          />
+        </Screen>
       </Modal>
     </>
   );

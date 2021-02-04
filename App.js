@@ -23,12 +23,24 @@ export default function App() {
   // return <MessagesScreen />;
   // return <AccountScreen />;
   // return <ListingsScreen />;
-  const [isNew, setIsNew] = useState(false);
+  const categories = [
+    // for testing
+    { label: "Furniture", value: 1 },
+    { label: "Clothing", value: 2 },
+    { label: "Cameras", value: 3 },
+  ];
+  const [category, setCategory] = useState(); // type categories[x] if want to set default category
 
   return (
     // <Screen> will make sure every component does not overlap with status bar
     <Screen>
-      <AppPicker icon='apps' placeholder='Category' />
+      <AppPicker
+        selectedItem={category}
+        onSelectItem={(item) => setCategory(item)}
+        items={categories}
+        icon='apps'
+        placeholder='Category'
+      />
       <AppTextInput icon='email' placeholder='Email' />
     </Screen>
   );
