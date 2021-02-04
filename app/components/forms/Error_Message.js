@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import AppText from "./AppText";
+import AppText from "../AppText";
 
 //dynamic Error message component
 function Error_Message({ error, visible }) {

@@ -1,16 +1,13 @@
 import React from "react";
 import { Image, KeyboardAvoidingView, StyleSheet } from "react-native";
-import { Formik } from "formik";
+
 import * as Yup from "yup"; // use to validation
 
-import AppButton from "../components/AppButton";
-import AppTextInput from "../components/AppTextInput";
-import AppText from "../components/AppText";
 import Screen from "../components/Screen";
-import Error_Message from "../components/Error_Message";
-import AppFormField from "../components/AppFormField";
-import SubmitButton from "../components/SubmitButton";
-import AppForm from "../components/AppForm";
+import { AppForm, AppFormField, SubmitButton } from "../components/forms"; // uses index.js to import instead of individual import
+// import AppFormField from "../components/forms/AppFormField";
+// import SubmitButton from "../components/forms/SubmitButton";
+// import AppForm from "../components/forms/AppForm";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
