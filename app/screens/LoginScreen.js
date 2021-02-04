@@ -1,36 +1,47 @@
 import React from "react";
 import { Image, StyleSheet } from "react-native";
 import { Formik } from "formik";
+import * as Yup from "yup"; // use to validation
 
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 import Screen from "../components/Screen";
+import AppText from "../components/AppText";
+
+const validationSchema = Yup.object().shape({
+  // can use Yup.string() or Yup.number(),  used to define the rules to validate
+  // Yup.object().shape() lets you define the shape of the input
+  email: Yup.string().required().email().label("Email"), // means it needs to be string ,required to be filled, and to be an email
+  // .label("Email") ensure it is rendered as "Email" in text
+
+  password: Yup.string().required().min(4).label("Password"), //can use ".matches()" to match it with a regular express
+});
 
 function LoginScreen(props) {
-  //   const [email, setEmail] = useState();  //no longer needed with Formik as it tracks it internally
-  //   const [password, setPassword] = useState(); //no longer needed with Formik as it tracks it internally
   return (
     <Screen style={styles.container}>
       <Image
         style={styles.logo}
         source={require("../assets/BuyFnELogo-2.png")}
       />
-      <Formik // a form to handle submission
-        initialValues={{ email: "", password: "" }} // set the format of what values to track
-        onSubmit={(values) => console.log(values)} //future, used to call server and sumbit form
+      <Formik
+        initialValues={{ email: "", password: "" }}
+        onSubmit={(values) => console.log(values)}
+        validationSchema={validationSchema} //setting the schema to follow
       >
-        {/* passes premade 2 functions that handles state changes and handlesubmissions */}
-        {({ handleChange, handleSubmit }) => (
+        {/* errors contains all the errors the form has encountered */}
+        {({ handleChange, handleSubmit, errors }) => (
           <>
-            <AppTextInput // customer TextInput component that uses all the same props
-              autoCapitalize='none' //remove auto cap
-              autoCorrect={false} // remove auto correct
+            <AppTextInput
+              autoCapitalize='none'
+              autoCorrect={false}
               icon='email'
               keyboardType='email-address'
               onChangeText={handleChange("email")}
               placeholder='Email'
-              textContentType='emailAddress' // only for iOS, autofills from user keychain
+              textContentType='emailAddress'
             />
+            <AppText style={{ color: "red" }}>{errors.email}</AppText>
             <AppTextInput
               autoCapitalize='none' //remove auto cap
               autoCorrect={false} // remove auto correct
@@ -40,6 +51,7 @@ function LoginScreen(props) {
               textContentType='password' // only for iOS, autofills from user keychain
               secureTextEntry //hide text as they are typed
             />
+            <AppText style={{ color: "red" }}>{errors.password}</AppText>
             <AppButton title='Login' onPress={handleSubmit} />
           </>
         )}
