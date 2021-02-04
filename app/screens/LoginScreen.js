@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, StyleSheet } from "react-native";
+import { Image, KeyboardAvoidingView, StyleSheet } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup"; // use to validation
 
@@ -20,42 +20,44 @@ const validationSchema = Yup.object().shape({
 function LoginScreen(props) {
   return (
     <Screen style={styles.container}>
-      <Image
-        style={styles.logo}
-        source={require("../assets/BuyFnELogo-2.png")}
-      />
-      <Formik
-        initialValues={{ email: "", password: "" }}
-        onSubmit={(values) => console.log(values)}
-        validationSchema={validationSchema} //setting the schema to follow
-      >
-        {/* errors contains all the errors the form has encountered */}
-        {({ handleChange, handleSubmit, errors }) => (
-          <>
-            <AppTextInput
-              autoCapitalize='none'
-              autoCorrect={false}
-              icon='email'
-              keyboardType='email-address'
-              onChangeText={handleChange("email")}
-              placeholder='Email'
-              textContentType='emailAddress'
-            />
-            <AppText style={{ color: "red" }}>{errors.email}</AppText>
-            <AppTextInput
-              autoCapitalize='none' //remove auto cap
-              autoCorrect={false} // remove auto correct
-              icon='lock'
-              onChangeText={handleChange("password")}
-              placeholder='Password'
-              textContentType='password' // only for iOS, autofills from user keychain
-              secureTextEntry //hide text as they are typed
-            />
-            <AppText style={{ color: "red" }}>{errors.password}</AppText>
-            <AppButton title='Login' onPress={handleSubmit} />
-          </>
-        )}
-      </Formik>
+      <KeyboardAvoidingView behavior='position'>
+        <Image
+          style={styles.logo}
+          source={require("../assets/BuyFnELogo-2.png")}
+        />
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          onSubmit={(values) => console.log(values)}
+          validationSchema={validationSchema} //setting the schema to follow
+        >
+          {/* errors contains all the errors the form has encountered */}
+          {({ handleChange, handleSubmit, errors }) => (
+            <>
+              <AppTextInput
+                autoCapitalize='none'
+                autoCorrect={false}
+                icon='email'
+                keyboardType='email-address'
+                onChangeText={handleChange("email")}
+                placeholder='Email'
+                textContentType='emailAddress'
+              />
+              <AppText style={{ color: "red" }}>{errors.email}</AppText>
+              <AppTextInput
+                autoCapitalize='none' //remove auto cap
+                autoCorrect={false} // remove auto correct
+                icon='lock'
+                onChangeText={handleChange("password")}
+                placeholder='Password'
+                textContentType='password' // only for iOS, autofills from user keychain
+                secureTextEntry //hide text as they are typed
+              />
+              <AppText style={{ color: "red" }}>{errors.password}</AppText>
+              <AppButton title='Login' onPress={handleSubmit} />
+            </>
+          )}
+        </Formik>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }

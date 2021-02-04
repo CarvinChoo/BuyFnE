@@ -28,6 +28,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Welcome Screen"
+    "description": "Login Screen\n"
   }
 }
