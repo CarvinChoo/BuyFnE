@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import * as Premissions from "expo-permissions";
 
 import ViewImageScreen from "./app/screens/ViewImageScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
@@ -27,9 +26,42 @@ import AppPicker from "./app/components/AppPicker";
 import AppText from "./app/components/AppText";
 import LoginScreen from "./app/screens/LoginScreen";
 import ListingEditScreen from "./app/screens/ListingEditScreen";
+import ImageInput from "./app/components/ImageInput";
 
 export default function App() {
-  return <ListingEditScreen />;
+  const [imageUri, setImageUri] = useState(); // state for storing image Uri   *components that uses <ImageInput> will need to be the one maintaining the state
+
+  //Request Premission to access Media Library///////////////////////////////////
+  const requestPression = async () => {
+    const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!granted) alert("You need to enable premission to access the library.");
+  };
+
+  useEffect(() => {
+    requestPression();
+  }, []); //empty array means only ask permission once
+  //////////////////////////////////////////////////////////////////////////////////
+  const selectImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync(); // wait for image to be picked
+
+      //if user didnt cancel
+      if (!result.cancelled) setImageUri(result.uri); // set state to selected image uri
+    } catch (error) {
+      console.log("Error reading an image!");
+    }
+  };
+
+  return (
+    <Screen>
+      {/* <Button title='Select Image' onPress={selectImage} />
+      <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} /> */}
+      <ImageInput
+        imageUri={imageUri}
+        onChangeImage={(uri) => setImageUri(uri)} // passes what "uri" was sent back from ImageInput into this function
+      />
+    </Screen>
+  );
 }
 
 const styles = StyleSheet.create({
