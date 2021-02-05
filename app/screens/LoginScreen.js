@@ -3,7 +3,7 @@ import { Image, KeyboardAvoidingView, StyleSheet } from "react-native";
 
 import * as Yup from "yup"; // use to validation
 
-import Screen from "../components/lists/Screen";
+import Screen from "../components/Screen";
 import { AppForm, AppFormField, SubmitButton } from "../components/forms"; // uses index.js to import instead of individual import
 // import AppFormField from "../components/forms/AppFormField";
 // import SubmitButton from "../components/forms/SubmitButton";

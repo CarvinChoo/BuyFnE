@@ -3,9 +3,9 @@ import { StyleSheet, View, FlatList } from "react-native";
 
 //import { FlatList } from "react-native-gesture-handler";
 import ListItem from "../components/lists/ListItem";
-import Screen from "../components/lists/Screen";
+import Screen from "../components/Screen";
 import colors from "../config/colors";
-import Icon from "../components/lists/Icon";
+import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 
 const menuItems = [
