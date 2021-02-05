@@ -30,27 +30,7 @@ import ImageInput from "./app/components/ImageInput";
 import ImageInputList from "./app/components/ImageInputList";
 
 export default function App() {
-  const [imageUris, setImageUris] = useState([]); // state for storing image Uri   *components that uses <ImageInput> will need to be the one maintaining the state
-
-  // function that handles adding new uri into array and setting the state
-  const handleAdd = (uri) => {
-    setImageUris([...imageUris, uri]);
-  };
-
-  // function that handles filtering uri from array and setting the state
-  const handleRemove = (uri) => {
-    setImageUris(imageUris.filter((imageUri) => imageUri !== uri));
-  };
-
-  return (
-    <Screen>
-      <ImageInputList
-        imageUris={imageUris}
-        onAddImage={(uri) => handleAdd(uri)} // passes what "uri" was sent back from ImageInput into this function
-        onRemoveImage={(uri) => handleRemove(uri)}
-      />
-    </Screen>
-  );
+  return <ListingEditScreen />;
 }
 
 const styles = StyleSheet.create({

@@ -8,16 +8,18 @@ import {
   AppFormField,
   AppFormPicker,
   SubmitButton,
+  AppFormImagePicker,
 } from "../components/forms";
 import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
 
 const validationSchema = Yup.object().shape({
-  title: Yup.string().required().min(1).label("Title"),
+  title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
   price: Yup.number().required().min(1).max(10000).label("Price"),
   description: Yup.string().label("Description"),
   category: Yup.object().required().nullable().label("Category"),
+  images: Yup.array().min(1, "Please select at least one image."), //.label("Images") causes message "Images field is required" which is not appropriate for the field
 });
 
 const categories = [
@@ -97,12 +99,13 @@ function ListingEditScreen() {
             price: "", // even though price is a number, but in a form, it is represented as a string
             description: "",
             category: null,
+            images: [],
           }}
           onSubmit={(values) => console.log(values)}
           validationSchema={validationSchema}
         >
+          <AppFormImagePicker name='images' />
           <AppFormField name='title' maxLength={255} placeholder='Title' />
-
           <AppFormField
             name='price'
             maxLength={5}
