@@ -22,11 +22,10 @@ export default function App() {
   // return <ListingDetailsScreen />;
   // return <WelcomeScreen />;
   // return <ViewImageScreen />;
-  // return <MessagesScreen />;
+  return <MessagesScreen />;
   // return <AccountScreen />;
   // return <ListingsScreen />;
-
-  return <ListingEditScreen />;
+  //return <ListingEditScreen />;
 }
 
 const styles = StyleSheet.create({
