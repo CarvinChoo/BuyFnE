@@ -27,38 +27,27 @@ import AppText from "./app/components/AppText";
 import LoginScreen from "./app/screens/LoginScreen";
 import ListingEditScreen from "./app/screens/ListingEditScreen";
 import ImageInput from "./app/components/ImageInput";
+import ImageInputList from "./app/components/ImageInputList";
 
 export default function App() {
-  const [imageUri, setImageUri] = useState(); // state for storing image Uri   *components that uses <ImageInput> will need to be the one maintaining the state
+  const [imageUris, setImageUris] = useState([]); // state for storing image Uri   *components that uses <ImageInput> will need to be the one maintaining the state
 
-  //Request Premission to access Media Library///////////////////////////////////
-  const requestPression = async () => {
-    const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!granted) alert("You need to enable premission to access the library.");
+  // function that handles adding new uri into array and setting the state
+  const handleAdd = (uri) => {
+    setImageUris([...imageUris, uri]);
   };
 
-  useEffect(() => {
-    requestPression();
-  }, []); //empty array means only ask permission once
-  //////////////////////////////////////////////////////////////////////////////////
-  const selectImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync(); // wait for image to be picked
-
-      //if user didnt cancel
-      if (!result.cancelled) setImageUri(result.uri); // set state to selected image uri
-    } catch (error) {
-      console.log("Error reading an image!");
-    }
+  // function that handles filtering uri from array and setting the state
+  const handleRemove = (uri) => {
+    setImageUris(imageUris.filter((imageUri) => imageUri !== uri));
   };
 
   return (
     <Screen>
-      {/* <Button title='Select Image' onPress={selectImage} />
-      <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} /> */}
-      <ImageInput
-        imageUri={imageUri}
-        onChangeImage={(uri) => setImageUri(uri)} // passes what "uri" was sent back from ImageInput into this function
+      <ImageInputList
+        imageUris={imageUris}
+        onAddImage={(uri) => handleAdd(uri)} // passes what "uri" was sent back from ImageInput into this function
+        onRemoveImage={(uri) => handleRemove(uri)}
       />
     </Screen>
   );
