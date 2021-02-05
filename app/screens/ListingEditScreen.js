@@ -17,7 +17,7 @@ const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
   price: Yup.number().required().min(1).max(10000).label("Price"),
   description: Yup.string().label("Description"),
-  categories: Yup.object().required().nullable().label("Category"),
+  category: Yup.object().required().nullable().label("Category"),
 });
 
 const categories = [
@@ -86,7 +86,7 @@ const categories = [
   },
 ];
 
-function ListingEditScreen(props) {
+function ListingEditScreen() {
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
@@ -96,7 +96,7 @@ function ListingEditScreen(props) {
             title: "",
             price: "", // even though price is a number, but in a form, it is represented as a string
             description: "",
-            categories: null,
+            category: null,
           }}
           onSubmit={(values) => console.log(values)}
           validationSchema={validationSchema}
