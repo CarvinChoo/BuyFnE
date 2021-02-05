@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native";
+import React from "react";
+import { ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import * as Location from "expo-location";
 
 import {
   AppForm,
@@ -14,6 +13,7 @@ import {
 import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
+import useLocation from "../hooks/useLocation";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -90,25 +90,7 @@ const categories = [
 ];
 
 function ListingEditScreen() {
-  const [location, setLocation] = useState();
-
-  // Used to request Permission to get location and retreive if granted/////////////
-  const getLocation = async () => {
-    const { granted } = await Location.requestPermissionsAsync();
-    if (!granted) return; // getting location is optional, if denied, nothing happens
-
-    // Get Last Known Location//////////////////////
-    //destructure twice 1st to retreive coordinates and from that, retreive latitude and longitude only
-    const {
-      coords: { latitude, longitude },
-    } = await Location.getLastKnownPositionAsync();
-    setLocation({ latitude, longitude }); // set an object with 2 properties
-  };
-
-  useEffect(() => {
-    getLocation();
-  }, []);
-  //////////////////////////////////////////////////////////////////////
+  const location = useLocation();
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
