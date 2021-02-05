@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as Premissions from "expo-permissions";
 
 import ViewImageScreen from "./app/screens/ViewImageScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
@@ -30,6 +31,10 @@ export default function App() {
 
   //Request Premission to access Media Library
   const requestPression = async () => {
+    //Alternative Way to request permission for both camera roll and location, returns same things
+    // const result = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.LOCATION);
+    // result.granted
+
     const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!granted) alert("You need to enable premission to access the library.");
   };
