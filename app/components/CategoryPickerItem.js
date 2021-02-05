@@ -5,15 +5,17 @@ import Icon from "./Icon";
 
 function CategoryPickerItem({ item, onPress }) {
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Icon
-        backgroundColor={item.backgroundColor}
-        name={item.icon}
-        IconType={item.IconType}
-        size={80}
-      />
-      <AppText style={styles.label}>{item.label}</AppText>
-    </TouchableOpacity>
+    <View style={styles.container}>
+      <TouchableOpacity onPress={onPress}>
+        <Icon
+          backgroundColor={item.backgroundColor}
+          name={item.icon}
+          IconType={item.IconType}
+          size={80}
+        />
+        <AppText style={styles.label}>{item.label}</AppText>
+      </TouchableOpacity>
+    </View>
   );
 }
 

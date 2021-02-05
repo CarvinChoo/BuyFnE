@@ -30,7 +30,6 @@ function AppPicker({
 }) {
   // Text box Bar with conditional icon and dynamic text rendering
   const [modalVisible, setModalVisible] = useState(false);
-  const { setFieldTouched } = useFormikContext();
   return (
     // encase in React.Fragment but can just empty brackets to represent the same thing
 
