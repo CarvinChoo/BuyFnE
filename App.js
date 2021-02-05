@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import {
+  Button,
+  Image,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Premissions from "expo-permissions";
 
@@ -21,20 +29,10 @@ import LoginScreen from "./app/screens/LoginScreen";
 import ListingEditScreen from "./app/screens/ListingEditScreen";
 
 export default function App() {
-  //return <ListingDetailsScreen />;
-  //return <WelcomeScreen />;
-  // return <ViewImageScreen />;
-  // return <MessagesScreen />;
-  //return <AccountScreen />;
-  //return <ListingsScreen />;
-  //return <ListingEditScreen />;
+  const [imageUri, setImageUri] = useState(); // state for storing image Uri
 
-  //Request Premission to access Media Library
+  //Request Premission to access Media Library///////////////////////////////////
   const requestPression = async () => {
-    //Alternative Way to request permission for both camera roll and location, returns same things
-    // const result = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.LOCATION);
-    // result.granted
-
     const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!granted) alert("You need to enable premission to access the library.");
   };
@@ -42,8 +40,24 @@ export default function App() {
   useEffect(() => {
     requestPression();
   }, []); //empty array means only ask permission once
+  //////////////////////////////////////////////////////////////////////////////////
+  const selectImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync(); // wait for image to be picked
 
-  return <Screen></Screen>;
+      //if user didnt cancel
+      if (!result.cancelled) setImageUri(result.uri); // set state to selected image uri
+    } catch (error) {
+      console.log("Error reading an image!");
+    }
+  };
+
+  return (
+    <Screen>
+      <Button title='Select Image' onPress={selectImage} />
+      <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} />
+    </Screen>
+  );
 }
 
 const styles = StyleSheet.create({
