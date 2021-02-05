@@ -12,8 +12,8 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFormikContext } from "formik";
 
-import colors from "../config/colors";
-import defaultStyles from "../config/styles";
+import colors from "../../config/colors";
+import defaultStyles from "../../config/styles";
 import Screen from "./Screen";
 import AppText from "./AppText";
 import PickerItem from "./PickerItem";

@@ -1,7 +1,7 @@
 import React from "react";
 import { Text } from "react-native";
-import colors from "../config/colors";
-import defaultStyles from "../config/styles";
+import colors from "../../config/colors";
+import defaultStyles from "../../config/styles";
 // <Heading>My Heading <Heading> can be used apply a heading component to all its children
 function AppText({ children, style, ...otherProps }) {
   // custom Component just to apply font properties to its children

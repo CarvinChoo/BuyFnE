@@ -2,8 +2,8 @@ import React from "react";
 import { Platform, StyleSheet, TextInput, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-import colors from "../config/colors";
-import defaultStyles from "../config/styles";
+import colors from "../../config/colors";
+import defaultStyles from "../../config/styles";
 
 function AppTextInput({ icon, width = "100%", ...otherProps }) {
   //"...otherProps" copies all other properties given in the argument that isn't specified before

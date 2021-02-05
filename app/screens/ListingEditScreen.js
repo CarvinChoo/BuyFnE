@@ -9,8 +9,8 @@ import {
   AppFormPicker,
   SubmitButton,
 } from "../components/forms";
-import Screen from "../components/Screen";
-import CategoryPickerItem from "../components/CategoryPickerItem";
+import Screen from "../components/lists/Screen";
+import CategoryPickerItem from "../components/lists/CategoryPickerItem";
 import colors from "../config/colors";
 
 const validationSchema = Yup.object().shape({

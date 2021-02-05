@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
 
 import colors from "../config/colors";
-import AppButton from "../components/AppButton";
+import AppButton from "../components/lists/AppButton";
 
 function WelcomeScreen(props) {
   return (

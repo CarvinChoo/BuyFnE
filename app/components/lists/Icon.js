@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import colors from "../config/colors";
+import colors from "../../config/colors";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 function Icon({
   // a reusable icon component that can dynamically change icon, size, background color and icon color
