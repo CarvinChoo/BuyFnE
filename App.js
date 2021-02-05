@@ -19,13 +19,13 @@ import LoginScreen from "./app/screens/LoginScreen";
 import ListingEditScreen from "./app/screens/ListingEditScreen";
 
 export default function App() {
-  // return <ListingDetailsScreen />;
-  // return <WelcomeScreen />;
+  //return <ListingDetailsScreen />;
+  //return <WelcomeScreen />;
   // return <ViewImageScreen />;
-  return <MessagesScreen />;
-  // return <AccountScreen />;
-  // return <ListingsScreen />;
-  //return <ListingEditScreen />;
+  // return <MessagesScreen />;
+  //return <AccountScreen />;
+  //return <ListingsScreen />;
+  return <ListingEditScreen />;
 }
 
 const styles = StyleSheet.create({

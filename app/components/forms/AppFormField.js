@@ -4,13 +4,14 @@ import { useFormikContext } from "formik"; //used to import formik properties co
 import AppTextInput from "../AppTextInput";
 import Error_Message from "./Error_Message";
 
-function AppFormField({ name, ...otherProps }) {
+function AppFormField({ name, width, ...otherProps }) {
   const { setFieldTouched, handleChange, errors, touched } = useFormikContext();
   return (
     <>
       <AppTextInput
         onBlur={() => setFieldTouched(name)} // when user leave the field, trigger an event
         onChangeText={handleChange(name)}
+        width={width}
         {...otherProps}
       />
       <Error_Message

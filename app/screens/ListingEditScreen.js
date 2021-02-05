@@ -1,6 +1,8 @@
 import React from "react";
 import { KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+
 import {
   AppForm,
   AppFormField,
@@ -8,6 +10,8 @@ import {
   SubmitButton,
 } from "../components/forms";
 import Screen from "../components/Screen";
+import CategoryPickerItem from "../components/CategoryPickerItem";
+import colors from "../config/colors";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
@@ -17,9 +21,69 @@ const validationSchema = Yup.object().shape({
 });
 
 const categories = [
-  { label: "Furniture", value: 1 },
-  { label: "Clothing", value: 2 },
-  { label: "Electronics", value: 3 },
+  {
+    label: "Furniture",
+    value: 1,
+    backgroundColor: "saddlebrown",
+    icon: "table-furniture",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Clothing",
+    value: 2,
+    backgroundColor: "palevioletred",
+    icon: "shoe-formal",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Food",
+    value: 3,
+    backgroundColor: "orange",
+    icon: "food-fork-drink",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Games",
+    value: 4,
+    backgroundColor: "green",
+    icon: "games",
+    IconType: MaterialIcons,
+  },
+  {
+    label: "Computer",
+    value: 5,
+    backgroundColor: colors.muted,
+    icon: "computer",
+    IconType: MaterialIcons,
+  },
+  {
+    label: "Health",
+    value: 6,
+    backgroundColor: "red",
+    icon: "heart-plus",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Books",
+    value: 7,
+    backgroundColor: "maroon",
+    icon: "bookshelf",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Electronic",
+    value: 8,
+    backgroundColor: "skyblue",
+    icon: "electrical-services",
+    IconType: MaterialIcons,
+  },
+  {
+    label: "Others",
+    value: 9,
+    backgroundColor: "blue",
+    icon: "devices-other",
+    IconType: MaterialIcons,
+  },
 ];
 
 function ListingEditScreen(props) {
@@ -44,13 +108,16 @@ function ListingEditScreen(props) {
             maxLength={5}
             keyboardType='numeric'
             placeholder='Price'
+            width={120}
           />
           <AppFormPicker
             name='category'
             items={categories}
+            numOfColumns={3}
+            PickerItemComponent={CategoryPickerItem}
             placeholder='Category'
+            width='50%'
           />
-
           <AppFormField
             name='description'
             maxLength={255}

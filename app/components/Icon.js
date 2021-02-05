@@ -1,13 +1,14 @@
 import React from "react";
 import { View } from "react-native";
 import colors from "../config/colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 function Icon({
   // a reusable icon component that can dynamically change icon, size, background color and icon color
   name,
   size = 40,
   backgroundColor = colors.black,
   iconColor = colors.white,
+  IconType = MaterialCommunityIcons,
 }) {
   return (
     <View
@@ -20,7 +21,7 @@ function Icon({
         alignItems: "center",
       }}
     >
-      <MaterialCommunityIcons name={name} color={iconColor} size={size * 0.5} />
+      <IconType name={name} color={iconColor} size={size * 0.5} />
     </View>
   );
 }

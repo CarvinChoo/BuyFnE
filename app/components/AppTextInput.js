@@ -5,11 +5,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import colors from "../config/colors";
 import defaultStyles from "../config/styles";
 
-function AppTextInput({ icon, ...otherProps }) {
+function AppTextInput({ icon, width = "100%", ...otherProps }) {
   //"...otherProps" copies all other properties given in the argument that isn't specified before
   // Text box Bar with conditional icon and dynamic text rendering
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { width: width }]}>
       {icon && (
         <MaterialCommunityIcons
           name={icon}
@@ -20,7 +20,7 @@ function AppTextInput({ icon, ...otherProps }) {
       )}
       <TextInput
         placeholderTextColor={colors.muted}
-        style={defaultStyles.text}
+        style={[defaultStyles.text, { width: "100%" }]}
         {...otherProps} // spread all other properties given in argument into this component
       />
     </View>
@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.whitegrey,
     borderRadius: 25,
     flexDirection: "row",
-    width: "100%",
     padding: 15,
     marginVertical: 10,
     alignItems: "center",

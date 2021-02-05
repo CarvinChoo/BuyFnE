@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFormikContext } from "formik";
 
 import colors from "../config/colors";
 import defaultStyles from "../config/styles";
@@ -17,14 +18,25 @@ import Screen from "./Screen";
 import AppText from "./AppText";
 import PickerItem from "./PickerItem";
 
-function AppPicker({ icon, items, selectedItem, onSelectItem, placeholder }) {
+function AppPicker({
+  icon,
+  items,
+  numOfColumns = 1,
+  selectedItem,
+  PickerItemComponent = PickerItem,
+  onSelectItem,
+  placeholder,
+  width = "100%",
+}) {
   // Text box Bar with conditional icon and dynamic text rendering
   const [modalVisible, setModalVisible] = useState(false);
+  const { setFieldTouched } = useFormikContext();
   return (
     // encase in React.Fragment but can just empty brackets to represent the same thing
+
     <>
       <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
-        <View style={styles.container}>
+        <View style={[styles.container, { width: width }]}>
           {icon && (
             <MaterialCommunityIcons
               name={icon}
@@ -46,23 +58,19 @@ function AppPicker({ icon, items, selectedItem, onSelectItem, placeholder }) {
         </View>
       </TouchableWithoutFeedback>
 
-      <Modal // used to display List
-        visible={modalVisible}
-        animationType='slide'
-      >
-        <Screen // Screen component causing android to have addition header
-          style={{ paddingTop: 0 }} // removes padding on top
-        >
+      <Modal visible={modalVisible} animationType='slide'>
+        <Screen style={{ paddingTop: 0 }}>
           <Button title='Close' onPress={() => setModalVisible(false)} />
           <FlatList
             data={items}
             keyExtractor={(item) => item.value.toString()}
+            numColumns={numOfColumns} //determines how many columns to spread PickItems in
             renderItem={({ item }) => (
-              <PickerItem
-                label={item.label}
+              <PickerItemComponent //depends on what PickerItemComponent was passed into current component
+                item={item}
                 onPress={() => {
                   setModalVisible(false);
-                  onSelectItem(item); //passes item into onSelectItem function which is done on App.js to set category state
+                  onSelectItem(item);
                 }}
               />
             )}
