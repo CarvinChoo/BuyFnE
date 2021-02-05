@@ -7,13 +7,13 @@ function ImageInputList(
 ) {
   return (
     <View style={styles.container}>
-      {/* split array into individual images */}
+      {/* split array into individual images, view is used to give each image right margin */}
       {imageUris.map((uri) => (
         <View key={uri} style={styles.image}>
           <ImageInput // each image is than inserted into an ImageInput to be displayed
             imageUri={uri}
             key={uri} // unique identifier
-            onChangeImage={() => onRemoveImage(uri)} // only remove action can happen for an exiting image
+            onChangeImage={(null_sent_from_ImageInput) => onRemoveImage(uri)} // takes uri from current ImageInput component and request to remove it from parent
           />
         </View>
       ))}
