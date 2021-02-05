@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 import ViewImageScreen from "./app/screens/ViewImageScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
@@ -25,7 +26,19 @@ export default function App() {
   // return <MessagesScreen />;
   //return <AccountScreen />;
   //return <ListingsScreen />;
-  return <ListingEditScreen />;
+  //return <ListingEditScreen />;
+
+  //Request Premission to access Media Library
+  const requestPression = async () => {
+    const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!granted) alert("You need to enable premission to access the library.");
+  };
+
+  useEffect(() => {
+    requestPression();
+  }, []); //empty array means only ask permission once
+
+  return <Screen></Screen>;
 }
 
 const styles = StyleSheet.create({
