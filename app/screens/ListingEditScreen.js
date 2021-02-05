@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 
 import {
   AppForm,
@@ -89,6 +90,25 @@ const categories = [
 ];
 
 function ListingEditScreen() {
+  const [location, setLocation] = useState();
+
+  // Used to request Permission to get location and retreive if granted/////////////
+  const getLocation = async () => {
+    const { granted } = await Location.requestPermissionsAsync();
+    if (!granted) return; // getting location is optional, if denied, nothing happens
+
+    // Get Last Known Location//////////////////////
+    //destructure twice 1st to retreive coordinates and from that, retreive latitude and longitude only
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getLastKnownPositionAsync();
+    setLocation({ latitude, longitude }); // set an object with 2 properties
+  };
+
+  useEffect(() => {
+    getLocation();
+  }, []);
+  //////////////////////////////////////////////////////////////////////
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
@@ -101,7 +121,7 @@ function ListingEditScreen() {
             category: null,
             images: [],
           }}
-          onSubmit={(values) => console.log(values)}
+          onSubmit={(values) => console.log(location)}
           validationSchema={validationSchema}
         >
           <AppFormImagePicker name='images' />
