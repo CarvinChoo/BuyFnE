@@ -9,7 +9,13 @@ import colors from "../config/colors";
 const Stack = createStackNavigator();
 
 const AuthNavigator = () => (
-  <Stack.Navigator screenOptions={{ headerTintColor: colors.brightred }}>
+  <Stack.Navigator
+    screenOptions={{
+      headerTintColor: colors.brightred,
+      headerTitleAlign: "center",
+      headerBackTitleVisible: true,
+    }}
+  >
     <Stack.Screen
       name='Welcome'
       component={WelcomeScreen}
