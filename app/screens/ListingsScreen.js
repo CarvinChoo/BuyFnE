@@ -3,6 +3,7 @@ import { FlatList, StyleSheet } from "react-native";
 import Card from "../components/Card";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 
+import routes from "../navigation/routes";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
 
@@ -32,7 +33,8 @@ function ListingsScreen({ navigation }) {
             title={item.title}
             subTitle={item.price}
             image={item.image}
-            onPress={() => navigation.navigate("ListingDetails", item)} //passing current {item} into ListingDetailsScreen
+            onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
+            //*routes.js is where you change the screen name
           />
         )}
       />

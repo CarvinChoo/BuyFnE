@@ -5,6 +5,7 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import colors from "../config/colors";
+import routes from "./routes";
 
 const Stack = createStackNavigator();
 
@@ -18,12 +19,16 @@ const AuthNavigator = () => (
     }}
   >
     <Stack.Screen
-      name='Welcome'
+      name={routes.WELCOME}
       component={WelcomeScreen}
       options={{ headerShown: false }}
     />
-    <Stack.Screen name='Login' component={LoginScreen} options={{}} />
-    <Stack.Screen name='Register' component={RegisterScreen} options={{}} />
+    <Stack.Screen name={routes.LOGIN} component={LoginScreen} options={{}} />
+    <Stack.Screen
+      name={routes.REGISTER}
+      component={RegisterScreen}
+      options={{}}
+    />
   </Stack.Navigator>
 );
 

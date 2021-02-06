@@ -7,6 +7,7 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
+import routes from "../navigation/routes";
 
 const menuItems = [
   {
@@ -15,7 +16,7 @@ const menuItems = [
       name: "format-list-bulleted",
       backgroundColor: colors.brightred,
     },
-    targetScreen: "Messages",
+    targetScreen: routes.MESSAGES,
   },
   {
     title: "My Messages",
@@ -23,7 +24,7 @@ const menuItems = [
       name: "email",
       backgroundColor: colors.cyan,
     },
-    targetScreen: "Messages",
+    targetScreen: routes.MESSAGES,
   },
 ];
 

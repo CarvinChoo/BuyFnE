@@ -6,6 +6,7 @@ import ListingEditScreen from "../screens/ListingEditScreen";
 import FeedNavigator from "./FeedNavigator";
 import AccountNavigator from "./AccountNavigator";
 import NewListingButton from "./NewListingButton";
+import routes from "./routes";
 
 const Tab = createBottomTabNavigator();
 
@@ -25,7 +26,7 @@ const AppNavigator = () => (
     }}
   >
     <Tab.Screen
-      name='Feed'
+      name={routes.LISTINGS}
       component={FeedNavigator} // Stack navigator between ListingsScreen and ListingDetailsScreen
       options={{
         //setting Icon for tab
@@ -35,12 +36,12 @@ const AppNavigator = () => (
       }}
     />
     <Tab.Screen
-      name='ListingEdit'
+      name={routes.LISTING_EDIT}
       component={ListingEditScreen}
       options={({ navigation }) => ({
         tabBarButton: () => (
           <NewListingButton
-            onPress={() => navigation.navigate("ListingEdit")}
+            onPress={() => navigation.navigate(routes.LISTING_EDIT)}
           />
         ),
         //setting Icon for tab
@@ -56,7 +57,7 @@ const AppNavigator = () => (
       })}
     />
     <Tab.Screen
-      name='Account'
+      name={routes.ACCOUNT}
       component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
       options={{
         //setting Icon for tab
