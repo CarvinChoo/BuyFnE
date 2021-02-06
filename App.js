@@ -59,28 +59,32 @@ const StackNavigator = () => (
   <Stack.Navigator
     // initialRouteName='Tweets' can be used to identify initial page
 
-    screenOptions={{
-      // used to define style all screens within stack navigator
-      headerStyle: { backgroundColor: "dodgerblue" },
-      headerTintColor: "white",
-    }}
+    screenOptions={
+      {
+        // used to define style all screens within stack navigator
+        // headerStyle: { backgroundColor: "dodgerblue" },
+        // headerTintColor: "white",
+      }
+    }
   >
     <Stack.Screen // 1st screen within navigation
       name='Tweets' // header + identifier
       component={Tweets} // call the function to render page
-      options={{
-        headerStyle: { backgroundColor: "tomato" }, // header style
-        headerTintColor: "white", // header text color
-        // headerShown: false, // removes header
-      }}
+      // options={
+      //   {
+      //     // headerStyle: { backgroundColor: "tomato" }, // header style
+      //     // headerTintColor: "white", // header text color
+      //     // // headerShown: false, // removes header
+      //   }
+      // }
     />
     <Stack.Screen // 2nd screen within navigation
       name='TweetDetails' // header + identifier
       component={TweetDetails} // call the function to render page
-      options={
-        // dynamically set title based on prev screen parameters
-        ({ route }) => ({ title: route.params.id }) // smooth brackets is used to declare that this is an object not just a block of code
-      }
+      // options={
+      //   // dynamically set title based on prev screen parameters
+      //   ({ route }) => ({ title: route.params.id }) // smooth brackets is used to declare that this is an object not just a block of code
+      // }
     />
   </Stack.Navigator>
 );
@@ -97,24 +101,31 @@ const Account = () => (
 const Tab = createBottomTabNavigator();
 const TabNavigator = () => (
   <Tab.Navigator
-    tabBarOptions={{
-      // set style options for all tabs
-      activeBackgroundColor: "tomato", // on tab bg color
-      activeTintColor: "white", // on tab text color
-      inactiveBackgroundColor: "#eee", //off tab bg color
-      inactivateTintColor: "black", // off tab text color
-    }}
+    tabBarOptions={
+      {
+        // set style options for all tabs
+        // activeBackgroundColor: "tomato", // on tab bg color
+        // activeTintColor: "white", // on tab text color
+        // inactiveBackgroundColor: "#eee", //off tab bg color
+        // inactivateTintColor: "black", // off tab text color
+      }
+    }
   >
     <Tab.Screen
       name='Feed'
-      component={Tweets}
-      options={{
-        tabBarIcon: (
-          { size, color } // size suggested by react native, color suggested by react native - based on TintColor
-        ) => <MaterialCommunityIcons name='home' size={size} color={color} />,
-      }}
+      component={StackNavigator} // Nest a Stack Navigator within a Tab Navigator component
+      options={
+        {
+          // tabBarIcon: (
+          //   { size, color } // size suggested by react native, color suggested by react native - based on TintColor
+          // ) => <MaterialCommunityIcons name='home' size={size} color={color} />,
+        }
+      }
     />
-    <Tab.Screen name='Account' component={Account} />
+    <Tab.Screen
+      name='Account'
+      component={Account} // Account can have its own Stack Navigator that is different from Feed
+    />
   </Tab.Navigator>
 );
 //////////////////////////////////////////////////////////////////////////////////
