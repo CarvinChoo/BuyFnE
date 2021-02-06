@@ -59,10 +59,17 @@ const StackNavigator = () => (
     <Stack.Screen // 1st screen within navigation
       name='Tweets' // header + identifier
       component={Tweets} // call the function to render page
+      options={{
+        title: "Tweets", // replace and sets header but not identifer of this screen
+      }}
     />
     <Stack.Screen // 2nd screen within navigation
       name='TweetDetails' // header + identifier
       component={TweetDetails} // call the function to render page
+      options={
+        // dynamically set title based on prev screen parameters
+        ({ route }) => ({ title: route.params.id }) // smooth brackets is used to declare that this is an object not just a block of code
+      }
     />
   </Stack.Navigator>
 );
