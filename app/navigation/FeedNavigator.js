@@ -15,7 +15,11 @@ const FeedNavigator = () => (
       headerBackTitleVisible: true,
     }}
   >
-    <Stack.Screen name='Listings' component={ListingsScreen} options={{}} />
+    <Stack.Screen
+      name='Listings'
+      component={ListingsScreen}
+      options={{ headerShown: false }}
+    />
     <Stack.Screen
       name='ListingDetails'
       component={ListingDetailsScreen}

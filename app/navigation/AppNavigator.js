@@ -1,34 +1,71 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import ListingEditScreen from "../screens/ListingEditScreen";
-import AccountScreen from "../screens/AccountScreen";
 import FeedNavigator from "./FeedNavigator";
 import AccountNavigator from "./AccountNavigator";
+import NewListingButton from "./NewListingButton";
 
 const Tab = createBottomTabNavigator();
 
 // Tab Navigator Between FeedNavigator, ListingEditScreen and AccountScreen
 const AppNavigator = () => (
   <Tab.Navigator
-    tabBarOptions={
-      {
-        // set style options for all tabs
-        // activeBackgroundColor: "tomato", // on tab bg color
-        // activeTintColor: "white", // on tab text color
-        // inactiveBackgroundColor: "#eee", //off tab bg color
-        // inactivateTintColor: "black", // off tab text color
-      }
-    }
+    tabBarOptions={{
+      style: { height: 55 }, // changes height of Tab Bar
+      labelStyle: {
+        fontSize: 15, // Changes Font Size of Tab Bar
+      },
+      // set style options for all tabs
+      // activeBackgroundColor: "tomato", // on tab bg color
+      // activeTintColor: "white", // on tab text color
+      // inactiveBackgroundColor: "#eee", //off tab bg color
+      // inactivateTintColor: "black", // off tab text color
+    }}
   >
     <Tab.Screen
-      name='FeedNavigator'
+      name='Feed'
       component={FeedNavigator} // Stack navigator between ListingsScreen and ListingDetailsScreen
+      options={{
+        //setting Icon for tab
+        tabBarIcon: (
+          { color, size } // setting size and color to react-native 's suggestion
+        ) => <MaterialCommunityIcons name='home' color={color} size={size} />,
+      }}
     />
-    <Tab.Screen name='ListingEdit' component={ListingEditScreen} />
     <Tab.Screen
-      name='AccountNavigator'
+      name='ListingEdit'
+      component={ListingEditScreen}
+      options={({ navigation }) => ({
+        tabBarButton: () => (
+          <NewListingButton
+            onPress={() => navigation.navigate("ListingEdit")}
+          />
+        ),
+        //setting Icon for tab
+        tabBarIcon: (
+          { color, size } // setting size and color to react-native 's suggestion
+        ) => (
+          <MaterialCommunityIcons
+            name='plus-circle'
+            color={color}
+            size={size}
+          />
+        ),
+      })}
+    />
+    <Tab.Screen
+      name='Account'
       component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
+      options={{
+        //setting Icon for tab
+        tabBarIcon: (
+          { color, size } // setting size and color to react-native 's suggestion
+        ) => (
+          <MaterialCommunityIcons name='account' color={color} size={size} />
+        ),
+      }}
     />
   </Tab.Navigator>
 );

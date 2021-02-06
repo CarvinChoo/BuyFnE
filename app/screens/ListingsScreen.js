@@ -23,25 +23,27 @@ const listings = [
 function ListingsScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
   return (
-    <FlatList
-      style={styles.screen}
-      data={listings}
-      keyExtractor={(listing) => listing.id.toString()} // unqiue key is alway expected to be a string
-      renderItem={({ item }) => (
-        <Card
-          title={item.title}
-          subTitle={item.price}
-          image={item.image}
-          onPress={() => navigation.navigate("ListingDetails", item)} //passing current {item} into ListingDetailsScreen
-        />
-      )}
-    />
+    <Screen style={styles.screen}>
+      <FlatList
+        data={listings}
+        keyExtractor={(listing) => listing.id.toString()} // unqiue key is alway expected to be a string
+        renderItem={({ item }) => (
+          <Card
+            title={item.title}
+            subTitle={item.price}
+            image={item.image}
+            onPress={() => navigation.navigate("ListingDetails", item)} //passing current {item} into ListingDetailsScreen
+          />
+        )}
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     padding: 10,
+
     backgroundColor: colors.whitegrey,
   },
 });
