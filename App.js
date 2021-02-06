@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
 import Screen from "./app/components/Screen";
@@ -51,6 +52,7 @@ const TweetDetails = ({ route }) => (
   </Screen>
 );
 
+/////////////////////Stack Navigator///////////////////////////////////////
 const Stack = createStackNavigator(); //returns  something similar to a component
 const StackNavigator = () => (
   <Stack.Navigator
@@ -81,11 +83,29 @@ const StackNavigator = () => (
     />
   </Stack.Navigator>
 );
+/////////////////////////////////////////////////////////////////////////////////
+
+const Account = () => (
+  // Temp Account Page
+  <Screen>
+    <Text>Account</Text>
+  </Screen>
+);
+
+///////////////////////Tab Navigator/////////////////////////////////////////////
+const Tab = createBottomTabNavigator();
+const TabNavigator = () => (
+  <Tab.Navigator>
+    <Tab.Screen name='Feed' component={Tweets} />
+    <Tab.Screen name='Account' component={Account} />
+  </Tab.Navigator>
+);
 
 export default function App() {
   return (
     <NavigationContainer>
-      <StackNavigator />
+      {/* <StackNavigator /> */}
+      <TabNavigator />
     </NavigationContainer>
   );
 }
