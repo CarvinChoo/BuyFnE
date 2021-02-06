@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
@@ -14,6 +14,7 @@ import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
 import useLocation from "../hooks/useLocation";
+import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -91,6 +92,7 @@ const categories = [
 
 function ListingEditScreen() {
   const location = useLocation();
+
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>

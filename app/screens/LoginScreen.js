@@ -1,13 +1,11 @@
-import React from "react";
-import { Image, KeyboardAvoidingView, StyleSheet } from "react-native";
+import React, { useRef, useEffect } from "react";
+import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
 
 import * as Yup from "yup"; // use to validation
 
 import Screen from "../components/Screen";
 import { AppForm, AppFormField, SubmitButton } from "../components/forms"; // uses index.js to import instead of individual import
-// import AppFormField from "../components/forms/AppFormField";
-// import SubmitButton from "../components/forms/SubmitButton";
-// import AppForm from "../components/forms/AppForm";
+import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -19,9 +17,17 @@ const validationSchema = Yup.object().shape({
 });
 
 function LoginScreen(props) {
+  const scrollView = useRef(); // looks for current instance to reference
+
+  //passes current instance into hook
+  useScrollWhenKeyboard(scrollView); //Custom Hook for Scroll up when Keyboard covers Text Input
+
   return (
-    <Screen style={styles.container}>
-      <KeyboardAvoidingView behavior='position'>
+    <ScrollView // make sure to import from react-native, not react-native-gesture-handler
+      ref={scrollView} //tell useRef to use this component as reference
+      onContentSizeChange={() => scrollView.current.scrollToEnd()} // additionally scroll when user changes Text Input
+    >
+      <Screen style={styles.container}>
         <Image
           style={styles.logo}
           source={require("../assets/BuyFnELogo-2.png")}
@@ -52,8 +58,8 @@ function LoginScreen(props) {
 
           <SubmitButton title='Login' />
         </AppForm>
-      </KeyboardAvoidingView>
-    </Screen>
+      </Screen>
+    </ScrollView>
   );
 }
 

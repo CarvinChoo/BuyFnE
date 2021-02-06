@@ -28,6 +28,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Login Screen Updated\n\n"
+    "description": "Welcome Screen connected to Login Screen and Register Screen\n"
   }
 }
