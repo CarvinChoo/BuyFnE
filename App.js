@@ -54,13 +54,21 @@ const TweetDetails = ({ route }) => (
 const Stack = createStackNavigator(); //returns  something similar to a component
 const StackNavigator = () => (
   <Stack.Navigator
-  // initialRouteName='Tweets' can be used to identify initial page
+    // initialRouteName='Tweets' can be used to identify initial page
+
+    screenOptions={{
+      // used to define style for this screen and all routed screens
+      headerStyle: { backgroundColor: "dodgerblue" },
+      headerTintColor: "white",
+    }}
   >
     <Stack.Screen // 1st screen within navigation
       name='Tweets' // header + identifier
       component={Tweets} // call the function to render page
       options={{
-        title: "Tweets", // replace and sets header but not identifer of this screen
+        headerStyle: { backgroundColor: "tomato" }, // header style
+        headerTintColor: "white", // header text color
+        // headerShown: false, // removes header
       }}
     />
     <Stack.Screen // 2nd screen within navigation
