@@ -1,12 +1,13 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-import ListingsScreen from "../screens/ListingsScreen";
 import ListingEditScreen from "../screens/ListingEditScreen";
 import AccountScreen from "../screens/AccountScreen";
+import FeedNavigator from "./FeedNavigator";
 
-/////////////////////Tab Navigator/////////////////////////////////////////////
 const Tab = createBottomTabNavigator();
+
+// Tab Navigator Between FeedNavigator, ListingEditScreen and AccountScreen
 const AppNavigator = () => (
   <Tab.Navigator
     tabBarOptions={
@@ -19,7 +20,10 @@ const AppNavigator = () => (
       }
     }
   >
-    <Tab.Screen name='Listings' component={ListingsScreen} />
+    <Tab.Screen
+      name='FeedNavigator'
+      component={FeedNavigator} // Stack navigator between ListingsScreen and ListingDetailsScreen
+    />
     <Tab.Screen name='ListingEdit' component={ListingEditScreen} />
     <Tab.Screen name='Account' component={AccountScreen} />
   </Tab.Navigator>

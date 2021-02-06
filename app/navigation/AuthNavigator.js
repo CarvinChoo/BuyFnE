@@ -8,6 +8,7 @@ import colors from "../config/colors";
 
 const Stack = createStackNavigator();
 
+// Stack Navigator Between Welcome Screen, LoginScreen and RegisterScreen
 const AuthNavigator = () => (
   <Stack.Navigator
     screenOptions={{
