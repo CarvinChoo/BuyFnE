@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ListingEditScreen from "../screens/ListingEditScreen";
 import AccountScreen from "../screens/AccountScreen";
 import FeedNavigator from "./FeedNavigator";
+import AccountNavigator from "./AccountNavigator";
 
 const Tab = createBottomTabNavigator();
 
@@ -25,7 +26,10 @@ const AppNavigator = () => (
       component={FeedNavigator} // Stack navigator between ListingsScreen and ListingDetailsScreen
     />
     <Tab.Screen name='ListingEdit' component={ListingEditScreen} />
-    <Tab.Screen name='Account' component={AccountScreen} />
+    <Tab.Screen
+      name='AccountNavigator'
+      component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
+    />
   </Tab.Navigator>
 );
 ////////////////////////////////////////////////////////////////////////////////
