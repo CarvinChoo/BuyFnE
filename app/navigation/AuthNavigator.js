@@ -4,15 +4,15 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
+import colors from "../config/colors";
 
 const Stack = createStackNavigator();
 
 const AuthNavigator = () => (
-  <Stack.Navigator screenOptions={{}}>
+  <Stack.Navigator screenOptions={{ headerTintColor: colors.brightred }}>
     <Stack.Screen
       name='Welcome'
       component={WelcomeScreen}
-      options={{}}
       options={{ headerShown: false }}
     />
     <Stack.Screen name='Login' component={LoginScreen} options={{}} />
