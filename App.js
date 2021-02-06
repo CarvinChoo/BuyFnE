@@ -12,6 +12,7 @@ import * as ImagePicker from "expo-image-picker";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import Screen from "./app/components/Screen";
 
@@ -59,7 +60,7 @@ const StackNavigator = () => (
     // initialRouteName='Tweets' can be used to identify initial page
 
     screenOptions={{
-      // used to define style for this screen and all routed screens
+      // used to define style all screens within stack navigator
       headerStyle: { backgroundColor: "dodgerblue" },
       headerTintColor: "white",
     }}
@@ -95,12 +96,28 @@ const Account = () => (
 ///////////////////////Tab Navigator/////////////////////////////////////////////
 const Tab = createBottomTabNavigator();
 const TabNavigator = () => (
-  <Tab.Navigator>
-    <Tab.Screen name='Feed' component={Tweets} />
+  <Tab.Navigator
+    tabBarOptions={{
+      // set style options for all tabs
+      activeBackgroundColor: "tomato", // on tab bg color
+      activeTintColor: "white", // on tab text color
+      inactiveBackgroundColor: "#eee", //off tab bg color
+      inactivateTintColor: "black", // off tab text color
+    }}
+  >
+    <Tab.Screen
+      name='Feed'
+      component={Tweets}
+      options={{
+        tabBarIcon: (
+          { size, color } // size suggested by react native, color suggested by react native - based on TintColor
+        ) => <MaterialCommunityIcons name='home' size={size} color={color} />,
+      }}
+    />
     <Tab.Screen name='Account' component={Account} />
   </Tab.Navigator>
 );
-
+//////////////////////////////////////////////////////////////////////////////////
 export default function App() {
   return (
     <NavigationContainer>
