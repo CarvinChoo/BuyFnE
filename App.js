@@ -27,11 +27,12 @@ const Tweets = (
   // storing a page into a function
   <Screen>
     <Text>Tweets</Text>
-    <Link />
-    {/* <Button
+    {/* <Link /> //child component */}
+    <Button
       title='View Tweet'
-      onPress={() => navigation.navigate("Tweets")} // navigates to instance of screen, is already there, no duplication
-    /> */}
+      // navigates to instance of screen, is already there, no duplication
+      onPress={() => navigation.navigate("TweetDetails", { id: 1 })} // pass 1 or more key-value pair , can pass entire tweet object into next screen
+    />
 
     {/* <Button
       title='View Tweet'
@@ -40,10 +41,13 @@ const Tweets = (
   </Screen>
 );
 
-const TweetDetails = () => (
+const TweetDetails = ({ route }) => (
+  // useRoute() hook rather than passing {route} prop if component is a child component
+
   // storing a page into a function
   <Screen>
-    <Text>Tweets Details</Text>
+    {/* {route.params} returns all parameters sent by previous screen */}
+    <Text>Tweets Details {route.params.id} </Text>
   </Screen>
 );
 
