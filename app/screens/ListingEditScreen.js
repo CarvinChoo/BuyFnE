@@ -99,7 +99,7 @@ function ListingEditScreen() {
   const [progress, setProgress] = useState(0);
 
   //Function waits for input to POST new listing to server
-  const handleSubmit = async (listing) => {
+  const handleSubmit = async (listing, { resetForm }) => {
     //reset progress
     setProgress(0);
     //Show progress bar
@@ -122,6 +122,7 @@ function ListingEditScreen() {
       setUploadVisible(false);
       return alert("Could not save the listing");
     }
+    resetForm(); // if everything is fine, resets all form values to 0 ***but does not change state within formik
   };
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up

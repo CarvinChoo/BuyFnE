@@ -7,7 +7,7 @@ import colors from "../config/colors";
 
 function UploadScreen({ onDone, progress = 0, visible = false }) {
   return (
-    //like a popup
+    //Modal is like a popup
     <Modal visible={visible}>
       <View style={styles.container}>
         {progress < 1 ? ( // if progress is 100%
@@ -32,7 +32,11 @@ function UploadScreen({ onDone, progress = 0, visible = false }) {
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: "center", flex: 1, justifyContent: "center" },
+  container: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
   animation: { width: 200 }, // does not change Size
 });
 
