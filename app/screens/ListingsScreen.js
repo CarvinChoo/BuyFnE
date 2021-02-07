@@ -9,12 +9,14 @@ import colors from "../config/colors";
 import listingsApi from "../api/listings";
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 
 function ListingsScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
   const [listings, setListings] = useState([]); // use for listing state
   const [error, setError] = useState(false); // used for error state
+  const [loading, setLoading] = useState(false); // state for informing that app is requesting from server, used for loading animation
 
   useEffect(() => {
     loadListings(); // function to call listings
@@ -22,7 +24,10 @@ function ListingsScreen({ navigation }) {
 
   // function to call listings
   const loadListings = async () => {
+    setLoading(true); // currently requesting
     const response = await listingsApi.getListings(); // awaits for API layer to retreive and gives listings
+    setLoading(false); // stop requesting
+
     // Error handling
     if (!response.ok) {
       // if response returns an error
@@ -45,6 +50,9 @@ function ListingsScreen({ navigation }) {
           />
         </>
       )}
+      <AppActivityIndicator // loading animation component
+        visible={loading} // {loading} is a boolean state
+      />
       <FlatList
         data={listings}
         keyExtractor={(listing) => listing.id.toString()} // unqiue key is alway expected to be a string
