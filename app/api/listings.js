@@ -6,7 +6,7 @@ const endpoint = "/listings"; // data location
 const getListings = () => client.get(endpoint);
 
 // function to POST a listing
-const addListing = (listing) => {
+const addListing = (listing, onUploadProgress) => {
   const data = new FormData(); // Apisauce/ Axios will internally set the form data type
   data.append("title", listing.title); //sets key value pair to be added
   data.append("price", listing.price);
@@ -24,7 +24,11 @@ const addListing = (listing) => {
   if (listing.location)
     data.append("location", JSON.stringify(listing.location)); // need to serialize the value of location or server will return error
 
-  return client.post(endpoint, data); // post to data location
+  // POST to data location
+  return client.post(endpoint, data, {
+    onUploadProgress: (progress) =>
+      onUploadProgress(progress.loaded / progress.total),
+  });
 };
 
 export default {
