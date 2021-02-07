@@ -13,8 +13,8 @@ import {
 import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
+import listingsApi from "../api/listings";
 import useLocation from "../hooks/useLocation";
-import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -91,8 +91,25 @@ const categories = [
 ];
 
 function ListingEditScreen() {
+  // call for custom location hook to ask for permission and retrieve location of user
   const location = useLocation();
 
+  //Function to POST new listing to server
+  const handleSubmit = async (listing) => {
+    //Alternative
+    // listing.location = location
+    // const result = await listingsApi.addListing({listing});
+
+    // Await for listing to be added and sends it to API to POST to server
+    const result = await listingsApi.addListing({ ...listing, location }); // spreads "listing" properties and include location as a property
+    console.log(listing);
+    if (!result.ok) {
+      // when POST request met with an error
+      alert("Failed to save the listing.");
+      return;
+    }
+    alert("Success! Listing Added.");
+  };
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
@@ -105,7 +122,7 @@ function ListingEditScreen() {
             category: null,
             images: [],
           }}
-          onSubmit={(values) => console.log(location)}
+          onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
           <AppFormImagePicker name='images' />
