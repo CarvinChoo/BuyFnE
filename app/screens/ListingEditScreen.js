@@ -102,7 +102,6 @@ function ListingEditScreen() {
 
     // Await for listing to be added and sends it to API to POST to server
     const result = await listingsApi.addListing({ ...listing, location }); // spreads "listing" properties and include location as a property
-    console.log(listing);
     if (!result.ok) {
       // when POST request met with an error
       alert("Failed to save the listing.");
