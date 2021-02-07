@@ -10,33 +10,21 @@ import listingsApi from "../api/listings";
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import useApi from "../hooks/useApi";
 
 function ListingsScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
-  const [listings, setListings] = useState([]); // use for listing state
-  const [error, setError] = useState(false); // used for error state
-  const [loading, setLoading] = useState(false); // state for informing that app is requesting from server, used for loading animation
+  const {
+    data: listings, // alias for data
+    error,
+    loading,
+    request: loadListings, // alias for request function
+  } = useApi(listingsApi.getListings);
 
   useEffect(() => {
     loadListings(); // function to call listings
   }, []); // only call for listings once
-
-  // function to call listings
-  const loadListings = async () => {
-    setLoading(true); // currently requesting
-    const response = await listingsApi.getListings(); // awaits for API layer to retreive and gives listings
-    setLoading(false); // stop requesting
-
-    // Error handling
-    if (!response.ok) {
-      // if response returns an error
-      setError(true); //set error state to true
-      return;
-    }
-    setError(false); //means no error
-    setListings(response.data); // set current state to listings received
-  };
 
   return (
     <Screen style={styles.screen}>
