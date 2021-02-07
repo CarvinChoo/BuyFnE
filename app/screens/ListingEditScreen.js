@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
@@ -15,6 +15,7 @@ import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
 import listingsApi from "../api/listings";
 import useLocation from "../hooks/useLocation";
+import UploadScreen from "./UploadScreen";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -94,8 +95,16 @@ function ListingEditScreen() {
   // call for custom location hook to ask for permission and retrieve location of user
   const location = useLocation();
 
-  //Function to POST new listing to server
+  const [uploadVisible, setUploadVisible] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  //Function waits for input to POST new listing to server
   const handleSubmit = async (listing) => {
+    //reset progress
+    setProgress(0);
+    //Show progress bar
+    setUploadVisible(true);
+
     //Alternative
     // listing.location = location
     // const result = await listingsApi.addListing({listing});
@@ -103,20 +112,26 @@ function ListingEditScreen() {
     // Await for listing to be added and sends it to API to POST to server
     const result = await listingsApi.addListing(
       { ...listing, location }, // spreads "listing" properties and include location as a property
-      // conccurently runs this function
-      (progress) => console.log(progress)
+      // conccurently runs this function to actively set the progress state
+      (progress) => setProgress(progress)
     );
+
+    //Remove progress bar
+
     if (!result.ok) {
-      // when POST request met with an error
-      alert("Failed to save the listing.");
-      return;
+      setUploadVisible(false);
+      return alert("Could not save the listing");
     }
-    alert("Success! Listing Added.");
   };
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
       <Screen style={styles.container}>
+        <UploadScreen
+          onDone={() => setUploadVisible(false)}
+          progress={progress}
+          visible={uploadVisible}
+        />
         <AppForm
           initialValues={{
             title: "",
