@@ -23,12 +23,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
-      ,"softwareKeyboardLayoutMode": "pan"
+      },
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Welcome Screen connected to Login Screen and Register Screen\n"
+    "description": "\n"
   }
 }

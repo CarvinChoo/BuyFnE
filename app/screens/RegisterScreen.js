@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
-
+import * as firebase from "firebase";
 import Screen from "../components/Screen";
 import { AppForm, AppFormField, SubmitButton } from "../components/forms";
 import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
@@ -11,6 +11,20 @@ const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
   password: Yup.string().required().min(4).label("Password"),
 });
+
+const handleSubmit = (registration, { resetForm }) => {
+  firebase
+    .auth()
+    .createUserWithEmailAndPassword(registration.email, registration.password)
+    .then((result) => {
+      console.log(result);
+      resetForm();
+    })
+    .catch((error) => {
+      console.log("error", error);
+      resetForm();
+    });
+};
 
 function RegisterScreen() {
   const scrollView = useRef(); // looks for current instance to reference
@@ -24,8 +38,12 @@ function RegisterScreen() {
     >
       <Screen style={styles.container}>
         <AppForm
-          initialValues={{ name: "", email: "", password: "" }}
-          onSubmit={(values) => console.log(values)}
+          initialValues={{
+            name: "",
+            email: "",
+            password: "",
+          }}
+          onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
           <AppFormField
