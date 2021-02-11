@@ -51,6 +51,7 @@ function ListingsScreen({ navigation }) {
             imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
             onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
             //*routes.js is where you change the screen name
+            thumbnailUrl={item.images[0].thumbnailUrl} // sets thumbnail for progressive loading ( blur effect on image)
           />
         )}
       />
