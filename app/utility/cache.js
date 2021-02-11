@@ -24,7 +24,7 @@ const isExpired = (item) => {
   const now = moment(Date.now());
 
   //retrieved item timestamp
-  const storeTime = moment(item.timestamp);
+  const storedTime = moment(item.timestamp);
 
   // Returns boolean True if timestamp has expired
   return now.diff(storedTime, "minutes") > expiryInMinutes; // now.diff(storedTime, "minutes") returns difference in "minutes" between now and storedTime
