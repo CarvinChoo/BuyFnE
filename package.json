@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@react-native-community/masked-view": "0.1.10",
+    "@react-native-community/netinfo": "5.9.7",
     "@react-navigation/bottom-tabs": "^5.11.7",
     "@react-navigation/native": "^5.9.2",
     "@react-navigation/stack": "^5.14.2",
@@ -21,6 +22,7 @@
     "expo-status-bar": "~1.0.3",
     "formik": "^2.1.4",
     "lottie-react-native": "~2.6.1",
+    "moment": "^2.29.1",
     "react": "16.13.1",
     "react-devtools": "^4.10.1",
     "react-dom": "16.13.1",
@@ -31,8 +33,7 @@
     "react-native-safe-area-context": "3.1.9",
     "react-native-screens": "~2.15.2",
     "react-native-web": "~0.13.12",
-    "yup": "^0.32.8",
-    "@react-native-community/netinfo": "5.9.7"
+    "yup": "^0.32.8"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"
