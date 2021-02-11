@@ -8,6 +8,7 @@ import AuthNavigator from "./app/navigation/AuthNavigator";
 import navigationTheme from "./app/navigation/navigationTheme";
 import AppNavigator from "./app/navigation/AppNavigator";
 import { Button, View } from "react-native";
+import OfflineNotice from "./app/components/OfflineNotice";
 
 export default function App() {
   // const demo = async () => {
@@ -35,9 +36,12 @@ export default function App() {
   // // return netInfo.isInternetReachable ? <View>1</View> : <View>2</View>;
   // return <Button disabled={!netInfo.isInternetReachable} title='Hello' />; // disables the button when there is no internet connection
   return (
-    <NavigationContainer theme={navigationTheme}>
-      <AppNavigator />
-      {/* <AuthNavigator/> */}
-    </NavigationContainer>
+    <>
+      <OfflineNotice />
+      <NavigationContainer theme={navigationTheme}>
+        <AppNavigator />
+        {/* <AuthNavigator/> */}
+      </NavigationContainer>
+    </>
   );
 }
