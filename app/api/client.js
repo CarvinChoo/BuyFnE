@@ -1,11 +1,20 @@
 import { create } from "apisauce";
 import cache from "../utility/cache";
+import authStorage from "../auth/storage";
 
 const apiClient = create({
   baseURL: "http://192.168.1.203:9000/api",
   timeout: 30000, // If no connection after 30 secs, stop connecting
 });
 
+//Remove if not needed///////////////////////////////////////////////////////
+// use to set authToken onto request header to verify for access
+apiClient.addAsyncRequestTransform(async (request) => {
+  const authToken = await authStorage.getToken(); //retrieve authToken from cache
+  if (!authToken) return; // no authToken found in cache
+  request.headers["x-auth-token"] = authToken;
+});
+///////////////////////////////////////////////////////////////////////////////
 // Implement Caching within get request//////////////
 
 // reference to apiClient's get function
