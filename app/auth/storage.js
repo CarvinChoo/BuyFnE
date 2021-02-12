@@ -1,5 +1,6 @@
 // for storage user info for persistance authentication
 import * as SecureStore from "expo-secure-store";
+import jwtDecode from "jwt-decode";
 
 // used for authorizing storing and retrieval of data from cache
 const key = "authToken";
@@ -23,6 +24,12 @@ const getToken = async () => {
   }
 };
 
+// New function that calls getting token internally within storage.js and decodes it
+const getUser = async () => {
+  const token = await getToken();
+  if (token) return jwtDecode(token); // if token retrieved, decode and return it
+  return null; // else return null
+};
 //used when user logs out to remove their info from cache
 const removeToken = async () => {
   try {
@@ -32,4 +39,4 @@ const removeToken = async () => {
   }
 };
 
-export default { getToken, removeToken, storeToken };
+export default { getUser, removeToken, storeToken };

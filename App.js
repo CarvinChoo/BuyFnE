@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { AsyncStorage } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import NetInfo, { useNetInfo } from "@react-native-community/netinfo";
-import jwtDecode from "jwt-decode";
 import AppLoading from "expo-app-loading";
 
 import AuthNavigator from "./app/navigation/AuthNavigator";
@@ -41,15 +40,14 @@ export default function App() {
   const [isReady, setIsReady] = useState(false);
   const [user, setUser] = useState();
 
-  const restoreToken = async () => {
-    const token = await authStorage.getToken(); // retrieve any user token from cache
-    if (!token) return; // does nothing if theres not token
-    setUser(jwtDecode(token));
+  const restoreUser = async () => {
+    const user = await authStorage.getUser(); // retrieve any user token from cache
+    if (user) setUser(user);
   };
   // outdate method due to loading screen implementation
   // // This makes sure the call for exisitng token in cache is only called once
   // useEffect(() => {
-  //   restoreToken();
+  //   restoreToken(); // new function is restoreUser()
   // }, []);
 
   // see if state of the app is ready after performing initial functions
@@ -57,7 +55,7 @@ export default function App() {
     return (
       // displays a screen that prevents WelcomeScreen from appearing when App is loading
       <AppLoading
-        startAsync={restoreToken} // sets what functions should be called when apps starts
+        startAsync={restoreUser} // sets what functions should be called when apps starts
         onFinish={() => setIsReady(true)} //when functions set in startAsync is finished, it will set state to ready
         onError={console.log("Error")}
       />
