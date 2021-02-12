@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
-
+import jwtDecode from "jwt-decode";
 import * as Yup from "yup"; // use to validation
 
 import Screen from "../components/Screen";
@@ -37,7 +37,8 @@ function LoginScreen(props) {
     if (!result.ok) return setLoginFailed(true);
 
     setLoginFailed(false);
-    console.log(result.data);
+    const user = jwtDecode(result.data);
+    console.log(user);
   };
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
