@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AsyncStorage } from "react-native";
-
 import { NavigationContainer } from "@react-navigation/native";
 import NetInfo, { useNetInfo } from "@react-native-community/netinfo";
+import jwtDecode from "jwt-decode";
 
 import AuthNavigator from "./app/navigation/AuthNavigator";
 import navigationTheme from "./app/navigation/navigationTheme";
@@ -10,6 +10,7 @@ import AppNavigator from "./app/navigation/AppNavigator";
 import { Button, View } from "react-native";
 import OfflineNotice from "./app/components/OfflineNotice";
 import AuthContext from "./app/auth/context";
+import authStorage from "./app/auth/storage";
 
 export default function App() {
   // const demo = async () => {
@@ -38,6 +39,17 @@ export default function App() {
   // return <Button disabled={!netInfo.isInternetReachable} title='Hello' />; // disables the button when there is no internet connection
 
   const [user, setUser] = useState();
+
+  const restoreToken = async () => {
+    const token = await authStorage.getToken(); // retrieve any user token from cache
+    if (!token) return; // does nothing if theres not token
+    setUser(jwtDecode(token));
+  };
+
+  // This makes sure the call for exisitng token in cache is only called once
+  useEffect(() => {
+    restoreToken();
+  }, []);
 
   return (
     // AuthContext.Provider allows all its children components to have access to the value it passes

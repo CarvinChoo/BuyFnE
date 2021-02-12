@@ -3,6 +3,7 @@ import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
 import jwtDecode from "jwt-decode";
 import * as Yup from "yup"; // use to validation
 import AuthContext from "../auth/context";
+import authStorage from "../auth/storage";
 
 import Screen from "../components/Screen";
 import {
@@ -37,6 +38,9 @@ function LoginScreen(props) {
     setLoginFailed(false);
     const user = jwtDecode(result.data);
     authContext.setUser(user); // setting user state in App.js
+
+    // used to store authentication token in cache to prevent user from being logged out
+    authStorage.storeToken(result.data);
   };
   //////////////////////////////////////////////////////////////////////
   return (

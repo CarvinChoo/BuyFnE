@@ -9,6 +9,7 @@ import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import routes from "../navigation/routes";
 import AuthContext from "../auth/context";
+import authStorage from "../auth/storage";
 
 const menuItems = [
   {
@@ -32,6 +33,13 @@ const menuItems = [
 function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
   const { user, setUser } = useContext(AuthContext);
+
+  //Function to handle logout process
+  const handleLogout = () => {
+    setUser(null); // removes user state from App.js
+    authStorage.removeToken(); // remove user authToken from cache
+  };
+
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
@@ -66,7 +74,7 @@ function AccountScreen({ navigation }) {
         IconComponent={
           <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
         }
-        onPress={() => setUser(null)}
+        onPress={handleLogout} // call for function to handle logout process
       />
     </Screen>
   );
