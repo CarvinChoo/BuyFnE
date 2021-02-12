@@ -1,11 +1,17 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
 
 import * as Yup from "yup"; // use to validation
 
 import Screen from "../components/Screen";
-import { AppForm, AppFormField, SubmitButton } from "../components/forms"; // uses index.js to import instead of individual import
+import {
+  AppForm,
+  AppFormField,
+  Error_Message,
+  SubmitButton,
+} from "../components/forms"; // uses index.js to import instead of individual import
 import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
+import authApi from "../api/auth";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -22,6 +28,17 @@ function LoginScreen(props) {
   //passes current instance into hook
   useScrollWhenKeyboard(scrollView); //Custom Hook for Scroll up when Keyboard covers Text Input
 
+  // For learning use /////////////////////////////////////////////
+  const [loginFailed, setLoginFailed] = useState(false);
+
+  // function to handle submission
+  const handSubmit = async ({ email, password }) => {
+    const result = await authApi.login(email, password);
+    if (!result.ok) return setLoginFailed(true);
+
+    setLoginFailed(false);
+    console.log(result.data);
+  };
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
       ref={scrollView} //tell useRef to use this component as reference
@@ -32,9 +49,13 @@ function LoginScreen(props) {
           style={styles.logo}
           source={require("../assets/BuyFnELogo-2.png")}
         />
+        <Error_Message
+          error='Invalid email and/or password.'
+          visible={loginFailed}
+        />
         <AppForm
           initialValues={{ email: "", password: "" }}
-          onSubmit={(values) => console.log(values)}
+          onSubmit={handSubmit}
           validationSchema={validationSchema} //setting the schema to follow
         >
           <AppFormField
