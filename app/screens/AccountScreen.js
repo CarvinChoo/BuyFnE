@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { StyleSheet, View, FlatList } from "react-native";
 
 //import { FlatList } from "react-native-gesture-handler";
@@ -8,6 +8,7 @@ import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import routes from "../navigation/routes";
+import AuthContext from "../auth/context";
 
 const menuItems = [
   {
@@ -30,12 +31,13 @@ const menuItems = [
 
 function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
+  const { user } = useContext(AuthContext);
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
         <ListItem
-          title='Carvin Choo'
-          subTitle='carvin.choo@gmail.com'
+          title={user.name}
+          subTitle={user.email}
           image={require("../assets/HnMlogo.png")}
           border={true}
         />

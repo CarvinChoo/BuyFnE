@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { AsyncStorage } from "react-native";
 
 import { NavigationContainer } from "@react-navigation/native";
@@ -9,6 +9,7 @@ import navigationTheme from "./app/navigation/navigationTheme";
 import AppNavigator from "./app/navigation/AppNavigator";
 import { Button, View } from "react-native";
 import OfflineNotice from "./app/components/OfflineNotice";
+import AuthContext from "./app/auth/context";
 
 export default function App() {
   // const demo = async () => {
@@ -35,13 +36,18 @@ export default function App() {
   // const netInfo = useNetInfo(); // hook that does subscribing and unsubscribing under the hood
   // // return netInfo.isInternetReachable ? <View>1</View> : <View>2</View>;
   // return <Button disabled={!netInfo.isInternetReachable} title='Hello' />; // disables the button when there is no internet connection
+
+  const [user, setUser] = useState();
+
   return (
-    <>
+    // AuthContext.Provider allows all its children components to have access to the value it passes
+    // only passing user will not allow its children to modify the content but by passing setUser as well, it is passing the function to modify the user state
+    <AuthContext.Provider value={{ user, setUser }}>
       <OfflineNotice />
       <NavigationContainer theme={navigationTheme}>
-        {/* <AppNavigator /> */}
-        <AuthNavigator />
+        {/* renders AppNavigator (ListingsScreen) if user already set else renders AuthNavigator (Welcome Screen) */}
+        {user ? <AppNavigator /> : <AuthNavigator />}
       </NavigationContainer>
-    </>
+    </AuthContext.Provider>
   );
 }

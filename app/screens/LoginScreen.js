@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
 import jwtDecode from "jwt-decode";
 import * as Yup from "yup"; // use to validation
+import AuthContext from "../auth/context";
 
 import Screen from "../components/Screen";
 import {
@@ -23,13 +24,10 @@ const validationSchema = Yup.object().shape({
 });
 
 function LoginScreen(props) {
-  const scrollView = useRef(); // looks for current instance to reference
-
-  //passes current instance into hook
-  useScrollWhenKeyboard(scrollView); //Custom Hook for Scroll up when Keyboard covers Text Input
-
   // For learning use /////////////////////////////////////////////
-  const [loginFailed, setLoginFailed] = useState(false);
+  const authContext = useContext(AuthContext); // retreive context (user and setUser) from App.js
+
+  const [loginFailed, setLoginFailed] = useState(false); //state to determine whether to show login error message or not
 
   // function to handle submission
   const handSubmit = async ({ email, password }) => {
@@ -38,18 +36,18 @@ function LoginScreen(props) {
 
     setLoginFailed(false);
     const user = jwtDecode(result.data);
-    console.log(user);
+    authContext.setUser(user); // setting user state in App.js
   };
+  //////////////////////////////////////////////////////////////////////
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
-      ref={scrollView} //tell useRef to use this component as reference
-      onContentSizeChange={() => scrollView.current.scrollToEnd()} // additionally scroll when user changes Text Input
     >
       <Screen style={styles.container}>
         <Image
           style={styles.logo}
           source={require("../assets/BuyFnELogo-2.png")}
         />
+        {/* //////////////////ERROR MESSAGE FOR LOGIN FAIL////////////////////////// */}
         <Error_Message
           error='Invalid email and/or password.'
           visible={loginFailed}
