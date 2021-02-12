@@ -31,7 +31,7 @@ const menuItems = [
 
 function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
@@ -66,6 +66,7 @@ function AccountScreen({ navigation }) {
         IconComponent={
           <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
         }
+        onPress={() => setUser(null)}
       />
     </Screen>
   );
