@@ -8,8 +8,7 @@ import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import routes from "../navigation/routes";
-import AuthContext from "../auth/context";
-import authStorage from "../auth/storage";
+import useAuth from "../auth/useAuth";
 
 const menuItems = [
   {
@@ -32,12 +31,13 @@ const menuItems = [
 
 function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
-  const { user, setUser } = useContext(AuthContext);
+
+  // uses custom hook "useAuth" from useAuth.js to perform useContext(AuthContext);
+  const { user, logOut } = useAuth(); //returns user and setUser state from App.js parent component
 
   //Function to handle logout process
   const handleLogout = () => {
-    setUser(null); // removes user state from App.js
-    authStorage.removeToken(); // remove user authToken from cache
+    logOut(); // calls custom hook function from useAuth.js to perform setUser(null) and remove token from cache
   };
 
   return (

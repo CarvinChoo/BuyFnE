@@ -1,11 +1,9 @@
 import React, { useRef, useEffect, useState, useContext } from "react";
 import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
-import jwtDecode from "jwt-decode";
 import * as Yup from "yup"; // use to validation
-import AuthContext from "../auth/context";
-import authStorage from "../auth/storage";
 
 import Screen from "../components/Screen";
+
 import {
   AppForm,
   AppFormField,
@@ -14,6 +12,7 @@ import {
 } from "../components/forms"; // uses index.js to import instead of individual import
 import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
 import authApi from "../api/auth";
+import useAuth from "../auth/useAuth";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -26,21 +25,19 @@ const validationSchema = Yup.object().shape({
 
 function LoginScreen(props) {
   // For learning use /////////////////////////////////////////////
-  const authContext = useContext(AuthContext); // retreive context (user and setUser) from App.js
+  const auth = useAuth(); // retreive context (user and setUser) from App.js
 
   const [loginFailed, setLoginFailed] = useState(false); //state to determine whether to show login error message or not
 
   // function to handle submission
   const handSubmit = async ({ email, password }) => {
-    const result = await authApi.login(email, password);
+    const result = await authApi.login(email, password); // request to server to login using these parameters
     if (!result.ok) return setLoginFailed(true);
 
     setLoginFailed(false);
-    const user = jwtDecode(result.data);
-    authContext.setUser(user); // setting user state in App.js
 
-    // used to store authentication token in cache to prevent user from being logged out
-    authStorage.storeToken(result.data);
+    // Previous login processes has been moved to useAuth.js
+    auth.logIn(result.data); //calls function from useAuth to decode token, set user and store token in cache
   };
   //////////////////////////////////////////////////////////////////////
   return (
