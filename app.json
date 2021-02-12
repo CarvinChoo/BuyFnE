@@ -7,8 +7,8 @@
     "icon": "./app/assets/icon.png",
     "splash": {
       "image": "./app/assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#e63c4b"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -23,12 +23,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
-      ,"softwareKeyboardLayoutMode": "pan"
+      },
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Welcome Screen connected to Login Screen and Register Screen\n"
+    "description": "Added Splash Screen\n\n"
   }
 }

@@ -3,6 +3,7 @@ import { AsyncStorage } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import NetInfo, { useNetInfo } from "@react-native-community/netinfo";
 import jwtDecode from "jwt-decode";
+import AppLoading from "expo-app-loading";
 
 import AuthNavigator from "./app/navigation/AuthNavigator";
 import navigationTheme from "./app/navigation/navigationTheme";
@@ -37,7 +38,7 @@ export default function App() {
   // const netInfo = useNetInfo(); // hook that does subscribing and unsubscribing under the hood
   // // return netInfo.isInternetReachable ? <View>1</View> : <View>2</View>;
   // return <Button disabled={!netInfo.isInternetReachable} title='Hello' />; // disables the button when there is no internet connection
-
+  const [isReady, setIsReady] = useState(false);
   const [user, setUser] = useState();
 
   const restoreToken = async () => {
@@ -45,11 +46,22 @@ export default function App() {
     if (!token) return; // does nothing if theres not token
     setUser(jwtDecode(token));
   };
+  // outdate method due to loading screen implementation
+  // // This makes sure the call for exisitng token in cache is only called once
+  // useEffect(() => {
+  //   restoreToken();
+  // }, []);
 
-  // This makes sure the call for exisitng token in cache is only called once
-  useEffect(() => {
-    restoreToken();
-  }, []);
+  // see if state of the app is ready after performing initial functions
+  if (!isReady)
+    return (
+      // displays a screen that prevents WelcomeScreen from appearing when App is loading
+      <AppLoading
+        startAsync={restoreToken} // sets what functions should be called when apps starts
+        onFinish={() => setIsReady(true)} //when functions set in startAsync is finished, it will set state to ready
+        onError={console.log("Error")}
+      />
+    );
 
   return (
     // AuthContext.Provider allows all its children components to have access to the value it passes
