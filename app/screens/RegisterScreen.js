@@ -1,40 +1,57 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import * as firebase from "firebase";
 import Screen from "../components/Screen";
-import { AppForm, AppFormField, SubmitButton } from "../components/forms";
+import {
+  AppForm,
+  AppFormField,
+  Error_Message,
+  SubmitButton,
+} from "../components/forms";
 import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required().label("Name"),
   email: Yup.string().required().email().label("Email"),
-  password: Yup.string().required().min(4).label("Password"),
+  password: Yup.string().required().min(6).label("Password"),
 });
 
-const handleSubmit = (registration, { resetForm }) => {
-  firebase
-    .auth()
-    .createUserWithEmailAndPassword(registration.email, registration.password)
-    .then((result) => {
-      console.log(result);
-      resetForm();
-    })
-    .catch((error) => {
-      console.log("error", error);
-      resetForm();
-    });
-};
-
 function RegisterScreen() {
-  const scrollView = useRef(); // looks for current instance to reference
+  const [error, setError] = useState();
+  const [user, setUser] = useState();
 
-  //passes current instance into hook
-  useScrollWhenKeyboard(scrollView); //Custom Hook for Scroll up when Keyboard covers Text Input
+  const handleSubmit = async (registration, { resetForm }) => {
+    await firebase
+      .auth()
+      .createUserWithEmailAndPassword(registration.email, registration.password)
+      .then((result) => {
+        setError(null);
+        //retrieve current user
+        const user = firebase.auth().currentUser;
+
+        //used to set additional attributes within a user
+        user
+          .updateProfile({
+            displayName: registration.name,
+            photoURL: "https://example.com/jane-q-user/profile.jpg",
+          })
+          .then(() => {
+            console.log(user.displayName);
+            setError(null);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+        setError(error.message);
+      });
+  };
 
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
-      ref={scrollView}
     >
       <Screen style={styles.container}>
         <AppForm
@@ -67,9 +84,10 @@ function RegisterScreen() {
             icon='lock'
             name='password'
             placeholder='Password'
-            secureTextEntry
+            secureTextEntry={true}
             textContentType='password'
           />
+          <Error_Message error={error} visible={error} />
           <SubmitButton title='Register' />
         </AppForm>
       </Screen>

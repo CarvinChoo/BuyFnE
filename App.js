@@ -29,8 +29,8 @@ export default function App() {
   return (
     // <RegisterScreen />
     <NavigationContainer theme={navigationTheme}>
-      <AppNavigator />
-      {/* <AuthNavigator/> */}
+      {/* <AppNavigator /> */}
+      <AuthNavigator />
     </NavigationContainer>
   );
 }
