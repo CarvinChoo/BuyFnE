@@ -5,7 +5,7 @@ export default useApi = (apiFunc) => {
   const [error, setError] = useState(false); // used for error state
   const [loading, setLoading] = useState(false); // state for informing that app is requesting from server, used for loading animation
 
-  // function to call listings
+  // function to call listings and/or any other data from server
   const request = async (...args) => {
     // ...args allow multiple parameters to be accepted if needed
     setLoading(true); // currently requesting
@@ -16,10 +16,11 @@ export default useApi = (apiFunc) => {
     if (!response.ok) {
       // if response returns an error
       setError(true); //set error state to true
-      return;
+      return response;
     }
     setError(false); //means no error
     setData(response.data); // set current state to listings received
+    return response;
   };
 
   return { data, error, loading, request };

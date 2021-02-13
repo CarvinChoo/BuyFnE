@@ -13,6 +13,8 @@ import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
 import useAuth from "../auth/useAuth";
 import usersApi from "../api/users";
 import authApi from "../api/auth";
+import useApi from "../hooks/useApi";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required().label("Name"),
@@ -21,13 +23,15 @@ const validationSchema = Yup.object().shape({
 });
 
 function RegisterScreen() {
+  const registerApi = useApi(usersApi.register);
+  const loginApi = useApi(authApi.login);
   //////////// NON FIREBASE REGISTER FUNCTION////////////////////////////
   const auth = useAuth();
   const [error, setError] = useState();
 
   const handleSubmit = async (userInfo) => {
     // POST request to send user info to server
-    const result = await usersApi.register(userInfo);
+    const result = await registerApi.request(userInfo);
 
     //Check if response is ok
     if (!result.ok) {
@@ -43,7 +47,7 @@ function RegisterScreen() {
 
     // Procced to login user if registration is successful
     // rename data to alias "authToken"
-    const { data: authToken } = await authApi.login(
+    const { data: authToken } = await loginApi.request(
       userInfo.email,
       userInfo.password
     );
@@ -54,6 +58,7 @@ function RegisterScreen() {
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
     >
+      <AppActivityIndicator visible={registerApi.loading || loginApi.loading} />
       <Screen style={styles.container}>
         <AppForm
           initialValues={{ name: "", email: "", password: "" }}
