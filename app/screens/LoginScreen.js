@@ -10,9 +10,6 @@ import {
   Error_Message,
   SubmitButton,
 } from "../components/forms"; // uses index.js to import instead of individual import
-import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
-import authApi from "../api/auth";
-import useAuth from "../auth/useAuth";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -25,20 +22,9 @@ const validationSchema = Yup.object().shape({
 
 function LoginScreen(props) {
   // For learning use /////////////////////////////////////////////
-  const auth = useAuth(); // retreive context (user and setUser) from App.js
-
-  const [loginFailed, setLoginFailed] = useState(false); //state to determine whether to show login error message or not
 
   // function to handle submission
-  const handSubmit = async ({ email, password }) => {
-    const result = await authApi.login(email, password); // request to server to login using these parameters
-    if (!result.ok) return setLoginFailed(true);
-
-    setLoginFailed(false);
-
-    // Previous login processes has been moved to useAuth.js
-    auth.logIn(result.data); //calls function from useAuth to decode token, set user and store token in cache
-  };
+  const handSubmit = ({ email, password }) => {};
   //////////////////////////////////////////////////////////////////////
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
@@ -49,10 +35,7 @@ function LoginScreen(props) {
           source={require("../assets/BuyFnELogo-2.png")}
         />
         {/* //////////////////ERROR MESSAGE FOR LOGIN FAIL////////////////////////// */}
-        <Error_Message
-          error='Invalid email and/or password.'
-          visible={loginFailed}
-        />
+        <Error_Message error='Invalid email and/or password.' visible={false} />
         <AppForm
           initialValues={{ email: "", password: "" }}
           onSubmit={handSubmit}

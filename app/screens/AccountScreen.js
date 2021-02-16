@@ -8,7 +8,6 @@ import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import routes from "../navigation/routes";
-import useAuth from "../auth/useAuth";
 
 const menuItems = [
   {
@@ -32,20 +31,12 @@ const menuItems = [
 function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
-  // uses custom hook "useAuth" from useAuth.js to perform useContext(AuthContext);
-  const { user, logOut } = useAuth(); //returns user and setUser state from App.js parent component
-
-  //Function to handle logout process
-  const handleLogout = () => {
-    logOut(); // calls custom hook function from useAuth.js to perform setUser(null) and remove token from cache
-  };
-
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
         <ListItem
-          title={user.name}
-          subTitle={user.email}
+          title='Carvin'
+          subTitle='Email'
           image={require("../assets/HnMlogo.png")}
           border={true}
         />

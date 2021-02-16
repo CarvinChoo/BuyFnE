@@ -14,7 +14,6 @@ import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
 import listingsApi from "../api/listings";
-import useLocation from "../hooks/useLocation";
 import UploadScreen from "./UploadScreen";
 
 const validationSchema = Yup.object().shape({
@@ -92,9 +91,6 @@ const categories = [
 ];
 
 function ListingEditScreen() {
-  // call for custom location hook to ask for permission and retrieve location of user
-  const location = useLocation();
-
   const [uploadVisible, setUploadVisible] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -111,7 +107,7 @@ function ListingEditScreen() {
 
     // Await for listing to be added and sends it to API to POST to server
     const result = await listingsApi.addListing(
-      { ...listing, location }, // spreads "listing" properties and include location as a property
+      { ...listing }, // spreads "listing" properties and include location as a property
       // conccurently runs this function to actively set the progress state
       (progress) => setProgress(progress)
     );
