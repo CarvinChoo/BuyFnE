@@ -11,7 +11,6 @@ import {
   SubmitButton,
 } from "../components/forms"; // uses index.js to import instead of individual import
 import useScrollWhenKeyboard from "../hooks/useScrollWhenKeyboard";
-import authApi from "../api/auth";
 import useAuth from "../auth/useAuth";
 
 const validationSchema = Yup.object().shape({

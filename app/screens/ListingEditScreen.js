@@ -14,8 +14,6 @@ import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
 import listingsApi from "../api/listings";
-import useLocation from "../hooks/useLocation";
-import UploadScreen from "./UploadScreen";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -92,47 +90,20 @@ const categories = [
 ];
 
 function ListingEditScreen() {
-  // call for custom location hook to ask for permission and retrieve location of user
-  const location = useLocation();
-
-  const [uploadVisible, setUploadVisible] = useState(false);
-  const [progress, setProgress] = useState(0);
+  // const [uploadVisible, setUploadVisible] = useState(false);
+  // const [progress, setProgress] = useState(0);
 
   //Function waits for input to POST new listing to server
-  const handleSubmit = async (listing, { resetForm }) => {
-    //reset progress
-    setProgress(0);
-    //Show progress bar
-    setUploadVisible(true);
-
-    //Alternative
-    // listing.location = location
-    // const result = await listingsApi.addListing({listing});
-
-    // Await for listing to be added and sends it to API to POST to server
-    const result = await listingsApi.addListing(
-      { ...listing, location }, // spreads "listing" properties and include location as a property
-      // conccurently runs this function to actively set the progress state
-      (progress) => setProgress(progress)
-    );
-
-    //Remove progress bar
-
-    if (!result.ok) {
-      setUploadVisible(false);
-      return alert("Could not save the listing");
-    }
-    resetForm(); // if everything is fine, resets all form values to 0 ***but does not change state within formik
-  };
+  const handleSubmit = async (listing, { resetForm }) => {};
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
       <Screen style={styles.container}>
-        <UploadScreen
+        {/* <UploadScreen
           onDone={() => setUploadVisible(false)}
           progress={progress}
           visible={uploadVisible}
-        />
+        /> */}
         <AppForm
           initialValues={{
             title: "",
