@@ -36,7 +36,7 @@ function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
   // uses custom hook "useAuth" from useAuth.js to perform useContext(AuthContext);
-
+  const { setIsSignedIn } = useContext(AuthApi.AuthContext);
   //Function to handle logout process
   const handleLogout = async () => {
     await app.auth().signOut();

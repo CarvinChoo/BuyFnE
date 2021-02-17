@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useContext } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
 
@@ -26,10 +26,7 @@ function RegisterScreen() {
         .createUserWithEmailAndPassword(
           registrationDetails.email,
           registrationDetails.password
-        )
-        .then((user) => {
-          console.log("still can do stuff");
-        });
+        );
     } catch (error) {
       alert(error);
     }

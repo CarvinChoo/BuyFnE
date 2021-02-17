@@ -6,17 +6,15 @@ import AppLoading from "expo-app-loading";
 const AuthContext = React.createContext();
 
 const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
   const [pending, setPending] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     app.auth().onAuthStateChanged((user) => {
       setCurrentUser(user);
       setPending(false);
-      console.log("Current User:", user);
     });
   }, []);
-
   if (pending) {
     return <AppLoading />;
   }
