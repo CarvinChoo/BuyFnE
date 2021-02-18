@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { StyleSheet, View, FlatList } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { StyleSheet, View, FlatList, Image } from "react-native";
 
 //import { FlatList } from "react-native-gesture-handler";
 import ListItem from "../components/lists/ListItem";
@@ -36,20 +36,40 @@ function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
   // uses custom hook "useAuth" from useAuth.js to perform useContext(AuthContext);
-  const { setIsSignedIn } = useContext(AuthApi.AuthContext);
+  const { currentUser, isLoading, setIsLoading } = useContext(
+    AuthApi.AuthContext
+  );
+
+  //Used to grab image from cloud storage///////////////////////////////////////////////
+  // useEffect(() => {
+  //   var ref = filestorage.ref().child(currentUser.uid + "/profilePicture.jpeg");
+  //   ref.getDownloadURL().then((url) => {
+  //     // `url` is the download URL for 'currentUser.uid + "/profilePicture.jpeg"'
+  //     // Used local state to set profile picture url
+  //     setProfilePic(url);
+  //   });
+  // }, []);
+
   //Function to handle logout process
   const handleLogout = async () => {
+    setIsLoading(true);
     await app.auth().signOut();
+    setIsLoading(false);
   };
 
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
         <ListItem
-          title='Hello'
-          subTitle='BYEBYE'
-          image={require("../assets/HnMlogo.png")}
+          title={currentUser.displayName}
+          subTitle={currentUser.email}
+          image={
+            currentUser.photoURL
+              ? currentUser.photoURL // user's profile picture
+              : require("../assets/default-profile-pic.jpg") // default profile picture
+          }
           border={true}
+          defaultimage={currentUser.photoURL ? false : true}
         />
       </View>
       <View style={styles.container}>
@@ -71,13 +91,22 @@ function AccountScreen({ navigation }) {
           ItemSeparatorComponent={ListItemSeperator}
         />
       </View>
-      <ListItem
-        title='Log Out'
-        IconComponent={
-          <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
-        }
-        onPress={handleLogout} // call for function to handle logout process
-      />
+      {!isLoading ? (
+        <ListItem
+          title='Log Out'
+          IconComponent={
+            <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
+          }
+          onPress={handleLogout} // call for function to handle logout process
+        />
+      ) : (
+        <ListItem
+          title='Log Out'
+          IconComponent={
+            <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
+          }
+        />
+      )}
     </Screen>
   );
 }

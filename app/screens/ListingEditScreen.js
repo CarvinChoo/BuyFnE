@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import React, { useContext, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import * as Yup from "yup";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
@@ -9,14 +9,33 @@ import {
   AppFormPicker,
   SubmitButton,
   AppFormImagePicker,
+  Error_Message,
 } from "../components/forms";
 import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
+// Back End
+import AuthApi from "../api/auth";
+import db from "../api/db";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
   price: Yup.number().required().min(1).max(10000).label("Price"),
+  discount: Yup.number()
+    .required()
+    .min(1, "Must be more 1% of the price.")
+    // .test({
+    //   name: "max",
+    //   exclusive: false,
+    //   params: {},
+    //   message: "${path} must be more than 10% of the price",
+    //   test: function (value) {
+    //     // You can access the price field with `this.parent`.
+    //     return value <= parseFloat(this.parent.price * 0.1);
+    //   },
+    // })
+    .max(99, "Must be less 100% of the price.")
+    .label("Discount (Percentage)"),
   description: Yup.string().label("Description"),
   category: Yup.object().required().nullable().label("Category"),
   images: Yup.array().min(1, "Please select at least one image."), //.label("Images") causes message "Images field is required" which is not appropriate for the field
@@ -91,9 +110,63 @@ const categories = [
 function ListingEditScreen() {
   // const [uploadVisible, setUploadVisible] = useState(false);
   // const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
+  const { currentUser } = useContext(AuthApi.AuthContext);
+  const createListingCollection = async (listing) => {
+    const ref = db
+      .collection("listings")
+      .doc(currentUser.uid)
+      .collection("my_listings")
+      .doc(listing.title);
+
+    ref.get().then((doc) => {
+      if (!doc.exists) {
+        ref
+          .set({
+            seller: currentUser.uid,
+            title: listing.title,
+            price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
+            discount: Number(listing.discount),
+            description: listing.description,
+            category: listing.category.value,
+          })
+          .then(() => {
+            console.log("Listing Successfully Created.");
+          })
+          .catch((error) => {
+            console.log("createListingCollection error:", error.message);
+          });
+        setError(null);
+      } else {
+        setError("Title already exist in your existing listings.");
+      }
+    });
+
+    // await db
+    //   .collection("listings")
+    //   .doc(currentUser.uid)
+    //   .collection("my_listings")
+    //   .doc(listing.title)
+    //   .set({
+    //     seller: currentUser.uid,
+    //     title: listing.title,
+    //     price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
+    //     discount: Number(listing.discount),
+    //     description: listing.description,
+    //     category: listing.category.value,
+    //   })
+    //   .then(() => {
+    //     console.log("Listing Successfully Created.");
+    //   })
+    //   .catch((error) => {
+    //     console.log("createListingCollection error:", error.message);
+    //   });
+  };
 
   //Function waits for input to POST new listing to server
-  const handleSubmit = async (listing, { resetForm }) => {};
+  const handleSubmit = async (listing, { resetForm }) => {
+    createListingCollection(listing);
+  };
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
@@ -107,6 +180,7 @@ function ListingEditScreen() {
           initialValues={{
             title: "",
             price: "", // even though price is a number, but in a form, it is represented as a string
+            discount: "",
             description: "",
             category: null,
             images: [],
@@ -122,6 +196,15 @@ function ListingEditScreen() {
             keyboardType='numeric'
             placeholder='Price'
             width={120}
+            icon='currency-usd'
+          />
+          <AppFormField
+            name='discount'
+            maxLength={2}
+            keyboardType='numeric'
+            placeholder='Group Buy Discount '
+            width={230}
+            icon='percent'
           />
           <AppFormPicker
             name='category'
@@ -138,6 +221,7 @@ function ListingEditScreen() {
             numberOfLines={3}
             placeholder='Description'
           />
+          <Error_Message error={error} visible={error} />
           <SubmitButton title='Post' />
         </AppForm>
       </Screen>
@@ -147,6 +231,13 @@ function ListingEditScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 10 },
+  discountContainer: {
+    flexDirection: "row",
+  },
+  discountSymbol: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
 
 export default ListingEditScreen;

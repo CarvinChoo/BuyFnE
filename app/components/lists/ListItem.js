@@ -22,6 +22,7 @@ function ListItem({
   onPress,
   renderRightActions,
   border = false, // default turns off border if not stated
+  defaultimage = true,
 }) {
   return (
     <Swipeable renderRightActions={renderRightActions}>
@@ -31,17 +32,28 @@ function ListItem({
       >
         <View style={styles.container}>
           {IconComponent}
-          {image && (
-            <Image
-              style={[
-                styles.image,
-                border // boolean conditional styling
-                  ? { borderWidth: 2, borderColor: colors.black }
-                  : {},
-              ]}
-              source={image}
-            />
-          )}
+          {image &&
+            (defaultimage ? (
+              <Image // Default Image using assets folder set in parent component calling this component
+                style={[
+                  styles.image,
+                  border // boolean conditional styling
+                    ? { borderWidth: 2, borderColor: colors.black }
+                    : {},
+                ]}
+                source={image}
+              />
+            ) : (
+              <Image // Image retrieved from firebase storage
+                style={[
+                  styles.image,
+                  border // boolean conditional styling
+                    ? { borderWidth: 2, borderColor: colors.black }
+                    : {},
+                ]}
+                source={{ uri: image }}
+              />
+            ))}
           <View style={styles.detailsContainer}>
             <AppText style={styles.title} numberOfLines={1}>
               {title}

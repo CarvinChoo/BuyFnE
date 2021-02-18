@@ -61,11 +61,14 @@ function ListingsScreen({ navigation }) {
           <Card
             title={item.title}
             subTitle={"$" + item.price}
-            // imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
             image={item.image}
-            onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
-            //*routes.js is where you change the screen name
-            // thumbnailUrl={item.images[0].thumbnailUrl} // sets thumbnail for progressive loading ( blur effect on image)
+            // title={item.title}
+            // subTitle={"$" + item.price}
+            // // imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
+            // image={item.image}
+            // onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
+            // //*routes.js is where you change the screen name
+            // // thumbnailUrl={item.images[0].thumbnailUrl} // sets thumbnail for progressive loading ( blur effect on image)
           />
         )}
       />

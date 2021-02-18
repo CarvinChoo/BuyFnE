@@ -66,7 +66,7 @@ function MessagesScreen(props) {
               id: 2,
               title: "T2",
               description: "D2",
-              image: require("../assets/HnMlogo.png"),
+              image: null,
             },
           ]);
         }}

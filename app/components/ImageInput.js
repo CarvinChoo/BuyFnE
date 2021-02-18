@@ -13,11 +13,11 @@ import * as ImagePicker from "expo-image-picker";
 function ImageInput({ imageUri, onChangeImage }) {
   // ensures premission is asked and will only ask once due to empty []
   useEffect(() => {
-    requestPression();
+    requestPremission();
   }, []);
 
   //Request Premission to access Media Library///////////////////////////////////
-  const requestPression = async () => {
+  const requestPremission = async () => {
     const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!granted) alert("You need to enable premission to access the library.");
   };
