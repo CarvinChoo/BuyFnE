@@ -2,10 +2,12 @@ import React, { useRef, useContext, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import * as Yup from "yup";
 
+//BackEnd
 import app from "../auth/base.js";
 import db from "../api/db";
 import filestorage from "../api/filestorage";
 import AuthApi from "../api/auth";
+//Front End
 import Screen from "../components/Screen";
 import {
   AppForm,

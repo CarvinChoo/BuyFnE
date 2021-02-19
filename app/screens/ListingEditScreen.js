@@ -17,6 +17,7 @@ import colors from "../config/colors";
 // Back End
 import AuthApi from "../api/auth";
 import db from "../api/db";
+import filestorage from "../api/filestorage";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -111,7 +112,30 @@ function ListingEditScreen() {
   // const [uploadVisible, setUploadVisible] = useState(false);
   // const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+  const [listingimages, setListingImages] = useState([]);
   const { currentUser } = useContext(AuthApi.AuthContext);
+
+  const uploadImage = async (uri, title, num) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const ref = filestorage
+      .ref()
+      .child(currentUser.uid + "/listings/" + title + "/image" + num + ".jpeg");
+    const snapshot = await ref.put(blob);
+    // We're done with the blob, close and release it
+    blob.close();
+    return snapshot.ref.getDownloadURL();
+  };
+
+  const uploadListingImagesArray = (listing) => {
+    const imageArray = listing.images;
+    let i = 0;
+    const promises = imageArray.map((image) => {
+      i++;
+      return uploadImage(image, listing.title, i);
+    });
+    return promises;
+  };
   const createListingCollection = async (listing) => {
     const ref = db
       .collection("listings")
@@ -121,52 +145,42 @@ function ListingEditScreen() {
 
     ref.get().then((doc) => {
       if (!doc.exists) {
-        ref
-          .set({
-            seller: currentUser.uid,
-            title: listing.title,
-            price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
-            discount: Number(listing.discount),
-            description: listing.description,
-            category: listing.category.value,
-          })
-          .then(() => {
-            console.log("Listing Successfully Created.");
-          })
-          .catch((error) => {
-            console.log("createListingCollection error:", error.message);
-          });
-        setError(null);
+        // Uploads list of images and returns their promises
+        const promises = uploadListingImagesArray(listing);
+
+        // Make sure all promises in the array are resolve and have URL string in them
+        Promise.all(promises).then((images) => {
+          // Sets User's listings Collection
+          ref
+            .set({
+              seller: currentUser.uid,
+              title: listing.title,
+              price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
+              discount: Number(listing.discount),
+              description: listing.description,
+              category: listing.category.value,
+              images: images,
+            })
+            .then(() => {
+              console.log("Listing Successfully Created.");
+            })
+            .catch((error) => {
+              console.log("createListingCollection error:", error.message);
+            });
+
+          setError(null);
+        });
       } else {
         setError("Title already exist in your existing listings.");
       }
     });
-
-    // await db
-    //   .collection("listings")
-    //   .doc(currentUser.uid)
-    //   .collection("my_listings")
-    //   .doc(listing.title)
-    //   .set({
-    //     seller: currentUser.uid,
-    //     title: listing.title,
-    //     price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
-    //     discount: Number(listing.discount),
-    //     description: listing.description,
-    //     category: listing.category.value,
-    //   })
-    //   .then(() => {
-    //     console.log("Listing Successfully Created.");
-    //   })
-    //   .catch((error) => {
-    //     console.log("createListingCollection error:", error.message);
-    //   });
   };
 
   //Function waits for input to POST new listing to server
   const handleSubmit = async (listing, { resetForm }) => {
     createListingCollection(listing);
   };
+
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
