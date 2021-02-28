@@ -18,6 +18,7 @@ import colors from "../config/colors";
 import AuthApi from "../api/auth";
 import db from "../api/db";
 import filestorage from "../api/filestorage";
+import * as firebase from "firebase";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -112,7 +113,6 @@ function ListingEditScreen() {
   // const [uploadVisible, setUploadVisible] = useState(false);
   // const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
-  const [listingimages, setListingImages] = useState([]);
   const { currentUser } = useContext(AuthApi.AuthContext);
 
   const uploadImage = async (uri, title, num) => {
@@ -136,21 +136,52 @@ function ListingEditScreen() {
     });
     return promises;
   };
+
+  const addInAllListings = async (listing, images, id, timeNow) => {
+    const ref = await db.collection("all_listings").doc();
+
+    ref
+      .set({
+        seller: currentUser.uid,
+        title: listing.title,
+        price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
+        discount: Number(listing.discount),
+        description: listing.description,
+        category: listing.category.value,
+        images: images,
+        createdAt: timeNow,
+        listingID: id,
+      })
+      .then(() => {
+        console.log("Listing Successfully Added to All Listings.");
+      })
+      .catch((error) => {
+        console.log("addInAllListings error:", error.message);
+      });
+  };
+
   const createListingCollection = async (listing) => {
-    const ref = db
+    const ref = await db
       .collection("listings")
       .doc(currentUser.uid)
       .collection("my_listings")
-      .doc(listing.title);
+      .doc();
 
-    ref.get().then((doc) => {
-      if (!doc.exists) {
+    const query = await db
+      .collection("listings")
+      .doc(currentUser.uid)
+      .collection("my_listings")
+      .where("title", "==", listing.title);
+
+    query.get().then((query) => {
+      if (query.empty) {
         // Uploads list of images and returns their promises
         const promises = uploadListingImagesArray(listing);
 
-        // Make sure all promises in the array are resolve and have URL string in them
+        // Make sure all promises in the array are resolved and have URL string in them
         Promise.all(promises).then((images) => {
           // Sets User's listings Collection
+          const timeNow = firebase.firestore.Timestamp.now();
           ref
             .set({
               seller: currentUser.uid,
@@ -160,9 +191,13 @@ function ListingEditScreen() {
               description: listing.description,
               category: listing.category.value,
               images: images,
+              createdAt: timeNow,
+              listingID: ref.id,
             })
             .then(() => {
               console.log("Listing Successfully Created.");
+              addInAllListings(listing, images, ref.id, timeNow);
+              alert("Listing Created!");
             })
             .catch((error) => {
               console.log("createListingCollection error:", error.message);
@@ -179,6 +214,7 @@ function ListingEditScreen() {
   //Function waits for input to POST new listing to server
   const handleSubmit = async (listing, { resetForm }) => {
     createListingCollection(listing);
+    resetForm();
   };
 
   return (

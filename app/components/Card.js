@@ -14,7 +14,7 @@ function Card({ title, subTitle, image }) {
     // <TouchableWithoutFeedback onPress={onPress}>
     <View style={styles.card}>
       {/* Image component imported from react-native-expo-image-cache, different from reach-native */}
-      <Image style={styles.image} source={image} />
+      <Image style={styles.image} source={{ uri: image }} />
       {/* <Image
           style={styles.image}
           // tint='light' // color of blur effect
