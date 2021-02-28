@@ -29,24 +29,26 @@ function ListingsScreen({ navigation }) {
   //   loadListings(); // function to call listings
   // }, []); // only call for listings once
   const [listings, setListings] = useState([]);
-  const [Loading, setLoading] = useState(true);
+  const [Loading, setLoading] = useState(true); //*********USED LATER TO SET LOADING SCREEN
 
   useEffect(() => {
     const subscriber = db
       .collection("all_listings")
-      .orderBy("createdAt", "desc")
+      .orderBy("createdAt", "desc") //order the listings by timestamp (createdAt)
       .onSnapshot((querySnapshot) => {
-        const listings = [];
+        const listings = []; // make a temp array to store listings
 
         querySnapshot.forEach((documentSnapshot) => {
+          // push listing one by one into temp array
           listings.push({
-            ...documentSnapshot.data(),
-            key: documentSnapshot.id,
+            //(push as an object)
+            ...documentSnapshot.data(), // spread all properties of a listing document
+            key: documentSnapshot.id, // used by flatlist to identify each ListItem
           });
         });
 
-        setListings(listings);
-        setLoading(false);
+        setListings(listings); //set listings state to be replaced by temp array
+        setLoading(false); // *********USED LATER TO SET LOADING SCREEN
       });
 
     // Unsubscribe from events when no longer in use
@@ -84,12 +86,15 @@ function ListingsScreen({ navigation }) {
       /> */}
       <FlatList
         data={listings}
+        // Normally needed by we already added a "key" property to each listing (above)
         // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string
         renderItem={({ item }) => (
           <Card
             title={item.title}
             subTitle={"$" + item.price}
-            image={item.images[0]}
+            image={item.images[0]} // pick the 1st element url from images array
+            //********* WILL NEED TO PUT IN MORE PROPERTIES TO BE PASSED TO CARD
+            //********* REMEMBER TO SET  ...otherProps in parameters in CARD component !!!!!!!!
             // imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
             // image={item.image}
             // onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
