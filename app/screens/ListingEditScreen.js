@@ -38,6 +38,7 @@ const validationSchema = Yup.object().shape({
     // })
     .max(99, "Must be less 100% of the price.")
     .label("Discount (Percentage)"),
+  quantity: Yup.number().required().min(1).max(10000).label("Quantity"),
   description: Yup.string().label("Description"),
   category: Yup.object().required().nullable().label("Category"),
   images: Yup.array().min(1, "Please select at least one image."), //.label("Images") causes message "Images field is required" which is not appropriate for the field
@@ -146,6 +147,7 @@ function ListingEditScreen() {
         title: listing.title,
         price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
         discount: Number(listing.discount),
+        quantity: Number(listing.quantity),
         description: listing.description,
         category: listing.category.value,
         images: images,
@@ -188,6 +190,7 @@ function ListingEditScreen() {
               title: listing.title,
               price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
               discount: Number(listing.discount),
+              quantity: Number(listing.quantity),
               description: listing.description,
               category: listing.category.value,
               images: images,
@@ -231,6 +234,7 @@ function ListingEditScreen() {
             title: "",
             price: "", // even though price is a number, but in a form, it is represented as a string
             discount: "",
+            quantity: "",
             description: "",
             category: null,
             images: [],
@@ -255,6 +259,14 @@ function ListingEditScreen() {
             placeholder='Group Buy Discount '
             width={230}
             icon='percent'
+          />
+          <AppFormField
+            name='quantity'
+            maxLength={5}
+            keyboardType='numeric'
+            placeholder='Quantity'
+            width={130}
+            icon='truck-delivery'
           />
           <AppFormPicker
             name='category'
