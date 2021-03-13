@@ -23,7 +23,7 @@ import colors from "../config/colors.js";
 const shopperValidationSchema = Yup.object().shape({
   name: Yup.string().required().label("Name"),
   email: Yup.string().required().email().label("Email"),
-  password: Yup.string().required().min(4).label("Password"),
+  password: Yup.string().required().min(6).label("Password"),
   image: Yup.string().nullable(),
 });
 
@@ -36,7 +36,9 @@ const retailerValidationSchema = Yup.object().shape({
 });
 
 function RegisterScreen() {
-  const { isLoading, setIsLoading } = useContext(AuthApi.AuthContext);
+  const { isLoading, setIsLoading, userType, setUserType } = useContext(
+    AuthApi.AuthContext
+  );
   const [error, setError] = useState(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => {
@@ -141,10 +143,12 @@ function RegisterScreen() {
         displayName: registrationDetails.name,
         email: registrationDetails.email,
         type: isEnabled ? "Seller" : "Buyer",
-        storename: registrationDetails.storename,
+        storename: isEnabled ? registrationDetails.storename : "",
       })
       .then(() => {
+        setUserType(isEnabled ? "Seller" : "Buyer");
         console.log("User Successfully Created.");
+        console.log(userType);
       })
       .catch((error) => {
         console.log("createUserCollectionDoc error:", error.message);
@@ -237,7 +241,7 @@ function RegisterScreen() {
               textContentType='password'
             />
             <Error_Message error={error} visible={error} />
-            {!isLoading ? (
+            {!isLoading ? ( // Still pressable even when loading
               <SubmitButton title='Register' />
             ) : (
               <LoadingSubmitButton title='Register' />
