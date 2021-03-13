@@ -1,5 +1,5 @@
 import React, { useRef, useContext, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, Switch, StyleSheet, View, Text } from "react-native";
 import * as Yup from "yup";
 
 //BackEnd
@@ -18,8 +18,17 @@ import {
   AppFormSingleImagePicker,
 } from "../components/forms";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import colors from "../config/colors.js";
 
-const validationSchema = Yup.object().shape({
+const shopperValidationSchema = Yup.object().shape({
+  name: Yup.string().required().label("Name"),
+  email: Yup.string().required().email().label("Email"),
+  password: Yup.string().required().min(4).label("Password"),
+  image: Yup.string().nullable(),
+});
+
+const retailerValidationSchema = Yup.object().shape({
+  storename: Yup.string().required().min(2).label("Store Name"),
   name: Yup.string().required().label("Name"),
   email: Yup.string().required().email().label("Email"),
   password: Yup.string().required().min(4).label("Password"),
@@ -29,7 +38,10 @@ const validationSchema = Yup.object().shape({
 function RegisterScreen() {
   const { isLoading, setIsLoading } = useContext(AuthApi.AuthContext);
   const [error, setError] = useState(null);
-
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => {
+    setIsEnabled((previousState) => !previousState);
+  };
   // //Function to upload image
   // const uploadImage = async (user, registrationDetails) => {
   //   const imageUri = registrationDetails.image;
@@ -108,7 +120,6 @@ function RegisterScreen() {
   };
 
   const updateUser = (user, registrationDetails, url = null) => {
-    console.log("updateUser:", url);
     user
       .updateProfile({
         displayName: registrationDetails.name,
@@ -129,6 +140,8 @@ function RegisterScreen() {
       .set({
         displayName: registrationDetails.name,
         email: registrationDetails.email,
+        type: isEnabled ? "Seller" : "Buyer",
+        storename: registrationDetails.storename,
       })
       .then(() => {
         console.log("User Successfully Created.");
@@ -170,77 +183,99 @@ function RegisterScreen() {
     setIsLoading(false);
   };
 
-  // const handleSubmit = async (registrationDetails) => {
-  //   setIsLoading(true);
-  //       .then((result) => {
-  //         setError(null);
-  //         try {
-  //           result.user.updateProfile({
-  //             displayName: registrationDetails.name,
-  //           });
-
-  //           try {
-  //             db.collection("users").doc(result.user.uid).set({
-  //               displayName: registrationDetails.name,
-  //               email: registrationDetails.email,
-  //             });
-  //           } catch (error) {
-  //             setError(error.message);
-  //           }
-  //         } catch (error) {
-  //           setError(error.message);
-  //         }
-  //       });
-  //     setError(null);
-  //   } catch (error) {
-  //     setError(error.message);
-  //   }
-  //   setIsLoading(false);
-  // };
-
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
     >
-      <AppActivityIndicator visible={isLoading} />
-      <Screen style={styles.container}>
-        <AppForm
-          initialValues={{ name: "", email: "", password: "", images: null }}
-          onSubmit={handleSubmit}
-          validationSchema={validationSchema}
-        >
-          <AppFormSingleImagePicker name='image' />
-          <AppFormField
-            autoCorrect={false}
-            icon='account'
-            name='name'
-            placeholder='Name'
-          />
-          <AppFormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='email'
-            keyboardType='email-address'
-            name='email'
-            placeholder='Email'
-            textContentType='emailAddress'
-          />
-          <AppFormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='lock'
-            name='password'
-            placeholder='Password'
-            secureTextEntry
-            textContentType='password'
-          />
-          <Error_Message error={error} visible={error} />
-          {!isLoading ? (
-            <SubmitButton title='Register' />
-          ) : (
-            <LoadingSubmitButton title='Register' />
-          )}
-        </AppForm>
-      </Screen>
+      <View>
+        <AppActivityIndicator visible={isLoading} />
+        <Screen style={styles.container}>
+          <AppForm
+            initialValues={{
+              storename: "",
+              name: "",
+              email: "",
+              password: "",
+              images: null,
+            }}
+            onSubmit={handleSubmit}
+            validationSchema={
+              isEnabled ? retailerValidationSchema : shopperValidationSchema
+            }
+          >
+            <AppFormSingleImagePicker name='image' />
+            {isEnabled && (
+              <AppFormField
+                autoCapitalize='words'
+                autoCorrect={false}
+                icon='storefront'
+                name='storename'
+                placeholder='Store Name'
+              />
+            )}
+            <AppFormField
+              autoCorrect={false}
+              icon='account'
+              name='name'
+              placeholder='Name'
+            />
+            <AppFormField
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='email'
+              keyboardType='email-address'
+              name='email'
+              placeholder='Email'
+              textContentType='emailAddress'
+            />
+            <AppFormField
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='lock'
+              name='password'
+              placeholder='Password'
+              secureTextEntry
+              textContentType='password'
+            />
+            <Error_Message error={error} visible={error} />
+            {!isLoading ? (
+              <SubmitButton title='Register' />
+            ) : (
+              <LoadingSubmitButton title='Register' />
+            )}
+            <View style={{ flexDirection: "row-reverse" }}>
+              <Switch
+                trackColor={{ false: "#767577", true: "#FD888C" }}
+                thumbColor={isEnabled ? colors.brightred : "#f4f3f4"}
+                onValueChange={toggleSwitch}
+                value={isEnabled}
+              />
+              {isEnabled ? (
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    padding: 5,
+                    color: "#4ACBF2",
+                    fontSize: 20,
+                  }}
+                >
+                  Retailer Registration
+                </Text>
+              ) : (
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    padding: 5,
+                    color: "#50D0A5",
+                    fontSize: 20,
+                  }}
+                >
+                  Shopper Registration
+                </Text>
+              )}
+            </View>
+          </AppForm>
+        </Screen>
+      </View>
     </ScrollView>
   );
 }
