@@ -19,6 +19,7 @@ import {
 } from "../components/forms";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import colors from "../config/colors.js";
+import AppText from "../components/AppText.js";
 
 // Validation Schema for Buyer
 const shopperValidationSchema = Yup.object().shape({
@@ -263,27 +264,13 @@ function RegisterScreen() {
                 value={isEnabled}
               />
               {isEnabled ? (
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    padding: 5,
-                    color: "#4ACBF2",
-                    fontSize: 20,
-                  }}
-                >
+                <AppText style={styles.sellerFormText}>
                   Retailer Registration
-                </Text>
+                </AppText>
               ) : (
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    padding: 5,
-                    color: "#50D0A5",
-                    fontSize: 20,
-                  }}
-                >
+                <AppText style={styles.buyerFormText}>
                   Shopper Registration
-                </Text>
+                </AppText>
               )}
             </View>
           </AppForm>
@@ -296,6 +283,18 @@ function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+  },
+  buyerFormText: {
+    fontWeight: "bold",
+    padding: 5,
+    color: "#50D0A5",
+    fontSize: 20,
+  },
+  sellerFormText: {
+    fontWeight: "bold",
+    padding: 5,
+    color: "#4ACBF2",
+    fontSize: 20,
   },
 });
 
