@@ -89,18 +89,18 @@ function ListingsScreen({ navigation }) {
       />
       <FlatList
         data={listings}
-        // Normally needed by we already added a "key" property to each listing (above)
+        // Normally needed but we already added a "key" property to each listing (above)
         // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string
         renderItem={({ item }) => (
           <Card
             title={item.title}
             subTitle={"$" + item.price}
             image={item.images[0]} // pick the 1st element url from images array
+            onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
             //********* WILL NEED TO PUT IN MORE PROPERTIES TO BE PASSED TO CARD
             //********* REMEMBER TO SET  ...otherProps in parameters in CARD component !!!!!!!!
             // imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
             // image={item.image}
-            // onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
             // //*routes.js is where you change the screen name
             // // thumbnailUrl={item.images[0].thumbnailUrl} // sets thumbnail for progressive loading ( blur effect on image)
           />

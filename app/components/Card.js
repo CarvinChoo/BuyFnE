@@ -9,28 +9,28 @@ import {
 import colors from "../config/colors";
 import AppText from "./AppText";
 // function Card({ title, subTitle, imageUrl, onPress, thumbnailUrl })
-function Card({ title, subTitle, image }) {
+function Card({ title, subTitle, image, onPress }) {
   return (
-    // <TouchableWithoutFeedback onPress={onPress}>
-    <View style={styles.card}>
-      {/* Image component imported from react-native-expo-image-cache, different from reach-native */}
-      <Image style={styles.image} source={{ uri: image }} />
-      {/* <Image
+    <TouchableWithoutFeedback onPress={onPress}>
+      <View style={styles.card}>
+        {/* Image component imported from react-native-expo-image-cache, different from reach-native */}
+        <Image style={styles.image} source={{ uri: image }} />
+        {/* <Image
           style={styles.image}
           // tint='light' // color of blur effect
           // preview={{ uri: thumbnailUrl }} // sets thumbnail for progressive loading ( blur effect on image)
           uri={imageUrl}
         /> */}
-      <View style={styles.detailsContainer}>
-        <AppText style={styles.title} numberOfLines={1}>
-          {title}
-        </AppText>
-        <AppText style={styles.subTitle} numberOfLines={2}>
-          {subTitle}
-        </AppText>
+        <View style={styles.detailsContainer}>
+          <AppText style={styles.title} numberOfLines={1}>
+            {title}
+          </AppText>
+          <AppText style={styles.subTitle} numberOfLines={2}>
+            {subTitle}
+          </AppText>
+        </View>
       </View>
-    </View>
-    // </TouchableWithoutFeedback>
+    </TouchableWithoutFeedback>
   );
 }
 

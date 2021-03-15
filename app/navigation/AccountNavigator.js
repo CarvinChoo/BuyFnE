@@ -16,7 +16,13 @@ const AccountNavigator = () => (
     }}
   >
     <Stack.Screen name='Account' component={AccountScreen} />
+    {/* Add Stack Screen for Profile
+    Add Stack Screen for myListings
+    Add Stack Screen for GroupBuy
+    Add Stack Screen for Watchlist
+    Add Stack Screen for Order History */}
     <Stack.Screen name='Messages' component={MessagesScreen} />
+    {/* Add Stack Screen for FAQ */}
   </Stack.Navigator>
 );
 
