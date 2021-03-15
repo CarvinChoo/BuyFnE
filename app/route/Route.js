@@ -6,10 +6,14 @@ import AuthNavigator from "../navigation/AuthNavigator";
 import AppNavigator from "../navigation/AppNavigator";
 
 export default Route = ({ children }) => {
-  const { currentUser, isLoading } = useContext(AuthApi.AuthContext);
+  const { currentUser, isLoading, userType } = useContext(AuthApi.AuthContext);
   return (
     <NavigationContainer theme={navigationTheme}>
-      {!isLoading && currentUser ? <AppNavigator /> : <AuthNavigator />}
+      {!isLoading && currentUser ? (
+        <AppNavigator userType={userType} />
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 };

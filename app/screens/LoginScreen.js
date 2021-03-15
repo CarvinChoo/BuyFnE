@@ -22,14 +22,18 @@ const validationSchema = Yup.object().shape({
 
 function LoginScreen(props) {
   // function to handle submission
-  const handSubmit = async (loginDetails) => {
-    try {
-      await app
-        .auth()
-        .signInWithEmailAndPassword(loginDetails.email, loginDetails.password);
-    } catch (error) {
-      alert(error);
-    }
+  const handSubmit = (loginDetails) => {
+    app
+      .auth()
+      .signInWithEmailAndPassword(loginDetails.email, loginDetails.password)
+      .then(() => {
+        console.log("Login Successful");
+      })
+      .catch((error) => {
+        alert(
+          "Wrong Email/Password! Please sign in using a valid email/password."
+        );
+      });
   };
   //////////////////////////////////////////////////////////////////////
   return (

@@ -20,13 +20,14 @@ import {
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import colors from "../config/colors.js";
 
+// Validation Schema for Buyer
 const shopperValidationSchema = Yup.object().shape({
   name: Yup.string().required().label("Name"),
   email: Yup.string().required().email().label("Email"),
   password: Yup.string().required().min(6).label("Password"),
   image: Yup.string().nullable(),
 });
-
+// Validation Schema for Seller
 const retailerValidationSchema = Yup.object().shape({
   storename: Yup.string().required().min(2).label("Store Name"),
   name: Yup.string().required().label("Name"),
@@ -36,11 +37,13 @@ const retailerValidationSchema = Yup.object().shape({
 });
 
 function RegisterScreen() {
-  const { isLoading, setIsLoading, userType, setUserType } = useContext(
+  const { isLoading, setIsLoading, setUserType } = useContext(
     AuthApi.AuthContext
   );
   const [error, setError] = useState(null);
   const [isEnabled, setIsEnabled] = useState(false);
+
+  // Handles Toggling of Form Switch
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
   };
@@ -61,9 +64,9 @@ function RegisterScreen() {
   //   }
   // };
 
-  // Function to create user
-  const createUser = (registrationDetails) => {
-    app
+  // Function to register user in Firbase Authentication
+  const createUser = async (registrationDetails) => {
+    return await app
       .auth()
       .createUserWithEmailAndPassword(
         registrationDetails.email,
@@ -78,10 +81,10 @@ function RegisterScreen() {
       .catch((error) => {
         console.log("createUser error:", error.message);
         setError(error.message);
-        deleteUser(result.user);
+        setIsLoading(false);
       });
   };
-
+  // Function to Upload Profile Pic into Firebase Storage
   const uploadImage = async (user, registrationDetails) => {
     // Why are we using XMLHttpRequest? See:
     // https://github.com/expo/expo/issues/2402#issuecomment-443726662
@@ -118,9 +121,10 @@ function RegisterScreen() {
         updateUser(user, registrationDetails);
         console.log("uploadImage:", error.message);
         console.log("Failed to Uploaded Image.");
+        setIsLoading(false);
       });
   };
-
+  // Function to Update User properties in Firebase Authentication
   const updateUser = (user, registrationDetails, url = null) => {
     user
       .updateProfile({
@@ -128,43 +132,46 @@ function RegisterScreen() {
         photoURL: url,
       })
       .then(() => {
-        createUserCollectionDoc(user, registrationDetails);
+        createUserCollectionDoc(user, registrationDetails, url);
       })
       .catch((error) => {
         console.log("updateUser error:", error.message);
         deleteUser(user);
       });
   };
-
-  const createUserCollectionDoc = (user, registrationDetails) => {
+  // Function to Create new User doc in Firestore
+  const createUserCollectionDoc = (user, registrationDetails, url = null) => {
     db.collection("users")
       .doc(user.uid)
       .set({
         displayName: registrationDetails.name,
         email: registrationDetails.email,
-        type: isEnabled ? "Seller" : "Buyer",
+        type: isEnabled ? 2 : 1, // set type numeric 1 for Buyer and 2 for Seller
         storename: isEnabled ? registrationDetails.storename : "",
+        profilePic: url,
       })
       .then(() => {
-        setUserType(isEnabled ? "Seller" : "Buyer");
+        setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller
         console.log("User Successfully Created.");
-        console.log(userType);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.log("createUserCollectionDoc error:", error.message);
         deleteUser(user);
       });
   };
-
+  // Functions to handle deletion of user under circumstances of registration error
   const deleteUser = (user) => {
     user
       .delete()
       .then(() => {
         console.log("User deleted.");
+        setIsLoading(false);
       })
       .catch((error) => {
         console.log(error.message);
         console.log("Deletion Failed.");
+        setIsLoading(false);
       });
   };
   // For Error Implementation later//////////
@@ -181,17 +188,19 @@ function RegisterScreen() {
   //     });
   // };
 
+  // Function to handle submission
   const handleSubmit = (registrationDetails) => {
     setIsLoading(true);
     createUser(registrationDetails);
-    setIsLoading(false);
   };
 
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
     >
+      <AppActivityIndicator // Loading Screen when processing registration with Firebase
+        visible={isLoading}
+      />
       <View>
-        <AppActivityIndicator visible={isLoading} />
         <Screen style={styles.container}>
           <AppForm
             initialValues={{
@@ -241,7 +250,7 @@ function RegisterScreen() {
               textContentType='password'
             />
             <Error_Message error={error} visible={error} />
-            {!isLoading ? ( // Still pressable even when loading
+            {!isLoading ? ( // !!!!!!Still pressable even when loading, May need an alternative
               <SubmitButton title='Register' />
             ) : (
               <LoadingSubmitButton title='Register' />

@@ -9,27 +9,29 @@ const AuthProvider = ({ children }) => {
   const [pending, setPending] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState("Guest");
+  const [userType, setUserType] = useState(0);
 
   useEffect(() => {
     app.auth().onAuthStateChanged((user) => {
       setCurrentUser(user);
       if (user) {
-        const subscriber = db
-          .collection("users")
+        db.collection("users")
           .doc(user.uid)
           .get()
           .then((querySnapshot) => {
             if (querySnapshot.exists) {
-              setUserType(querySnapshot.data().type);
+              const utype = querySnapshot.data().type;
+              setUserType(utype);
             }
+          })
+          .catch((error) => {
+            console.log(error);
+            console.log("Error in retrieval of user type");
           });
       } else {
-        setUserType("Guest");
-        console.log(userType);
+        setUserType(0);
       }
       setPending(false);
-      return () => subscriber();
     });
   }, []);
 

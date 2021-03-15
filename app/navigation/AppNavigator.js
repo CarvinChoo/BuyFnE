@@ -11,7 +11,7 @@ import routes from "./routes";
 const Tab = createBottomTabNavigator();
 
 // Tab Navigator Between FeedNavigator, ListingEditScreen and AccountScreen
-const AppNavigator = () => (
+const AppNavigator = ({ userType }) => (
   <Tab.Navigator
     tabBarOptions={{
       style: { height: 55 }, // changes height of Tab Bar
@@ -35,27 +35,29 @@ const AppNavigator = () => (
         ) => <MaterialCommunityIcons name='home' color={color} size={size} />,
       }}
     />
-    <Tab.Screen
-      name={routes.LISTING_EDIT}
-      component={ListingEditScreen}
-      options={({ navigation }) => ({
-        tabBarButton: () => (
-          <NewListingButton
-            onPress={() => navigation.navigate(routes.LISTING_EDIT)}
-          />
-        ),
-        //setting Icon for tab
-        tabBarIcon: (
-          { color, size } // setting size and color to react-native 's suggestion
-        ) => (
-          <MaterialCommunityIcons
-            name='plus-circle'
-            color={color}
-            size={size}
-          />
-        ),
-      })}
-    />
+    {userType === 2 && (
+      <Tab.Screen
+        name={routes.LISTING_EDIT}
+        component={ListingEditScreen}
+        options={({ navigation }) => ({
+          tabBarButton: () => (
+            <NewListingButton
+              onPress={() => navigation.navigate(routes.LISTING_EDIT)}
+            />
+          ),
+          //setting Icon for tab
+          tabBarIcon: (
+            { color, size } // setting size and color to react-native 's suggestion
+          ) => (
+            <MaterialCommunityIcons
+              name='plus-circle'
+              color={color}
+              size={size}
+            />
+          ),
+        })}
+      />
+    )}
     <Tab.Screen
       name={routes.ACCOUNT}
       component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
