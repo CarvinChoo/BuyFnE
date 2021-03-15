@@ -36,9 +36,13 @@ function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
   // uses custom hook "useAuth" from useAuth.js to perform useContext(AuthContext);
-  const { currentUser, isLoading, setIsLoading } = useContext(
-    AuthApi.AuthContext
-  );
+  const {
+    currentUser,
+    isLoading,
+    setIsLoading,
+    guestMode,
+    setGuestMode,
+  } = useContext(AuthApi.AuthContext);
 
   //Used to grab image from cloud storage///////////////////////////////////////////////
   // useEffect(() => {
@@ -53,23 +57,34 @@ function AccountScreen({ navigation }) {
   //Function to handle logout process
   const handleLogout = async () => {
     setIsLoading(true);
-    await app.auth().signOut();
-    setIsLoading(false);
+    app
+      .auth()
+      .signOut()
+      .then(() => {
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log("Error at Logout");
+        console.log(error);
+      });
   };
 
+  const handleBackToWelcome = () => {
+    setGuestMode(false);
+  };
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
         <ListItem
-          title={currentUser.displayName}
-          subTitle={currentUser.email}
+          title={currentUser ? currentUser.displayName : "Guest"}
+          subTitle={currentUser ? currentUser.email : "No Email"}
           image={
-            currentUser.photoURL
+            currentUser && currentUser.photoURL
               ? currentUser.photoURL // user's profile picture
               : require("../assets/default-profile-pic.jpg") // default profile picture
           }
           border={true}
-          defaultimage={currentUser.photoURL ? false : true}
+          defaultimage={currentUser && currentUser.photoURL ? false : true}
         />
       </View>
       <View style={styles.container}>
@@ -92,13 +107,23 @@ function AccountScreen({ navigation }) {
         />
       </View>
       {!isLoading ? (
-        <ListItem
-          title='Log Out'
-          IconComponent={
-            <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
-          }
-          onPress={handleLogout} // call for function to handle logout process
-        />
+        guestMode ? (
+          <ListItem
+            title='Back to Welcome Screen'
+            IconComponent={
+              <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
+            }
+            onPress={handleBackToWelcome} // call for function to handle logout process
+          />
+        ) : (
+          <ListItem
+            title='Log Out'
+            IconComponent={
+              <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
+            }
+            onPress={handleLogout} // call for function to handle logout process
+          />
+        )
       ) : (
         <ListItem
           title='Log Out'

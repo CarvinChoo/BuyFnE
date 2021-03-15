@@ -10,6 +10,7 @@ const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState(0);
+  const [guestMode, setGuestMode] = useState(false);
 
   useEffect(() => {
     app.auth().onAuthStateChanged((user) => {
@@ -23,15 +24,17 @@ const AuthProvider = ({ children }) => {
               const utype = querySnapshot.data().type;
               setUserType(utype);
             }
+            setPending(false);
           })
           .catch((error) => {
             console.log(error);
             console.log("Error in retrieval of user type");
+            setPending(false);
           });
       } else {
         setUserType(0);
+        setPending(false);
       }
-      setPending(false);
     });
   }, []);
 
@@ -46,6 +49,8 @@ const AuthProvider = ({ children }) => {
         setIsLoading,
         userType,
         setUserType,
+        guestMode,
+        setGuestMode,
       }}
     >
       {children}

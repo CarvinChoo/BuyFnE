@@ -29,7 +29,7 @@ function ListingsScreen({ navigation }) {
   //   loadListings(); // function to call listings
   // }, []); // only call for listings once
   const [listings, setListings] = useState([]);
-  const [Loading, setLoading] = useState(true); //*********USED LATER TO SET LOADING SCREEN
+  const [loading, setLoading] = useState(true); //*********USED LATER TO SET LOADING SCREEN
 
   useEffect(() => {
     const subscriber = db
@@ -84,6 +84,9 @@ function ListingsScreen({ navigation }) {
       <AppActivityIndicator // loading animation component
         visible={loading} // {loading} is a boolean state
       /> */}
+      <AppActivityIndicator // loading animation component
+        visible={loading} // {loading} is a boolean state
+      />
       <FlatList
         data={listings}
         // Normally needed by we already added a "key" property to each listing (above)

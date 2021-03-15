@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
 
@@ -6,7 +6,16 @@ import colors from "../config/colors";
 import AppButton from "../components/AppButton";
 import routes from "../navigation/routes";
 
+// Back End
+import AuthApi from "../api/auth";
+
 function WelcomeScreen({ navigation }) {
+  const { setGuestMode } = useContext(AuthApi.AuthContext);
+
+  const handleGuest = () => {
+    setGuestMode(true);
+  };
+
   return (
     <ImageBackground
       // blurRadius={2}
@@ -20,11 +29,11 @@ function WelcomeScreen({ navigation }) {
         />
       </View>
       <View style={styles.buttonscontainer}>
-        {/* <AppButton
+        <AppButton //Guest mode button
           title='Guest'
           color='darkorange'
-          onPress={() => alert("Guest Tapped")}
-        /> */}
+          onPress={handleGuest}
+        />
         <AppButton
           title='Login'
           color='brightred'
