@@ -25,6 +25,7 @@ function ListingDetailsScreen({ route }) {
       <Screen
         style={{
           marginBottom: 10,
+          paddingTop: 0,
         }}
       >
         <View>
@@ -85,7 +86,7 @@ function ListingDetailsScreen({ route }) {
                 color: "#ff3300",
               }}
             >
-              {"$" + listing.price}
+              {"$" + listing.price.toFixed(2)}
             </AppText>
             <AppText
               style={{
@@ -130,7 +131,7 @@ function ListingDetailsScreen({ route }) {
                   textDecorationStyle: "solid",
                 }}
               >
-                {"$" + listing.price}
+                {"$" + listing.price.toFixed(2)}
               </AppText>
               <AppText
                 style={{
@@ -140,7 +141,10 @@ function ListingDetailsScreen({ route }) {
                 }}
               >
                 {"$" +
-                  (listing.price - (listing.price / 100) * listing.discount)}
+                  (
+                    listing.price -
+                    (listing.price / 100) * listing.discount
+                  ).toFixed(2)}
               </AppText>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <View

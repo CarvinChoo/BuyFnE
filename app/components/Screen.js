@@ -1,14 +1,10 @@
 import React from "react";
 import Constants from "expo-constants";
-import { SafeAreaView, StyleSheet, Stylesheet, View } from "react-native"; // SafeAreaView imported from here does not work for android
+import { StyleSheet, View } from "react-native"; // SafeAreaView imported from here does not work for android
 //import { SafeAreaView } from "react-native-safe-area-context";     // SafeAreaView here works for android
 
 function Screen({ children, style }) {
-  return (
-    <SafeAreaView style={[styles.screen, style]}>
-      <View style={[styles.view, style]}>{children}</View>
-    </SafeAreaView>
-  );
+  return <View style={[styles.view, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -23,6 +19,7 @@ const styles = StyleSheet.create({
     flex: 1, //remember this so it stretch to the whole screen
   },
   view: {
+    paddingTop: Constants.statusBarHeight,
     flex: 1,
   },
 });
