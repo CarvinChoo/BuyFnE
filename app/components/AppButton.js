@@ -2,14 +2,15 @@ import React from "react";
 import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import colors from "../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-function AppButton({ title, onPress, color, icon }) {
+function AppButton({ title, onPress, color, icon, style }) {
   return (
     <TouchableHighlight
       style={[
         styles.button,
-        color
+        color // uses colors config file
           ? { backgroundColor: colors[color] }
           : { backgroundColor: colors.brightred },
+        style,
       ]} // accessing property in colors using name index e.g.
       onPress={onPress} //if color is "cyan", colors["cyan"] will reference cyan from colors.js
     >

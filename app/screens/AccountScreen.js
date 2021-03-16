@@ -12,6 +12,7 @@ import routes from "../navigation/routes";
 // Back End
 import AuthApi from "../api/auth";
 import app from "../auth/base.js";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 
 const menuItems = [
   {
@@ -55,8 +56,7 @@ function AccountScreen({ navigation }) {
   // }, []);
 
   //Function to handle logout process
-  const handleLogout = async () => {
-    setIsLoading(true);
+  const handleLogout = () => {
     app.auth().signOut();
   };
 

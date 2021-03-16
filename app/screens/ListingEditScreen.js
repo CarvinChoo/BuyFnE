@@ -278,7 +278,7 @@ function ListingEditScreen() {
           />
           <AppFormField
             name='description'
-            maxLength={255}
+            maxLength={600}
             multiline
             numberOfLines={3}
             placeholder='Description'
