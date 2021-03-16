@@ -1,7 +1,8 @@
 import React from "react";
-import { StyleSheet, Text, TouchableHighlight } from "react-native";
+import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import colors from "../config/colors";
-function AppButton({ title, onPress, color }) {
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+function AppButton({ title, onPress, color, icon }) {
   return (
     <TouchableHighlight
       style={[
@@ -12,7 +13,17 @@ function AppButton({ title, onPress, color }) {
       ]} // accessing property in colors using name index e.g.
       onPress={onPress} //if color is "cyan", colors["cyan"] will reference cyan from colors.js
     >
-      <Text style={styles.text}>{title}</Text>
+      <View style={{ flexDirection: "row" }}>
+        {icon && (
+          <MaterialCommunityIcons
+            name={icon}
+            size={25}
+            color={colors.white}
+            style={styles.icon}
+          />
+        )}
+        <Text style={styles.text}>{title}</Text>
+      </View>
     </TouchableHighlight>
   );
 }
@@ -31,6 +42,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textTransform: "uppercase",
     fontWeight: "bold",
+  },
+  icon: {
+    marginRight: 10,
   },
 });
 export default AppButton;

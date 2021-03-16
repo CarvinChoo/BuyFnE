@@ -57,16 +57,7 @@ function AccountScreen({ navigation }) {
   //Function to handle logout process
   const handleLogout = async () => {
     setIsLoading(true);
-    app
-      .auth()
-      .signOut()
-      .then(() => {
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.log("Error at Logout");
-        console.log(error);
-      });
+    app.auth().signOut();
   };
 
   const handleBackToWelcome = () => {

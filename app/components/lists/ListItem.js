@@ -23,6 +23,7 @@ function ListItem({
   renderRightActions,
   border = false, // default turns off border if not stated
   defaultimage = true,
+  style,
 }) {
   return (
     <Swipeable renderRightActions={renderRightActions}>
@@ -30,7 +31,7 @@ function ListItem({
         underlayColor={colors.darkgrey} // changes the highlight color when pressed
         onPress={onPress}
       >
-        <View style={styles.container}>
+        <View style={[styles.container, style]}>
           {IconComponent}
           {image &&
             (defaultimage ? (
