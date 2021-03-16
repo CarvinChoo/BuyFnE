@@ -1,14 +1,9 @@
 import React, { useRef, useState } from "react";
 import { View, StyleSheet, Image, ScrollView } from "react-native";
-import {
-  TouchableHighlight,
-  TouchableWithoutFeedback,
-} from "react-native-gesture-handler";
+import { TouchableHighlight } from "react-native-gesture-handler";
 import AppText from "../components/AppText";
-import ListItem from "../components/lists/ListItem";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
-import ListingsScreen from "./ListingsScreen";
 import AppButton from "../components/AppButton";
 
 function ListingDetailsScreen({ route }) {
