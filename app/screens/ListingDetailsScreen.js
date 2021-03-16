@@ -6,7 +6,6 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import AppButton from "../components/AppButton";
 import ReadMore from "react-native-read-more-text";
-import ListItemSeperator from "../components/lists/ListItemSeperator";
 
 function ListingDetailsScreen({ route }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
@@ -143,44 +142,6 @@ function ListingDetailsScreen({ route }) {
             10 Reviews | 20 Sold
           </AppText>
         </View>
-        <ListItemSeperator />
-        {/* Description Section */}
-        <View
-          style={{
-            justifyContent: "center",
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            backgroundColor: "white",
-          }}
-        >
-          <AppText
-            style={{
-              fontSize: 20,
-              marginBottom: 10,
-              fontWeight: "bold",
-            }}
-          >
-            Description
-          </AppText>
-          <View style={{ marginBottom: 10 }}>
-            <ReadMore
-              numberOfLines={3}
-              renderTruncatedFooter={renderTruncatedFooter}
-              renderRevealedFooter={renderRevealedFooter}
-              onReady={handleTextReady}
-            >
-              <AppText
-                style={{
-                  fontSize: 18,
-                  fontFamily: "sans-serif-thin",
-                  fontWeight: "bold",
-                }}
-              >
-                {listing.description ? listing.description : "N.A"}
-              </AppText>
-            </ReadMore>
-          </View>
-        </View>
 
         {/* Add to Cart Button */}
         <View
@@ -284,6 +245,44 @@ function ListingDetailsScreen({ route }) {
             </View>
           </View>
           <AppButton title='Create Group Buy' icon='account-group' />
+        </View>
+        {/* Description Section */}
+        <View
+          style={{
+            justifyContent: "center",
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            backgroundColor: "white",
+            marginBottom: 10,
+          }}
+        >
+          <AppText
+            style={{
+              fontSize: 20,
+              marginBottom: 10,
+              fontWeight: "bold",
+            }}
+          >
+            Description
+          </AppText>
+          <View style={{ marginBottom: 10 }}>
+            <ReadMore
+              numberOfLines={3}
+              renderTruncatedFooter={renderTruncatedFooter}
+              renderRevealedFooter={renderRevealedFooter}
+              onReady={handleTextReady}
+            >
+              <AppText
+                style={{
+                  fontSize: 18,
+                  fontFamily: "sans-serif-thin",
+                  fontWeight: "bold",
+                }}
+              >
+                {listing.description ? listing.description : "N.A"}
+              </AppText>
+            </ReadMore>
+          </View>
         </View>
 
         {/* <ListItem
