@@ -146,34 +146,12 @@ function ListingDetailsScreen({ route }) {
         </View>
         <ListItemSeperator />
 
-        {/* Seller Info */}
-        {/* <View
-          style={{
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            backgroundColor: "white",
-          }}
-        >
-          <Image
-            style={{
-              width: 70,
-              height: 70,
-              borderRadius: 35,
-              overflow: "hidden",
-              borderWidth: 2,
-              borderColor: colors.black,
-            }}
-            source={require("../assets/HnMlogo.png")}
-          />
-          <View style={{ flexDirection: "column" }}>
-
-          </View>
-        </View> */}
+        {/*!!!!!!!!!!!!!!!!!! Hard coded Seller Info */}
         <ListItem
           style={{ paddingHorizontal: 10, paddingVertical: 5 }}
-          image={require("../assets/HnMlogo.png")}
-          title='H&M'
-          subTitle='5 Listings'
+          image={require("../assets/HermenLogo.png")}
+          title='Hermen Miller Inc.'
+          subTitle='Products: 15'
           border={true}
         />
         <ListItemSeperator />
