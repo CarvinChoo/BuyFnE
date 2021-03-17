@@ -6,15 +6,15 @@ import db from "../api/db";
 const AuthContext = React.createContext();
 
 const AuthProvider = ({ children }) => {
-  const [pending, setPending] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [initialLoading, setinitialLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState(0);
   const [guestMode, setGuestMode] = useState(false);
 
   useEffect(() => {
     app.auth().onAuthStateChanged((user) => {
-      setCurrentUser(user);
       if (user) {
         db.collection("users")
           .doc(user.uid)
@@ -24,26 +24,32 @@ const AuthProvider = ({ children }) => {
               const utype = querySnapshot.data().type;
               setUserType(utype);
             }
-            setPending(false);
+            setCurrentUser(user);
+            setLoginLoading(false);
+            setinitialLoading(false);
           })
           .catch((error) => {
             console.log(error);
             console.log("Error in retrieval of user type");
-            setPending(false);
+            setCurrentUser(null);
+            setLoginLoading(false);
+            setinitialLoading(false);
           });
       } else {
         setUserType(0);
-        setPending(false);
+        setCurrentUser(null);
+        setLoginLoading(false);
+        setinitialLoading(false);
       }
     });
   }, []);
 
-  if (pending) {
-    return <AppLoading />;
-  }
   return (
     <AuthContext.Provider
       value={{
+        initialLoading,
+        loginLoading,
+        setLoginLoading,
         currentUser,
         isLoading,
         setIsLoading,
