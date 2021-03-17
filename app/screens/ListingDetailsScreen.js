@@ -7,6 +7,7 @@ import colors from "../config/colors";
 import AppButton from "../components/AppButton";
 import ReadMore from "react-native-read-more-text";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
+import ListItem from "../components/lists/ListItem";
 
 function ListingDetailsScreen({ route }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
@@ -144,6 +145,39 @@ function ListingDetailsScreen({ route }) {
           </AppText>
         </View>
         <ListItemSeperator />
+
+        {/* Seller Info */}
+        {/* <View
+          style={{
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            backgroundColor: "white",
+          }}
+        >
+          <Image
+            style={{
+              width: 70,
+              height: 70,
+              borderRadius: 35,
+              overflow: "hidden",
+              borderWidth: 2,
+              borderColor: colors.black,
+            }}
+            source={require("../assets/HnMlogo.png")}
+          />
+          <View style={{ flexDirection: "column" }}>
+
+          </View>
+        </View> */}
+        <ListItem
+          style={{ paddingHorizontal: 10, paddingVertical: 5 }}
+          image={require("../assets/HnMlogo.png")}
+          title='H&M'
+          subTitle='5 Listings'
+          border={true}
+        />
+        <ListItemSeperator />
+
         {/* Description Section */}
         <View
           style={{
