@@ -295,28 +295,28 @@ function ListingDetailsScreen({ route }) {
                   (listing.price / 100) * listing.discount
                 ).toFixed(2)}
             </AppText>
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              <View
+
+            <View
+              style={{
+                backgroundColor: "teal",
+                paddingHorizontal: 5,
+                alignItems: "center",
+                justifyContent: "center",
+                marginLeft: 10,
+              }}
+            >
+              <AppText
                 style={{
-                  backgroundColor: "teal",
-                  paddingHorizontal: 5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginLeft: 10,
+                  fontSize: 18,
+                  color: "white",
+                  fontWeight: "bold",
                 }}
               >
-                <AppText
-                  style={{
-                    fontSize: 18,
-                    color: "white",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {listing.discount + "% OFF"}
-                </AppText>
-              </View>
+                {listing.discount + "% OFF"}
+              </AppText>
             </View>
           </View>
+
           <AppButton title='Create Group Buy' icon='account-group' />
         </View>
 

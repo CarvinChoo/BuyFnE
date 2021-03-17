@@ -94,7 +94,9 @@ function ListingsScreen({ navigation }) {
         renderItem={({ item }) => (
           <Card
             title={item.title}
-            subTitle={"$" + item.price}
+            subTitle={"$" + item.price.toFixed(2)}
+            discount={item.discount}
+            quantity={item.quantity}
             image={item.images[0]} // pick the 1st element url from images array
             onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
             //********* WILL NEED TO PUT IN MORE PROPERTIES TO BE PASSED TO CARD

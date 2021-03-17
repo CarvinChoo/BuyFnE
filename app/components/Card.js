@@ -9,7 +9,15 @@ import {
 import colors from "../config/colors";
 import AppText from "./AppText";
 // function Card({ title, subTitle, imageUrl, onPress, thumbnailUrl })
-function Card({ title, subTitle, image, onPress }) {
+function Card({
+  title,
+  subTitle,
+  discount,
+  timer,
+  quantity = 0,
+  image,
+  onPress,
+}) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.card}>
@@ -25,9 +33,68 @@ function Card({ title, subTitle, image, onPress }) {
           <AppText style={styles.title} numberOfLines={1}>
             {title}
           </AppText>
-          <AppText style={styles.subTitle} numberOfLines={2}>
-            {subTitle}
-          </AppText>
+          {/*!!!!!!!!!!!!!!!!!!!!!!! Hard Coded Store Tag */}
+          <View>
+            <AppText
+              style={{
+                color: colors.muted,
+                fontFamily: "sans-serif-light",
+                marginBottom: 10,
+              }}
+              numberOfLines={1}
+            >
+              {"Sold by: " + "Hermen Miller Inc."}
+            </AppText>
+          </View>
+          <View style={[styles.subTitleContainer]}>
+            <AppText style={styles.subTitle} numberOfLines={2}>
+              {subTitle}
+            </AppText>
+            {/* Discount Tag */}
+            {discount && (
+              <View
+                style={{
+                  backgroundColor: "teal",
+                  paddingHorizontal: 5,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginLeft: 20,
+                }}
+              >
+                <AppText
+                  style={{
+                    fontSize: 18,
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {"Group Buy: " + discount + "% OFF"}
+                </AppText>
+              </View>
+            )}
+          </View>
+          {/*!!!!!!!!!!!!!!!!!!!!!!! Hard coded Timer and stock*/}
+          <View
+            style={[
+              styles.subTitleContainer,
+              { justifyContent: "space-between", marginTop: 5 },
+            ]}
+          >
+            <AppText
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                fontFamily: "sans-serif-light",
+              }}
+            >
+              Time Left: 00:00:00
+            </AppText>
+            <AppText
+              style={{ color: "black", fontFamily: "sans-serif-condensed" }}
+            >
+              {"Stock Left: " + quantity}
+            </AppText>
+          </View>
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -49,11 +116,17 @@ const styles = StyleSheet.create({
     height: 200,
   },
   subTitle: {
-    color: colors.cyan,
+    color: "#ff3300",
+    fontFamily: "sans-serif-light",
     fontWeight: "bold",
   },
   title: {
-    marginBottom: 7,
+    marginBottom: 0,
+    fontFamily: "sans-serif-medium",
+    fontWeight: "bold",
+  },
+  subTitleContainer: {
+    flexDirection: "row",
   },
 });
 export default Card;
