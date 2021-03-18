@@ -36,6 +36,7 @@ function ListingsScreen({ navigation }) {
       .collection("all_listings")
       .orderBy("createdAt", "desc") //order the listings by timestamp (createdAt)
       .onSnapshot((querySnapshot) => {
+        //onSnapshot allows for updates if any changes are made from elsewhere
         const listings = []; // make a temp array to store listings
 
         querySnapshot.forEach((documentSnapshot) => {
@@ -44,6 +45,7 @@ function ListingsScreen({ navigation }) {
             //(push as an object)
             ...documentSnapshot.data(), // spread all properties of a listing document
             key: documentSnapshot.id, // used by flatlist to identify each ListItem
+            count: 1,
           });
         });
 
@@ -114,8 +116,8 @@ function ListingsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: {
-    padding: 10,
-
+    paddingHorizontal: 10,
+    paddingTop: 10,
     backgroundColor: colors.whitegrey,
   },
 });

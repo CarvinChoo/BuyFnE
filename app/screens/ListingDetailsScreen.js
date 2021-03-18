@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { View, StyleSheet, Image, ScrollView, Text } from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import AppText from "../components/AppText";
@@ -9,11 +9,15 @@ import ReadMore from "react-native-read-more-text";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import ListItem from "../components/lists/ListItem";
 
+// BackEnd
+import AuthApi from "../api/auth";
+
 function ListingDetailsScreen({ route }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
   const listing = route.params;
   const scrollView = useRef();
   const [imageOnFocus, setImageOnFocus] = useState(listing.images[0]);
+  const { cart, setCart } = useContext(AuthApi.AuthContext);
   const handlePress = (uri) => {
     setImageOnFocus(uri);
   };
@@ -42,6 +46,30 @@ function ListingDetailsScreen({ route }) {
 
   const handleTextReady = () => {
     // ...
+  };
+
+  const addToCart = (listing) => {
+    // for (const i in cart) {
+    //   console.log(listing.key);
+    //   // if (i.key === listing.key) {
+    //   //   i.count = i.count + 1;
+    //   // } else {
+    //   //   setCart((cart) => [...cart, listing]);
+    //   // }
+    // }
+    // console.log(listing.key);
+    if (cart.length > 0) {
+      cart.forEach((item) => {
+        if (item.key === listing.key) {
+          alert("Item is already in Shopping Cart.");
+        } else {
+          setCart((cart) => [...cart, listing]);
+        }
+      });
+    } else {
+      setCart((cart) => [...cart, listing]);
+    }
+    console.log(cart);
   };
   return (
     //******* REMEMBER Listing document id is listing.key
@@ -211,6 +239,7 @@ function ListingDetailsScreen({ route }) {
             color='cyan'
             title='Add to Cart'
             style={{ width: "48%" }}
+            onPress={() => addToCart(listing)}
           />
           <AppButton
             icon='clipboard-list'

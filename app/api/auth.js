@@ -1,7 +1,6 @@
 // Authentication API
 import React, { useEffect, useState } from "react";
 import app from "../auth/base.js";
-import AppLoading from "expo-app-loading";
 import db from "../api/db";
 const AuthContext = React.createContext();
 
@@ -12,6 +11,7 @@ const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState(0);
   const [guestMode, setGuestMode] = useState(false);
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     app.auth().onAuthStateChanged((user) => {
@@ -57,6 +57,8 @@ const AuthProvider = ({ children }) => {
         setUserType,
         guestMode,
         setGuestMode,
+        cart,
+        setCart,
       }}
     >
       {children}
