@@ -3,9 +3,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import ListingEditScreen from "../screens/ListingEditScreen";
+import ShoppingCartScreen from "../screens/ShoppingCartScreen";
 import FeedNavigator from "./FeedNavigator";
 import AccountNavigator from "./AccountNavigator";
+import CartNavigator from "./CartNavigator";
 import NewListingButton from "./NewListingButton";
+import CartButton from "./CartButton";
 import routes from "./routes";
 
 const Tab = createBottomTabNavigator();
@@ -35,6 +38,7 @@ const AppNavigator = ({ userType }) => (
         ) => <MaterialCommunityIcons name='home' color={color} size={size} />,
       }}
     />
+    {/* Add Listings Navigation */}
     {userType === 2 && (
       <Tab.Screen
         name={routes.LISTING_EDIT}
@@ -55,6 +59,20 @@ const AppNavigator = ({ userType }) => (
               size={size}
             />
           ),
+        })}
+      />
+    )}
+
+    {/* Cart Navigation */}
+    {userType != 2 && (
+      <Tab.Screen
+        name={routes.CartNav}
+        component={CartNavigator}
+        options={({ navigation }) => ({
+          tabBarButton: () => (
+            <CartButton onPress={() => navigation.navigate(routes.CartNav)} />
+          ),
+          //setting Icon for tab
         })}
       />
     )}
