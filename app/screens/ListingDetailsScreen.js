@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from "react";
-import { View, StyleSheet, Image, ScrollView, Text } from "react-native";
+import { View, StyleSheet, Image, ScrollView, Text, Alert } from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import AppText from "../components/AppText";
 import Screen from "../components/Screen";
@@ -65,8 +65,10 @@ function ListingDetailsScreen({ route }) {
       });
       if (similar == true) alert("Item is already in Shopping Cart.");
       else setCart((cart) => [...cart, listing]);
+      alert("Add item to cart.");
     } else {
       setCart((cart) => [...cart, listing]);
+      alert("Add item to cart.");
     }
     console.log(cart);
   };

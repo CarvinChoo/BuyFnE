@@ -64,14 +64,25 @@ function ShoppingCartScreen(props) {
               }}
             >
               <View style={{}}>
-                <AppText numberOfLines={1}>{item.title}</AppText>
+                <AppText
+                  style={{
+                    fontFamily: "sans-serif-medium",
+                    fontWeight: "bold",
+                  }}
+                  numberOfLines={1}
+                >
+                  {item.title}
+                </AppText>
               </View>
               <View style={{ flexDirection: "row" }}>
                 {/* If discount not applied
             <AppText>Price</AppText> */}
                 <AppText
                   style={{
-                    color: "red",
+                    fontSize: 18,
+                    color: "#ff3300",
+                    fontFamily: "sans-serif-light",
+                    fontWeight: "bold",
                     textDecorationLine: "line-through",
                     textDecorationStyle: "solid",
                   }}
@@ -81,7 +92,10 @@ function ShoppingCartScreen(props) {
                 <AppText
                   style={{
                     marginLeft: 10,
-                    color: colors.cyan,
+                    fontSize: 18,
+                    fontFamily: "sans-serif-light",
+                    fontWeight: "bold",
+                    color: "teal",
                   }}
                 >
                   {"$" +
