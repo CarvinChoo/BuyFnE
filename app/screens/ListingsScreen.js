@@ -90,6 +90,7 @@ function ListingsScreen({ navigation }) {
         visible={loading} // {loading} is a boolean state
       />
       <FlatList
+        style={{ paddingTop: 10 }}
         data={listings}
         // Normally needed but we already added a "key" property to each listing (above)
         // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string
@@ -117,7 +118,7 @@ function ListingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   screen: {
     paddingHorizontal: 10,
-    paddingTop: 10,
+    paddingTop: 0,
     backgroundColor: colors.whitegrey,
   },
 });

@@ -58,14 +58,13 @@ function ListingDetailsScreen({ route }) {
     //   // }
     // }
     // console.log(listing.key);
+    var similar = false;
     if (cart.length > 0) {
       cart.forEach((item) => {
-        if (item.key === listing.key) {
-          alert("Item is already in Shopping Cart.");
-        } else {
-          setCart((cart) => [...cart, listing]);
-        }
+        if (item.key == listing.key) similar = true;
       });
+      if (similar == true) alert("Item is already in Shopping Cart.");
+      else setCart((cart) => [...cart, listing]);
     } else {
       setCart((cart) => [...cart, listing]);
     }

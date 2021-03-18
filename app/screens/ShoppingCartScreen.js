@@ -14,6 +14,7 @@ import Counter from "react-native-counters";
 
 // BackEnd
 import AuthApi from "../api/auth";
+import AppButton from "../components/AppButton";
 
 function ShoppingCartScreen(props) {
   const { cart, setCart } = useContext(AuthApi.AuthContext);
@@ -35,9 +36,11 @@ function ShoppingCartScreen(props) {
       style={{
         backgroundColor: colors.whitegrey,
         marginBottom: 10,
+        paddingTop: 0,
       }}
     >
       <FlatList
+        style={{ paddingTop: 15 }}
         data={cart}
         renderItem={({ item }) => (
           <View
@@ -46,25 +49,24 @@ function ShoppingCartScreen(props) {
               flexDirection: "row",
               padding: 15,
               backgroundColor: colors.white,
-              borderWidth: 1,
+
               marginBottom: 15,
             }}
           >
-            <View style={{ borderWidth: 1 }}>
+            <View style={{}}>
               <Image style={styles.image} source={{ uri: item.images[0] }} />
             </View>
             <View
               style={{
-                borderWidth: 1,
                 flexDirection: "column",
                 marginLeft: 20,
                 flex: 1,
               }}
             >
-              <View style={{ borderWidth: 1 }}>
+              <View style={{}}>
                 <AppText numberOfLines={1}>{item.title}</AppText>
               </View>
-              <View style={{ borderWidth: 1, flexDirection: "row" }}>
+              <View style={{ flexDirection: "row" }}>
                 {/* If discount not applied
             <AppText>Price</AppText> */}
                 <AppText
@@ -78,7 +80,7 @@ function ShoppingCartScreen(props) {
                 </AppText>
                 <AppText
                   style={{
-                    marginLeft: 5,
+                    marginLeft: 10,
                     color: colors.cyan,
                   }}
                 >
@@ -90,7 +92,6 @@ function ShoppingCartScreen(props) {
               </View>
               <View
                 style={{
-                  borderWidth: 1,
                   flexDirection: "row",
                   justifyContent: "space-between",
                 }}
@@ -116,13 +117,14 @@ function ShoppingCartScreen(props) {
                   style={{
                     justifyContent: "center",
                     alignItems: "center",
-                    padding: 5,
+                    paddingVertical: 5,
+                    paddingHorizontal: 10,
                     backgroundColor: colors.brightred,
                     borderRadius: 20,
                   }}
                   onPress={() => onDelete(item)}
                 >
-                  <Text
+                  <AppText
                     style={{
                       textTransform: "uppercase",
                       fontWeight: "bold",
@@ -130,13 +132,20 @@ function ShoppingCartScreen(props) {
                     }}
                   >
                     Delete
-                  </Text>
+                  </AppText>
                 </TouchableHighlight>
               </View>
             </View>
           </View>
         )}
       />
+      <View style={{ backgroundColor: "white" }}>
+        <AppButton
+          icon='cash-usd'
+          style={{ marginBottom: 10 }}
+          title='Checkout'
+        />
+      </View>
     </Screen>
   );
 }
