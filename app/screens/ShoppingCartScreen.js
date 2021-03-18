@@ -3,7 +3,6 @@ import {
   FlatList,
   Image,
   StyleSheet,
-  Text,
   TouchableHighlight,
   View,
 } from "react-native";
@@ -11,14 +10,14 @@ import AppText from "../components/AppText";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
 import Counter from "react-native-counters";
-
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 // BackEnd
 import AuthApi from "../api/auth";
 import AppButton from "../components/AppButton";
 
 function ShoppingCartScreen(props) {
   const { cart, setCart } = useContext(AuthApi.AuthContext);
-  const [order, setOrder] = useState(1);
+
   //Change order1 to item.count property for each item
   const onChange = (number, item) => {
     item.count = number;
@@ -53,6 +52,7 @@ function ShoppingCartScreen(props) {
               marginBottom: 15,
             }}
           >
+            {/* Product Image */}
             <View style={{}}>
               <Image style={styles.image} source={{ uri: item.images[0] }} />
             </View>
@@ -63,6 +63,7 @@ function ShoppingCartScreen(props) {
                 flex: 1,
               }}
             >
+              {/* Title */}
               <View style={{}}>
                 <AppText
                   style={{
@@ -74,6 +75,8 @@ function ShoppingCartScreen(props) {
                   {item.title}
                 </AppText>
               </View>
+
+              {/* Price and Discount Section */}
               <View style={{ flexDirection: "row" }}>
                 {/* If discount not applied
             <AppText>Price</AppText> */}
@@ -104,12 +107,15 @@ function ShoppingCartScreen(props) {
                     )}
                 </AppText>
               </View>
+
+              {/* Counter + Delete section */}
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
                 }}
               >
+                {/* Add-minus counter */}
                 <Counter
                   buttonStyle={{
                     borderColor: "#333",
@@ -127,26 +133,25 @@ function ShoppingCartScreen(props) {
                   //Change order to item.count
                   onChange={(number) => onChange(number, item)}
                 />
+
+                {/* Delete from cart button */}
                 <TouchableHighlight
                   style={{
                     justifyContent: "center",
                     alignItems: "center",
                     paddingVertical: 5,
-                    paddingHorizontal: 10,
+                    paddingHorizontal: 8,
                     backgroundColor: colors.brightred,
                     borderRadius: 20,
                   }}
                   onPress={() => onDelete(item)}
                 >
-                  <AppText
-                    style={{
-                      textTransform: "uppercase",
-                      fontWeight: "bold",
-                      color: colors.white,
-                    }}
-                  >
-                    Delete
-                  </AppText>
+                  <MaterialCommunityIcons
+                    name='trash-can-outline'
+                    size={20}
+                    color={colors.white}
+                    style={styles.icon}
+                  />
                 </TouchableHighlight>
               </View>
             </View>
