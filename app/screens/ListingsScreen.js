@@ -94,6 +94,9 @@ function ListingsScreen({ navigation }) {
         data={listings}
         // Normally needed but we already added a "key" property to each listing (above)
         // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string
+        //!!!!!!!!! IMPLEMENT SEARCH BAR AND CATEGORIES HERE
+        //ListHeaderComponent property for single render seperate components on the topp of flat list scrollable
+        //https://stackoverflow.com/questions/60341135/react-native-separate-view-component-scrollable-with-flatlist
         renderItem={({ item }) => (
           <Card
             title={item.title}

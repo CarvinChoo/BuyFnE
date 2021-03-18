@@ -150,7 +150,6 @@ function ShoppingCartScreen(props) {
                     name='trash-can-outline'
                     size={20}
                     color={colors.white}
-                    style={styles.icon}
                   />
                 </TouchableHighlight>
               </View>
