@@ -25,7 +25,12 @@ import AppText from "../components/AppText.js";
 const shopperValidationSchema = Yup.object().shape({
   name: Yup.string().required().label("Name"),
   email: Yup.string().required().email().label("Email"),
-  password: Yup.string().required().min(6).label("Password"),
+  password: Yup.string()
+    .required()
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+      "Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and one Special Case Character"
+    ),
   image: Yup.string().nullable(),
 });
 // Validation Schema for Seller
@@ -33,7 +38,12 @@ const retailerValidationSchema = Yup.object().shape({
   storename: Yup.string().required().min(2).label("Store Name"),
   name: Yup.string().required().label("Name"),
   email: Yup.string().required().email().label("Email"),
-  password: Yup.string().required().min(4).label("Password"),
+  password: Yup.string()
+    .required()
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+      "Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and one Special Case Character"
+    ),
   image: Yup.string().nullable(),
 });
 
@@ -182,6 +192,7 @@ function RegisterScreen({ navigation }) {
       .then(() => {
         console.log("register signout success");
         setIsLoading(false);
+        navigation.goBack();
       })
       .catch((error) => {
         console.log("signOut error:", error.message);
