@@ -16,25 +16,27 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     app.auth().onAuthStateChanged((user) => {
       if (user) {
-        db.collection("users")
-          .doc(user.uid)
-          .get()
-          .then((querySnapshot) => {
-            if (querySnapshot.exists) {
-              const utype = querySnapshot.data().type;
-              setUserType(utype);
-            }
-            setCurrentUser(user);
-            setLoginLoading(false);
-            setinitialLoading(false);
-          })
-          .catch((error) => {
-            console.log(error);
-            console.log("Error in retrieval of user type");
-            setCurrentUser(null);
-            setLoginLoading(false);
-            setinitialLoading(false);
-          });
+        if (user.emailVerified == true) {
+          db.collection("users")
+            .doc(user.uid)
+            .get()
+            .then((querySnapshot) => {
+              if (querySnapshot.exists) {
+                const utype = querySnapshot.data().type;
+                setUserType(utype);
+              }
+              setCurrentUser(user);
+              setLoginLoading(false);
+              setinitialLoading(false);
+            })
+            .catch((error) => {
+              console.log(error);
+              console.log("Error in retrieval of user type");
+              setCurrentUser(null);
+              setLoginLoading(false);
+              setinitialLoading(false);
+            });
+        }
       } else {
         setUserType(0);
         setCurrentUser(null);

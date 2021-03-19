@@ -25,7 +25,7 @@ function ForgetPasswordScreen({ navigation }) {
         navigation.goBack();
       })
       .catch((error) => {
-        alert(error);
+        alert(error.message);
       });
   };
   return (

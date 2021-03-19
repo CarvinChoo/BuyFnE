@@ -37,7 +37,7 @@ const retailerValidationSchema = Yup.object().shape({
   image: Yup.string().nullable(),
 });
 
-function RegisterScreen() {
+function RegisterScreen({ navigation }) {
   const { isLoading, setIsLoading, setUserType } = useContext(
     AuthApi.AuthContext
   );
@@ -152,12 +152,39 @@ function RegisterScreen() {
         profilePic: url,
       })
       .then(() => {
-        setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller
+        // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller
         console.log("User Successfully Created.");
-        setIsLoading(false);
+        emailVerification(user);
       })
       .catch((error) => {
         console.log("createUserCollectionDoc error:", error.message);
+        deleteUser(user);
+      });
+  };
+
+  const emailVerification = (user) => {
+    user
+      .sendEmailVerification()
+      .then(() => {
+        alert("Verification Email has been sent");
+        signOut(user);
+      })
+      .catch((error) => {
+        console.log("emailVerification error", error.message);
+        deleteUser(user);
+      });
+  };
+
+  const signOut = (user) => {
+    app
+      .auth()
+      .signOut()
+      .then(() => {
+        console.log("register signout success");
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log("signOut error:", error.message);
         deleteUser(user);
       });
   };

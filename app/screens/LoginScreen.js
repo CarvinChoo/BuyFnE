@@ -28,9 +28,12 @@ const validationSchema = Yup.object().shape({
 });
 
 function LoginScreen({ navigation }) {
-  const { loginLoading, setLoginLoading, setIsLoading } = useContext(
-    AuthApi.AuthContext
-  );
+  const {
+    setCurrentUser,
+    loginLoading,
+    setLoginLoading,
+    setIsLoading,
+  } = useContext(AuthApi.AuthContext);
   // function to handle submission
   const handSubmit = (loginDetails) => {
     setIsLoading(true);
@@ -38,9 +41,10 @@ function LoginScreen({ navigation }) {
     app
       .auth()
       .signInWithEmailAndPassword(loginDetails.email, loginDetails.password)
-      .then(() => {
-        console.log("Login Successful");
-        setIsLoading(false);
+      .then((userCredential) => {
+        // console.log("Login Successful");
+        console.log("Correct Credentials");
+        authVerification(userCredential.user);
       })
       .catch((error) => {
         alert(
@@ -48,6 +52,24 @@ function LoginScreen({ navigation }) {
         );
         setIsLoading(false);
       });
+  };
+  const authVerification = (user) => {
+    if (user.emailVerified == false) {
+      app
+        .auth()
+        .signOut()
+        .then(() => {
+          alert("Please verify your account via email first.");
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.log("login signout error:", error.message);
+          setCurrentUser(null);
+          setIsLoading(false);
+        });
+    }
+    console.log("Login Successful");
+    setIsLoading(false);
   };
   //////////////////////////////////////////////////////////////////////
   return (
