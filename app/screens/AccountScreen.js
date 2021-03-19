@@ -7,22 +7,33 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 //Navigation
 import routes from "../navigation/routes";
 // Back End
 import AuthApi from "../api/auth";
 import app from "../auth/base.js";
-import AppActivityIndicator from "../components/AppActivityIndicator";
 
-const menuItems = [
+const menuItemsSeller = [
   {
     title: "My Listings",
     icon: {
-      name: "format-list-bulleted",
+      name: "storefront-outline",
       backgroundColor: colors.brightred,
+    },
+    targetScreen: routes.LISTINGSHISTORY,
+  },
+  {
+    title: "My Messages",
+    icon: {
+      name: "email",
+      backgroundColor: colors.cyan,
     },
     targetScreen: routes.MESSAGES,
   },
+];
+
+const menuItemsBuyer = [
   {
     title: "My Messages",
     icon: {
@@ -43,6 +54,7 @@ function AccountScreen({ navigation }) {
     setIsLoading,
     guestMode,
     setGuestMode,
+    userType,
   } = useContext(AuthApi.AuthContext);
 
   //Used to grab image from cloud storage///////////////////////////////////////////////
@@ -80,7 +92,7 @@ function AccountScreen({ navigation }) {
       </View>
       <View style={styles.container}>
         <FlatList
-          data={menuItems}
+          data={userType == 2 ? menuItemsSeller : menuItemsBuyer}
           keyExtractor={(item) => item.title}
           renderItem={({ item }) => (
             <ListItem

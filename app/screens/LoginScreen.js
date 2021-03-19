@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState, useContext } from "react";
-import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
+import React, { useContext } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Yup from "yup"; // use to validation
 //Front End
 import Screen from "../components/Screen";
@@ -9,11 +9,14 @@ import {
   Error_Message,
   SubmitButton,
 } from "../components/forms"; // uses index.js to import instead of individual import
-
+import AppActivityIndicator from "../components/AppActivityIndicator";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import colors from "../config/colors";
+//Navigation
+import routes from "../navigation/routes";
 // Back end
 import app from "../auth/base.js";
 import AuthApi from "../api/auth";
-import AppActivityIndicator from "../components/AppActivityIndicator";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -24,14 +27,10 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().required().min(4).label("Password"), //can use ".matches()" to match it with a regular express
 });
 
-function LoginScreen() {
-  const {
-    loginLoading,
-    setLoginLoading,
-    isLoading,
-    setIsLoading,
-    currentUser,
-  } = useContext(AuthApi.AuthContext);
+function LoginScreen({ navigation }) {
+  const { loginLoading, setLoginLoading, setIsLoading } = useContext(
+    AuthApi.AuthContext
+  );
   // function to handle submission
   const handSubmit = (loginDetails) => {
     setIsLoading(true);
@@ -93,6 +92,27 @@ function LoginScreen() {
 
           <SubmitButton title='Login' />
         </AppForm>
+        <TouchableWithoutFeedback
+          onPress={() => navigation.navigate(routes.FORGETPASSWORD)}
+        >
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 10,
+            }}
+          >
+            <Text
+              style={{
+                color: colors.cadetblue,
+                fontSize: 17,
+                fontWeight: "bold",
+              }}
+            >
+              Forget Password?
+            </Text>
+          </View>
+        </TouchableWithoutFeedback>
       </Screen>
     </ScrollView>
   );

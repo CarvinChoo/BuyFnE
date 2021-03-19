@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
+  FlatList,
   Image,
   StyleSheet,
-  Text,
   TouchableHighlight,
   View,
 } from "react-native";
@@ -12,244 +12,433 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
+// Back End
+import AuthApi from "../api/auth"; // for context
+import db from "../api/db";
+import AppActivityIndicator from "../components/AppActivityIndicator";
+
 function ListingsHistoryScreen(props) {
+  const { currentUser } = useContext(AuthApi.AuthContext);
+
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const subscriber = db
+      .collection("listings")
+      .doc(currentUser.uid)
+      .collection("my_listings")
+      .orderBy("createdAt", "desc") //order the listings by timestamp (createdAt)
+      .onSnapshot((querySnapshot) => {
+        //onSnapshot allows for updates if any changes are made from elsewhere
+        const listings = []; // make a temp array to store listings
+
+        querySnapshot.forEach((documentSnapshot) => {
+          // push listing one by one into temp array
+          listings.push({
+            //(push as an object)
+            ...documentSnapshot.data(), // spread all properties of a listing document
+            key: documentSnapshot.id, // used by flatlist to identify each ListItem
+          });
+        });
+
+        setListings(listings); //set listings state to be replaced by temp array
+        setLoading(false); // *********USED LATER TO SET LOADING SCREEN
+      });
+
+    // Unsubscribe from events when no longer in use
+    return () => subscriber();
+  }, []);
+
   return (
     <Screen
       style={{
         backgroundColor: colors.whitegrey,
+        paddingTop: 0,
       }}
     >
-      <View>
-        {/* Section 1 */}
-        <View
-          style={{
-            flexDirection: "row",
-            padding: 15,
-            backgroundColor: colors.white,
-          }}
-        >
-          <View>
-            <Image
-              style={styles.image}
-              source={require("../assets/jacket.jpg")}
-            />
-          </View>
+      <AppActivityIndicator // loading animation component
+        visible={loading} // {loading} is a boolean state
+      />
+      {listings ? (
+        <FlatList
+          style={{ paddingTop: 10 }}
+          data={listings}
+          renderItem={({ item }) => (
+            <View style={{ marginBottom: 35 }}>
+              {/* Section 1 */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  padding: 10,
+                  backgroundColor: colors.white,
+                }}
+              >
+                <View>
+                  <Image
+                    style={styles.image}
+                    source={{ uri: item.images[0] }}
+                  />
+                </View>
 
-          <View
-            style={{
-              // borderWidth: 1,
-              flexDirection: "column",
-              marginLeft: 20,
-              flex: 1,
-              justifyContent: "space-between",
-            }}
-          >
-            <View
-              style={
-                {
-                  // borderWidth: 1
-                }
-              }
-            >
-              <AppText numberOfLines={1}>Leather Red Jacket</AppText>
-            </View>
-            <View
-              style={{
-                // borderWidth: 1
-                flexDirection: "row",
-              }}
-            >
-              <AppText>Status: </AppText>
-              <AppText style={{ color: "green" }}>Available</AppText>
-            </View>
-            <View
-              style={{
-                // borderWidth: 1,
-                flexDirection: "row-reverse",
-                alignContent: "center",
-              }}
-            >
-              {/* If discount not applied
+                <View
+                  style={{
+                    // borderWidth: 1,
+                    flexDirection: "column",
+                    marginLeft: 20,
+                    flex: 1,
+                  }}
+                >
+                  <View
+                    style={
+                      {
+                        // borderWidth: 1
+                      }
+                    }
+                  >
+                    <AppText
+                      style={{
+                        fontFamily: "sans-serif-medium",
+                        fontWeight: "bold",
+                        fontSize: 20,
+                      }}
+                      numberOfLines={1}
+                    >
+                      {item.title}
+                    </AppText>
+                  </View>
+                  <View
+                    style={{
+                      // borderWidth: 1
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <AppText
+                      style={{
+                        fontFamily: "sans-serif-condensed",
+                        fontSize: 15,
+                        color: colors.grey,
+                      }}
+                    >
+                      Status:
+                    </AppText>
+                    <AppText
+                      style={{
+                        fontFamily: "sans-serif-condensed",
+                        fontSize: 15,
+                        color: colors.darkcyan,
+                        fontWeight: "bold",
+                        marginLeft: 5,
+                      }}
+                    >
+                      Available
+                    </AppText>
+                  </View>
+                  <View
+                    style={{
+                      // borderWidth: 1,
+                      flexDirection: "row-reverse",
+                      alignItems: "center",
+                    }}
+                  >
+                    {/* If discount not applied
         <AppText>Price</AppText> */}
-              <AppText
+                    <AppText
+                      style={{
+                        fontFamily: "sans-serif-light",
+                        fontSize: 18,
+                        color: colors.pricered,
+                        marginLeft: 10,
+                      }}
+                    >
+                      {"$" + item.price.toFixed(2)}
+                    </AppText>
+                    <AppText
+                      style={{
+                        fontFamily: "sans-serif-light",
+                        fontSize: 18,
+                        color: colors.teal,
+                        marginLeft: 10,
+                      }}
+                    >
+                      {"( " +
+                        "$" +
+                        (
+                          item.price -
+                          (item.price / 100) * item.discount
+                        ).toFixed(2) +
+                        " )"}
+                    </AppText>
+                  </View>
+                </View>
+              </View>
+
+              <ListItemSeperator />
+              {/* Section 2 */}
+              <View
                 style={{
-                  fontSize: 15,
-                  color: "red",
-                  marginLeft: 10,
+                  padding: 10,
+                  backgroundColor: colors.white,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                $100.00
-              </AppText>
-              <AppText
+                <AppText
+                  style={{
+                    fontFamily: "sans-serif-condensed",
+                    fontSize: 15,
+                    color: colors.grey,
+                  }}
+                >
+                  Applicable Group Buy Discount:
+                </AppText>
+                <View
+                  style={{
+                    backgroundColor: "teal",
+                    paddingHorizontal: 5,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginLeft: 10,
+                  }}
+                >
+                  <AppText
+                    style={{
+                      fontSize: 15,
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.discount + "% OFF"}
+                  </AppText>
+                </View>
+              </View>
+
+              <ListItemSeperator />
+              {/* Section 3 */}
+              <View
                 style={{
-                  fontSize: 15,
-                  color: "cyan",
-                  marginLeft: 10,
+                  padding: 10,
+                  backgroundColor: colors.white,
+                  flexDirection: "row",
+                  alignItems: "center",
                 }}
               >
-                ( $80.50 )
-              </AppText>
+                <AppText
+                  style={{
+                    fontFamily: "sans-serif-condensed",
+                    fontSize: 15,
+                    color: colors.grey,
+                  }}
+                >
+                  Stock Left:
+                </AppText>
+                <AppText
+                  style={{
+                    fontFamily: "sans-serif-condensed",
+                    fontSize: 15,
+                    color: colors.darkcyan,
+                    marginLeft: 15,
+                  }}
+                >
+                  {item.quantity + " items"}
+                </AppText>
+              </View>
+
+              <ListItemSeperator />
+              {/* Section 4 */}
+              <View
+                style={{
+                  padding: 10,
+                  backgroundColor: colors.white,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <AppText
+                    style={{
+                      fontFamily: "sans-serif-condensed",
+                      fontSize: 15,
+                      color: colors.grey,
+                    }}
+                  >
+                    Items Sold:
+                  </AppText>
+                  {/* !!!!!!!!!!!!! HARD CODED SOLD ITEMS */}
+                  <AppText
+                    style={{
+                      fontFamily: "sans-serif-condensed",
+                      fontSize: 15,
+                      color: colors.grey,
+                      marginLeft: 2,
+                    }}
+                  >
+                    {" " + "20"}
+                  </AppText>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <AppText
+                    style={{
+                      fontFamily: "sans-serif-condensed",
+                      fontSize: 15,
+                      color: colors.grey,
+                    }}
+                  >
+                    Sales Total:
+                  </AppText>
+                  {/* !!!!!!!!!!!!! HARD CODED SALES TOTAL */}
+
+                  <AppText
+                    style={{
+                      fontFamily: "sans-serif-condensed",
+                      fontSize: 15,
+                      fontWeight: "bold",
+                      color: colors.pricered,
+                      marginLeft: 2,
+                    }}
+                  >
+                    {" " + "$20000.00"}
+                  </AppText>
+                </View>
+              </View>
+
+              <ListItemSeperator />
+              {/* Section 5 */}
+              <View>
+                <View
+                  style={{
+                    padding: 10,
+                    paddingBottom: 5,
+                    backgroundColor: colors.white,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <TouchableHighlight
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: 8,
+                      backgroundColor: "#BF7636",
+                      borderRadius: 10,
+                    }}
+                    // onPress={() => navigation.navgiate()}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name='pencil'
+                        size={15}
+                        color={colors.white}
+                        style={{ marginRight: 5 }}
+                      />
+                      <AppText
+                        style={{
+                          color: colors.white,
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          fontFamily: "sans-serif-medium",
+                        }}
+                      >
+                        Edit this Listing
+                      </AppText>
+                    </View>
+                  </TouchableHighlight>
+
+                  <TouchableHighlight
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: 8,
+                      backgroundColor: colors.brightred,
+                      borderRadius: 10,
+                    }}
+                    //onPress={() => onPause(item)}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name='pause'
+                        size={15}
+                        color={colors.white}
+                        style={{ marginRight: 5 }}
+                      />
+                      <AppText
+                        style={{
+                          color: colors.white,
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          fontFamily: "sans-serif-medium",
+                        }}
+                      >
+                        Pause Listing
+                      </AppText>
+                    </View>
+                  </TouchableHighlight>
+                </View>
+
+                <View
+                  style={{
+                    padding: 10,
+                    paddingTop: 5,
+                    backgroundColor: colors.white,
+                    flexDirection: "row-reverse",
+                  }}
+                >
+                  <TouchableHighlight
+                    style={{
+                      padding: 8,
+                      backgroundColor: colors.brightred,
+                      borderRadius: 10,
+                    }}
+                    //onPress={() => onDelete(item)}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name='close'
+                        size={15}
+                        color={colors.white}
+                      />
+                      <AppText
+                        style={{
+                          color: colors.white,
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          fontFamily: "sans-serif-medium",
+                        }}
+                      >
+                        Close
+                      </AppText>
+                    </View>
+                  </TouchableHighlight>
+                </View>
+              </View>
+
+              {/*End of Entire View*/}
             </View>
-          </View>
-        </View>
-
-        <ListItemSeperator />
-        {/* Section 2 */}
-        <View
-          style={{
-            padding: 15,
-            backgroundColor: colors.white,
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <AppText>Applicable Group Buy Discount:</AppText>
-          <View
-            style={{
-              backgroundColor: "teal",
-              paddingHorizontal: 5,
-              alignItems: "center",
-              justifyContent: "center",
-              marginLeft: 10,
-            }}
-          >
-            <AppText
-              style={{
-                fontSize: 18,
-                color: "white",
-                fontWeight: "bold",
-              }}
-            >
-              30% OFF
-            </AppText>
-          </View>
-        </View>
-
-        <ListItemSeperator />
-        {/* Section 3 */}
-        <View
-          style={{
-            padding: 15,
-            backgroundColor: colors.white,
-            flexDirection: "row",
-          }}
-        >
-          <AppText>Stock Left:</AppText>
-          <AppText>{" " + "100"}</AppText>
-        </View>
-
-        <ListItemSeperator />
-        {/* Section 4 */}
-        <View
-          style={{
-            padding: 15,
-            backgroundColor: colors.white,
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <View style={{ flexDirection: "row" }}>
-            <AppText>Items Sold:</AppText>
-            <AppText>{" " + "20"}</AppText>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <AppText>Sales Total:</AppText>
-            <AppText>{" " + "$20000.00"}</AppText>
-          </View>
-        </View>
-
-        <ListItemSeperator />
-        {/* Section 5 */}
-
-        <View
-          style={{
-            padding: 15,
-            backgroundColor: colors.white,
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <TouchableHighlight
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 8,
-              backgroundColor: "#BF7636",
-              borderRadius: 10,
-            }}
-            // onPress={() => navigation.navgiate()}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <MaterialCommunityIcons
-                name='pencil'
-                size={20}
-                color={colors.white}
-                style={{ marginRight: 5 }}
-              />
-              <AppText style={{ color: "white" }}>Edit this Listing</AppText>
-            </View>
-          </TouchableHighlight>
-
-          <TouchableHighlight
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 8,
-              backgroundColor: colors.brightred,
-              borderRadius: 20,
-            }}
-            //onPress={() => onDelete(item)}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <MaterialCommunityIcons
-                name='pause'
-                size={20}
-                color={colors.white}
-                style={{ marginRight: 5 }}
-              />
-              <AppText style={{ color: "white" }}>Pause Listing</AppText>
-            </View>
-          </TouchableHighlight>
-        </View>
-        <View
-          style={{
-            paddingHorizontal: 15,
-            paddingBottom: 5,
-            backgroundColor: colors.white,
-            flexDirection: "row-reverse",
-          }}
-        >
-          <TouchableHighlight
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 5,
-              backgroundColor: colors.brightred,
-              borderRadius: 20,
-            }}
-            onPress={() => onDelete(item)}
-          >
-            <MaterialCommunityIcons
-              name='close'
-              size={20}
-              color={colors.white}
-            />
-          </TouchableHighlight>
-        </View>
-        {/*End of Entire View*/}
-      </View>
+          )}
+        />
+      ) : (
+        <AppText> You currently have no listings. Please add more.</AppText>
+      )}
     </Screen>
   );
 }

@@ -3,7 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import AccountScreen from "../screens/AccountScreen";
 import MessagesScreen from "../screens/MessagesScreen";
-
+import ListingsHistoryScreen from "../screens/ListingsHistoryScreen";
 const Stack = createStackNavigator();
 
 // Stack navigator between AccountScreen and MessagesScreen
@@ -21,6 +21,7 @@ const AccountNavigator = () => (
     Add Stack Screen for GroupBuy
     Add Stack Screen for Watchlist
     Add Stack Screen for Order History */}
+    <Stack.Screen name='My Listings' component={ListingsHistoryScreen} />
     <Stack.Screen name='Messages' component={MessagesScreen} />
     {/* Add Stack Screen for FAQ */}
   </Stack.Navigator>

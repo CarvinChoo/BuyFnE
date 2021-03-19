@@ -37,7 +37,7 @@ function WelcomeScreen({ navigation }) {
         <AppButton
           title='Login'
           color='brightred'
-          onPress={() => navigation.navigate(routes.LOGIN)}
+          onPress={() => navigation.navigate(routes.LoginNav)}
         />
         <AppButton
           title='Register'

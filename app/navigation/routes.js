@@ -11,4 +11,7 @@ export default Object.freeze({
   CART: "Cart",
   AppNav: "AppNavigator",
   CartNav: "CartNavigator",
+  LoginNav: "LoginNavigator",
+  LISTINGSHISTORY: "My Listings",
+  FORGETPASSWORD: "Forget Password",
 });
