@@ -12,17 +12,17 @@ const initialMessages = [
   // hardcoded, will be pulled later in backend
   {
     id: 1,
-    title: "Carvin Choo",
+    title: "Jane Doe",
     description:
-      "Hooks solve a wide variety of seemingly unconnected problems in React that we’ve encountered over five years of writing and maintaining tens of thousands of components. Whether you’re learning React, use it daily, or even prefer a different library with a similar component model, you might recognize some of these problems.",
-    image: require("../assets/HnMlogo.png"),
+      "Hi, I have a question to ask about this group buy feature on this BuyFnE application.",
+    image: require("../assets/default-profile-pic.jpg"),
   },
   {
     id: 2,
-    title: "Carvin Choo",
+    title: "Jane Doe",
     description:
-      "I am interested in this chair. Can we discuss more about the price?",
-    image: require("../assets/HnMlogo.png"),
+      "My payment went through but it did not appear in my order history.",
+    image: require("../assets/default-profile-pic.jpg"),
   },
 ];
 function MessagesScreen(props) {

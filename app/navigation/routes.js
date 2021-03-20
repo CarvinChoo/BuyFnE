@@ -5,7 +5,7 @@ export default Object.freeze({
   LISTING_EDIT: "ListingEdit",
   ACCOUNT: "Account",
   WELCOME: "Welcome",
-  MESSAGES: "Messages",
+  MESSAGES: "My Support Tickets",
   LOGIN: "Login",
   REGISTER: "Register",
   CART: "Cart",

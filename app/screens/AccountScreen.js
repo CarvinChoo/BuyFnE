@@ -24,7 +24,7 @@ const menuItemsSeller = [
     targetScreen: routes.LISTINGSHISTORY,
   },
   {
-    title: "My Messages",
+    title: "My Support Tickets",
     icon: {
       name: "email",
       backgroundColor: colors.cyan,
@@ -35,7 +35,7 @@ const menuItemsSeller = [
 
 const menuItemsBuyer = [
   {
-    title: "My Messages",
+    title: "My Support Tickets",
     icon: {
       name: "email",
       backgroundColor: colors.cyan,

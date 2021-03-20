@@ -22,7 +22,11 @@ const AccountNavigator = () => (
     Add Stack Screen for Watchlist
     Add Stack Screen for Order History */}
     <Stack.Screen name='My Listings' component={ListingsHistoryScreen} />
-    <Stack.Screen name='Messages' component={MessagesScreen} />
+    <Stack.Screen
+      name='My Support Tickets'
+      component={MessagesScreen}
+      options={{ headerBackTitleVisible: false }}
+    />
     {/* Add Stack Screen for FAQ */}
   </Stack.Navigator>
 );
