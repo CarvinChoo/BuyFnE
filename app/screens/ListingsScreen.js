@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
 import Card from "../components/Card";
 
@@ -14,6 +14,7 @@ import AppActivityIndicator from "../components/AppActivityIndicator";
 // Back End
 import AuthApi from "../api/auth"; // for context
 import db from "../api/db";
+import AppTextInput from "../components/AppTextInput";
 
 function ListingsScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
@@ -89,6 +90,9 @@ function ListingsScreen({ navigation }) {
       <AppActivityIndicator // loading animation component
         visible={loading} // {loading} is a boolean state
       />
+
+      <AppTextInput icon='magnify' placeholder='Search' color={colors.white} />
+
       <FlatList
         style={{ paddingTop: 10 }}
         data={listings}
