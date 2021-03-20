@@ -14,4 +14,5 @@ export default Object.freeze({
   LoginNav: "LoginNavigator",
   LISTINGSHISTORY: "My Listings",
   FORGETPASSWORD: "Forget Password",
+  ACCOUNTMANAGEMENT: "Edit Account Details",
 });

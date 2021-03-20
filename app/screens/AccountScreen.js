@@ -88,6 +88,7 @@ function AccountScreen({ navigation }) {
           }
           border={true}
           defaultimage={currentUser && currentUser.photoURL ? false : true}
+          onPress={() => navigation.navigate(routes.ACCOUNTMANAGEMENT)}
         />
       </View>
       <View style={styles.container}>
