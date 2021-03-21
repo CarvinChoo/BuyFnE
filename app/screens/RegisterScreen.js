@@ -176,7 +176,10 @@ function RegisterScreen({ navigation }) {
     user
       .sendEmailVerification()
       .then(() => {
-        alert("Verification Email has been sent");
+        Alert.alert(
+          "Successful Registration",
+          "Verification Email has been sent."
+        );
         signOut(user);
       })
       .catch((error) => {

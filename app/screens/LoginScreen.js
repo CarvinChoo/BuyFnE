@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useContext, useState } from "react";
+import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Yup from "yup"; // use to validation
 //Front End
 import Screen from "../components/Screen";
@@ -34,6 +34,9 @@ function LoginScreen({ navigation }) {
     setLoginLoading,
     setIsLoading,
   } = useContext(AuthApi.AuthContext);
+
+  const [error, setError] = useState(null);
+
   // function to handle submission
   const handSubmit = (loginDetails) => {
     setIsLoading(true);
@@ -47,9 +50,11 @@ function LoginScreen({ navigation }) {
         authVerification(userCredential.user);
       })
       .catch((error) => {
-        alert(
-          "Wrong Email/Password! Please sign in using a valid email/password."
+        Alert.alert(
+          "Wrong Credentials",
+          "Please sign in using a valid email/password."
         );
+        setLoginLoading(false);
         setIsLoading(false);
       });
   };
@@ -59,16 +64,22 @@ function LoginScreen({ navigation }) {
         .auth()
         .signOut()
         .then(() => {
-          alert("Please verify your account via email first.");
+          Alert.alert(
+            "Unverified Account",
+            "Please verify your account via email first."
+          );
+          setLoginLoading(false);
           setIsLoading(false);
         })
         .catch((error) => {
           console.log("login signout error:", error.message);
           setCurrentUser(null);
+          setLoginLoading(false);
           setIsLoading(false);
         });
     }
     console.log("Login Successful");
+    setLoginLoading(false);
     setIsLoading(false);
   };
   //////////////////////////////////////////////////////////////////////
