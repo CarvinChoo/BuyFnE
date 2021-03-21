@@ -84,7 +84,6 @@ function ListingDetailsScreen({ route }) {
       >
         {/* New Image component imported from react-native-expo-image-cache and uses new props*/}
         <Image style={styles.image} source={{ uri: imageOnFocus }} />
-
         <ScrollView
           ref={scrollView} // to tell scrollView that this is the instance component we are referencing
           horizontal={true} // to scroll horizontally
@@ -113,7 +112,6 @@ function ListingDetailsScreen({ route }) {
             ))}
           </View>
         </ScrollView>
-
         {/* Title, Price Section */}
         <View
           style={{
@@ -174,7 +172,6 @@ function ListingDetailsScreen({ route }) {
           </AppText>
         </View>
         <ListItemSeperator />
-
         {/*!!!!!!!!!!!!!!!!!! Hard coded Seller Info */}
         <ListItem
           style={{ paddingHorizontal: 10, paddingVertical: 5 }}
@@ -184,7 +181,6 @@ function ListingDetailsScreen({ route }) {
           border={true}
         />
         <ListItemSeperator />
-
         {/* Description Section */}
         <View
           style={{
@@ -222,7 +218,6 @@ function ListingDetailsScreen({ route }) {
             </ReadMore>
           </View>
         </View>
-
         {/* Add to Cart Button */}
         <View
           style={{
@@ -249,26 +244,52 @@ function ListingDetailsScreen({ route }) {
             style={{ width: "48%" }}
           />
         </View>
-
         {/* Group Buy Section */}
         <View
           style={{
             justifyContent: "center",
             paddingVertical: 5,
             backgroundColor: "white",
-            marginBottom: 20,
           }}
         >
-          <AppText
+          <View
             style={{
-              fontSize: 20,
-              paddingHorizontal: 10,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
               marginBottom: 15,
-              fontWeight: "bold",
             }}
           >
-            Group Buy
-          </AppText>
+            <AppText
+              style={{
+                fontSize: 20,
+                paddingHorizontal: 10,
+
+                fontWeight: "bold",
+              }}
+            >
+              Group Buy
+            </AppText>
+            <View
+              style={{
+                backgroundColor: colors.darkred,
+                paddingHorizontal: 5,
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: 15,
+              }}
+            >
+              <AppText
+                style={{
+                  fontSize: 18,
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+              >
+                Inactive
+              </AppText>
+            </View>
+          </View>
           <View
             style={{
               flexDirection: "row",
@@ -324,15 +345,50 @@ function ListingDetailsScreen({ route }) {
               </AppText>
             </View>
           </View>
-
+          <View
+            style={{
+              flexDirection: "row",
+              paddingHorizontal: 10,
+              marginBottom: 15,
+              justifyContent: "space-between",
+            }}
+          >
+            <AppText
+              style={{
+                fontSize: 18,
+                color: "#ff3300",
+                fontFamily: "sans-serif-light",
+                fontWeight: "bold",
+              }}
+            >
+              Time Left: 24:00:00
+            </AppText>
+            <AppText
+              style={{
+                fontSize: 18,
+                fontFamily: "sans-serif-condensed",
+                marginLeft: 10,
+              }}
+            >
+              0/10 purchased
+            </AppText>
+          </View>
           <AppButton title='Create Group Buy' icon='account-group' />
         </View>
-
-        {/* <ListItem
-            image={require("../assets/HnMlogo.png")}
-            title='H&M'
-            subTitle='5 Listings'
-          /> */}
+        <ListItemSeperator />
+        {/* Timed Based Milestones for Group Buy */}
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            paddingVertical: 5,
+            backgroundColor: "white",
+            marginBottom: 20,
+            paddingVertical: 50,
+          }}
+        >
+          <AppText>Timed Based Milestones for Group Buy</AppText>
+        </View>
       </Screen>
     </ScrollView>
   );

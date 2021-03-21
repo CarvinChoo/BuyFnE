@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, TextInput, View } from "react-native";
 
 import Card from "../components/Card";
 
 import routes from "../navigation/routes";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
-
+import defaultStyles from "../config/styles";
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 // Back End
 import AuthApi from "../api/auth"; // for context
 import db from "../api/db";
 import AppTextInput from "../components/AppTextInput";
+import { Directions } from "react-native-gesture-handler";
+import Icon from "../components/Icon";
 
 function ListingsScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
@@ -90,11 +93,58 @@ function ListingsScreen({ navigation }) {
       <AppActivityIndicator // loading animation component
         visible={loading} // {loading} is a boolean state
       />
+      {/* !!!!!!!! Hard Coded Search Bar + category */}
+      <View style={{ flexDirection: "row" }}>
+        {/*  Category */}
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: 10,
+            borderBottomLeftRadius: 25,
+            borderTopLeftRadius: 25,
+            backgroundColor: colors.white,
+          }}
+        >
+          <Icon
+            name='view-list'
+            backgroundColor={colors.white}
+            iconColor={colors.muted}
+            size={50}
+          />
+        </View>
+        {/*  Category END */}
 
-      <AppTextInput icon='magnify' placeholder='Search' color={colors.white} />
-
+        {/* Actual Search Bar */}
+        <View
+          style={{
+            borderLeftWidth: 1,
+            borderColor: colors.muted,
+            borderBottomRightRadius: 25,
+            borderTopRightRadius: 25,
+            flexDirection: "row",
+            padding: 15,
+            marginVertical: 10,
+            alignItems: "center",
+            backgroundColor: colors.white,
+            flex: 1,
+          }}
+        >
+          <MaterialCommunityIcons
+            name='magnify'
+            size={25}
+            color={colors.muted}
+            style={{ marginRight: 10 }}
+          />
+          <TextInput
+            placeholder='Search'
+            placeholderTextColor={colors.muted}
+            style={[defaultStyles.text]}
+          />
+        </View>
+      </View>
+      {/* Actual Search Bar  END*/}
       <FlatList
-        style={{ paddingTop: 10 }}
         data={listings}
         // Normally needed but we already added a "key" property to each listing (above)
         // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string

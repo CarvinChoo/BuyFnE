@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, FlatList, Image } from "react-native";
+import { StyleSheet, View, FlatList, Image, SafeAreaView } from "react-native";
 
 //import { FlatList } from "react-native-gesture-handler";
 import ListItem from "../components/lists/ListItem";
@@ -14,6 +14,17 @@ import routes from "../navigation/routes";
 import AuthApi from "../api/auth";
 import app from "../auth/base.js";
 
+const menuItemsGuest = [
+  {
+    title: "FAQ",
+    icon: {
+      name: "frequently-asked-questions",
+      backgroundColor: colors.steelblue,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+];
+
 const menuItemsSeller = [
   {
     title: "My Listings",
@@ -24,10 +35,26 @@ const menuItemsSeller = [
     targetScreen: routes.LISTINGSHISTORY,
   },
   {
-    title: "My Support Tickets",
+    title: "Store Vouchers",
+    icon: {
+      name: "ticket-percent",
+      backgroundColor: colors.green,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Support Tickets",
     icon: {
       name: "email",
       backgroundColor: colors.cyan,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "FAQ",
+    icon: {
+      name: "frequently-asked-questions",
+      backgroundColor: colors.steelblue,
     },
     targetScreen: routes.MESSAGES,
   },
@@ -35,10 +62,93 @@ const menuItemsSeller = [
 
 const menuItemsBuyer = [
   {
-    title: "My Support Tickets",
+    title: "Orders",
+    icon: {
+      name: "shopping",
+      backgroundColor: colors.orangered,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "GroupBuys",
+    icon: {
+      name: "account-group",
+      backgroundColor: colors.darkorchid,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Watchlist",
+    icon: {
+      name: "clipboard-list",
+      backgroundColor: colors.midnightblue,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Vouchers",
+    icon: {
+      name: "ticket-percent",
+      backgroundColor: colors.green,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Group Buy Loyalty Progress",
+    icon: {
+      name: "gift",
+      backgroundColor: colors.plum,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Support Tickets",
     icon: {
       name: "email",
       backgroundColor: colors.cyan,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "FAQ",
+    icon: {
+      name: "frequently-asked-questions",
+      backgroundColor: colors.steelblue,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+];
+
+const menuItemsAdmin = [
+  {
+    title: "Pending Support Tickets",
+    icon: {
+      name: "ticket-account",
+      backgroundColor: colors.lightseagreen,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Support in Progress",
+    icon: {
+      name: "comment-account",
+      backgroundColor: colors.dodgerblue,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Suspend Users",
+    icon: {
+      name: "account-cancel",
+      backgroundColor: colors.brightred,
+    },
+    targetScreen: routes.MESSAGES,
+  },
+  {
+    title: "Delete Users",
+    icon: {
+      name: "account-off",
+      backgroundColor: colors.darkred,
     },
     targetScreen: routes.MESSAGES,
   },
@@ -51,7 +161,6 @@ function AccountScreen({ navigation }) {
   const {
     currentUser,
     isLoading,
-    setIsLoading,
     guestMode,
     setGuestMode,
     userType,
@@ -75,43 +184,45 @@ function AccountScreen({ navigation }) {
   const handleBackToWelcome = () => {
     setGuestMode(false);
   };
-  return (
-    <Screen style={styles.screen}>
+
+  const renderHeader = () => {
+    return (
       <View style={styles.container}>
-        <ListItem
-          title={currentUser ? currentUser.displayName : "Guest"}
-          subTitle={currentUser ? currentUser.email : "No Email"}
-          image={
-            currentUser && currentUser.photoURL
-              ? currentUser.photoURL // user's profile picture
-              : require("../assets/default-profile-pic.jpg") // default profile picture
-          }
-          border={true}
-          defaultimage={currentUser && currentUser.photoURL ? false : true}
-          onPress={() => navigation.navigate(routes.ACCOUNTMANAGEMENT)}
-        />
-      </View>
-      <View style={styles.container}>
-        <FlatList
-          data={userType == 2 ? menuItemsSeller : menuItemsBuyer}
-          keyExtractor={(item) => item.title}
-          renderItem={({ item }) => (
+        <View>
+          <ListItem
+            title={currentUser ? currentUser.displayName : "Guest"}
+            subTitle={currentUser ? currentUser.email : "No Email"}
+            image={
+              currentUser && currentUser.photoURL
+                ? currentUser.photoURL // user's profile picture
+                : require("../assets/default-profile-pic.jpg") // default profile picture
+            }
+            border={true}
+            defaultimage={currentUser && currentUser.photoURL ? false : true}
+            onPress={() => navigation.navigate(routes.ACCOUNTMANAGEMENT)}
+          />
+        </View>
+
+        {/* Issue Voucher */}
+        {userType == 3 && (
+          <View style={{ marginTop: 20 }}>
             <ListItem
-              title={item.title}
+              title='Active Vouchers'
               IconComponent={
-                <Icon
-                  name={item.icon.name}
-                  backgroundColor={item.icon.backgroundColor}
-                />
+                <Icon name='ticket-percent' backgroundColor={colors.green} />
               }
-              onPress={() => navigation.navigate(item.targetScreen)}
+              onPress={() => navigation.navigate(routes.MESSAGES)}
             />
-          )}
-          ItemSeparatorComponent={ListItemSeperator}
-        />
+          </View>
+        )}
       </View>
-      {!isLoading ? (
-        guestMode ? (
+    );
+  };
+
+  const renderFooter = () => {
+    return !isLoading ? (
+      guestMode ? (
+        <View style={styles.container}>
           <ListItem
             title='Back to Welcome Screen'
             IconComponent={
@@ -119,7 +230,9 @@ function AccountScreen({ navigation }) {
             }
             onPress={handleBackToWelcome} // call for function to handle logout process
           />
-        ) : (
+        </View>
+      ) : (
+        <View style={styles.container}>
           <ListItem
             title='Log Out'
             IconComponent={
@@ -127,15 +240,49 @@ function AccountScreen({ navigation }) {
             }
             onPress={handleLogout} // call for function to handle logout process
           />
-        )
-      ) : (
+        </View>
+      )
+    ) : (
+      <View style={styles.container}>
         <ListItem
           title='Log Out'
           IconComponent={
             <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
           }
         />
-      )}
+      </View>
+    );
+  };
+
+  return (
+    <Screen style={styles.screen}>
+      <FlatList
+        data={
+          userType == 1
+            ? menuItemsBuyer
+            : userType == 2
+            ? menuItemsSeller
+            : userType == 3
+            ? menuItemsAdmin
+            : menuItemsGuest
+        }
+        keyExtractor={(item) => item.title}
+        ListHeaderComponent={renderHeader}
+        ListFooterComponent={renderFooter}
+        renderItem={({ item }) => (
+          <ListItem
+            title={item.title}
+            IconComponent={
+              <Icon
+                name={item.icon.name}
+                backgroundColor={item.icon.backgroundColor}
+              />
+            }
+            onPress={() => navigation.navigate(item.targetScreen)}
+          />
+        )}
+        ItemSeparatorComponent={ListItemSeperator}
+      />
     </Screen>
   );
 }
@@ -146,6 +293,8 @@ const styles = StyleSheet.create({
   },
   screen: {
     backgroundColor: colors.whitegrey,
+    paddingTop: 0,
+    marginBottom: 20,
   },
 });
 export default AccountScreen;

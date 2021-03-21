@@ -3,7 +3,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import ListingEditScreen from "../screens/ListingEditScreen";
-import ShoppingCartScreen from "../screens/ShoppingCartScreen";
 import FeedNavigator from "./FeedNavigator";
 import AccountNavigator from "./AccountNavigator";
 import CartNavigator from "./CartNavigator";
@@ -64,7 +63,7 @@ const AppNavigator = ({ userType }) => (
     )}
 
     {/* Cart Navigation */}
-    {userType != 2 && (
+    {userType != 2 && userType != 3 && (
       <Tab.Screen
         name={routes.CartNav}
         component={CartNavigator}

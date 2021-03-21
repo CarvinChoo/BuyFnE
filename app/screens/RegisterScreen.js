@@ -1,5 +1,12 @@
 import React, { useRef, useContext, useState } from "react";
-import { ScrollView, Switch, StyleSheet, View, Text } from "react-native";
+import {
+  ScrollView,
+  Switch,
+  StyleSheet,
+  View,
+  Text,
+  Alert,
+} from "react-native";
 import * as Yup from "yup";
 
 //BackEnd

@@ -395,6 +395,7 @@ function ListingsHistoryScreen(props) {
                     paddingTop: 5,
                     backgroundColor: colors.white,
                     flexDirection: "row-reverse",
+                    justifyContent: "space-between",
                   }}
                 >
                   <TouchableHighlight
@@ -416,6 +417,7 @@ function ListingsHistoryScreen(props) {
                         name='close'
                         size={15}
                         color={colors.white}
+                        style={{ marginRight: 5 }}
                       />
                       <AppText
                         style={{
@@ -426,6 +428,40 @@ function ListingsHistoryScreen(props) {
                         }}
                       >
                         Close
+                      </AppText>
+                    </View>
+                  </TouchableHighlight>
+
+                  <TouchableHighlight
+                    style={{
+                      padding: 8,
+                      backgroundColor: colors.teal,
+                      borderRadius: 10,
+                    }}
+                    //onPress={() => onDelete(item)}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name='eye-outline'
+                        size={15}
+                        color={colors.white}
+                        style={{ marginRight: 5 }}
+                      />
+                      <AppText
+                        style={{
+                          color: colors.white,
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          fontFamily: "sans-serif-medium",
+                        }}
+                      >
+                        View Orders
                       </AppText>
                     </View>
                   </TouchableHighlight>

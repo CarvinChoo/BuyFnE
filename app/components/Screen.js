@@ -1,6 +1,6 @@
 import React from "react";
 import Constants from "expo-constants";
-import { StyleSheet, View } from "react-native"; // SafeAreaView imported from here does not work for android
+import { SafeAreaView, StyleSheet, View } from "react-native"; // SafeAreaView imported from here does not work for android
 //import { SafeAreaView } from "react-native-safe-area-context";     // SafeAreaView here works for android
 
 function Screen({ children, style }) {

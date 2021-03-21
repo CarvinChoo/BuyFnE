@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import * as Yup from "yup";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
@@ -200,7 +200,7 @@ function ListingEditScreen() {
             .then(() => {
               console.log("Listing Successfully Created.");
               addInAllListings(listing, images, ref.id, timeNow);
-              alert("Listing Created!");
+              Alert.alert("Add Listing Success", "Listing Created!");
             })
             .catch((error) => {
               console.log("createListingCollection error:", error.message);
