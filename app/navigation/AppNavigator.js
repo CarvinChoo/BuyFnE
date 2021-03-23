@@ -63,7 +63,7 @@ const AppNavigator = ({ userType }) => (
     )}
 
     {/* Cart Navigation */}
-    {userType != 2 && userType != 3 && (
+    {userType == 1 && (
       <Tab.Screen
         name={routes.CartNav}
         component={CartNavigator}
