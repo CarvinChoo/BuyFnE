@@ -110,6 +110,23 @@ exports.createStripeCheckout = functions.https.onCall(async (data, context)=> {
 });
 
 exports.addMessage = functions.https.onCall((data, context) => {
-    // ...
-  });
+    // [START_EXCLUDE]
+    // [START readMessageData]
+    // Message text passed from the client.
+    const text = data.text;
+    // [END readMessageData]
+    // [START messageHttpsErrors]
+    // Checking attribute.
+    if (!(typeof text === 'string') || text.length === 0) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'one arguments "text" containing the message text to add.');
+    }
+    // Checking that the user is authenticated.
   
+    // [START returnMessageAsync]
+    // Saving the new message to the Realtime Database.
+    return(text.toUpperCase())
+    // [END returnMessageAsync]
+    // [END_EXCLUDE]
+  });
