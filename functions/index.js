@@ -1,6 +1,10 @@
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 admin.initializeApp();
+
+const db = admin.firestore();
+
+// Example of trigger function that updates database
 exports.makeUppercase = functions.firestore.document('/users/{documentId}')
 .onCreate((snap, context) => {
     // Grab the current value of what was written to Firestore.
@@ -16,3 +20,14 @@ exports.makeUppercase = functions.firestore.document('/users/{documentId}')
     // Setting an 'uppercase' field in Firestore document returns a Promise.
     return snap.ref.set({uppercase}, {merge: true});
 });
+
+//Example of Scheduled update to database
+exports.scheduledFunction = functions.pubsub.schedule('every 5 minutes').onRun((context) => {
+   let query =  db.collection("users").where('type','==', 2)
+   query.get().then((sellers)=> sellers.forEach((seller)=>{
+       seller.ref.update({status:"seller"})
+   }))
+
+
+  });
+  
