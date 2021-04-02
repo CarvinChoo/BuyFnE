@@ -1,7 +1,6 @@
 const functions = require("firebase-functions");
-const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 admin.initializeApp();
-
 const db = admin.firestore();
 
 // Region Specification to lower latency using .region()
@@ -13,7 +12,6 @@ const db = admin.firestore();
 //     .onFinalize((object) => {
 //       // ...
 //     });
-
 
 // Possible Context properties
 // **The data parameter represents the data that triggered the function
@@ -34,7 +32,6 @@ const db = admin.firestore();
 //     const beforeData = change.before.data(); // data before the write
 //     const afterData = change.after.data(); // data after the write
 //   });
-  
 
 // Accessing Data that was just created when triggered by onCreate or deleted by onDelete
 // exports.dbCreate = functions.firestore.document('/doc/path').onCreate((snap, context) => {
@@ -44,15 +41,15 @@ const db = admin.firestore();
 // exports.dbDelete = functions.firestore.document('/doc/path').onDelete((snap, context) => {
 //     const deletedData = snap.data(); // data that was deleted
 //   });
-  
-//Firestore Timestamp 
+
+//Firestore Timestamp
 //** are Firestore Timestamp objects
 // ** This applies to snapshot.createTime, snapshot.updateTime, snapshot.readTime, and any timestamp values in snapshot.data()
 // ** createTime is when it was created, updateTime is when it was last updated, readTime is when it was last accessed
 // exports.dbCreate = functions.firestore.document('/doc/path').onCreate((snap, context) => {
 //     //seconds of UTC time since Unix epoch
 //     console.log(snap.createTime.seconds);
-  
+
 //     //fractions of a second at nanosecond resolution, 0 to 999,999,999
 //     console.log(snap.createTime.nanoseconds);
 //   });
@@ -65,9 +62,9 @@ const db = admin.firestore();
 
 //     // Access the parameter `{documentId}` with `context.params`
 //     functions.logger.log('Uppercasing', context.params.documentId, original);
-    
+
 //     const uppercase = original.toUpperCase();
-    
+
 //     // You must return a Promise when performing asynchronous tasks inside a Functions such as
 //     // writing to Firestore.
 //     // Setting an 'uppercase' field in Firestore document returns a Promise.
@@ -81,52 +78,69 @@ const db = admin.firestore();
 //        seller.ref.update({status:"seller"})
 //    }))
 
-
 //   });
 
-exports.createStripeCheckout = functions.https.onCall(async (data, context)=> {
-    //Stripe init
-    const stripe = require("stripe")(functions.config().stripe.secret_key);
-    const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        mode: "payment",
-        line_items: [
-            {
-                quantity:1,
-                price_data:{
-                    currency:"usd",
-                    unit_amount: (100)*100,// 10000=100 USD
-                    product_data:{
-                        name:"New camera"
-                    }
-                }
-            }
-        ]
-        
-    });
-    return{
-        id: session.id
-    };
-});
+// exports.createStripeCheckout = functions.https.onCall(async (data, context)=> {
+//     //Stripe init
+//     const stripe = require("stripe")(functions.config().stripe.secret_key);
+//     const session = await stripe.checkout.sessions.create({
+//         payment_method_types: ["card"],
+//         mode: "payment",
+//         line_items: [
+//             {
+//                 quantity:1,
+//                 price_data:{
+//                     currency:"usd",
+//                     unit_amount: (100)*100,// 10000=100 USD
+//                     product_data:{
+//                         name:"New camera"
+//                     }
+//                 }
+//             }
+//         ]
 
-exports.addMessage = functions.https.onCall((data, context) => {
-    // [START_EXCLUDE]
-    // [START readMessageData]
-    // Message text passed from the client.
-    const text = data.text;
-    // [END readMessageData]
-    // [START messageHttpsErrors]
-    // Checking attribute.
-    if (!(typeof text === 'string') || text.length === 0) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'one arguments "text" containing the message text to add.');
-    }
-    // Checking that the user is authenticated.
-  
-    // [START returnMessageAsync]
-    // Saving the new message to the Realtime Database.
-    return(text.toUpperCase())
-    // [END returnMessageAsync]
-    // [END_EXCLUDE]
-  });
+//     });
+//     return{
+//         id: session.id
+//     };
+// });
+
+exports.completePaymentWithStripe = functions.https.onRequest(
+  (request, response) => {
+    const stripe = require("stripe")(functions.config().stripe.secret_key);
+    stripe.charges
+      .create({
+        amount: request.body.amount,
+        currency: request.body.currency,
+        source: "tok_mastercard",
+      })
+      .then((charge) => {
+        response.send(charge);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+);
+
+// exports.addMessage = functions.https.onCall((data, context) => {
+//     // [START_EXCLUDE]
+//     // [START readMessageData]
+//     // Message text passed from the client.
+//     const text = data.text;
+//     // [END readMessageData]
+//     // [START messageHttpsErrors]
+//     // Checking attribute.
+//     if (!(typeof text === 'string') || text.length === 0) {
+//       // Throwing an HttpsError so that the client gets the error details.
+//       throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+//           'one arguments "text" containing the message text to add.');
+//     }
+//     // Checking that the user is authenticated.
+
+//     // [START returnMessageAsync]
+//     // Saving the new message to the Realtime Database.
+//     return(text.toUpperCase())
+//     // [END returnMessageAsync]
+//     // [END_EXCLUDE]
+//   });
