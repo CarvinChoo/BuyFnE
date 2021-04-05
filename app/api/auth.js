@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    app.auth().onAuthStateChanged((user) => {
+    const subscriber = app.auth().onAuthStateChanged((user) => {
       if (user) {
         if (user.emailVerified == true) {
           db.collection("users")
@@ -44,6 +44,7 @@ const AuthProvider = ({ children }) => {
         setinitialLoading(false);
       }
     });
+    return () => subscriber();
   }, []);
 
   return (

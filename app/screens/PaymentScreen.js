@@ -5,6 +5,7 @@ import Screen from "../components/Screen.js";
 import functions from "../api/functions";
 import { PaymentsStripe as Stripe } from "expo-payments-stripe";
 import axios from "axios";
+import db from "../api/db";
 // initializing Payment module
 
 // function PaymentScreen(props) {
@@ -148,6 +149,11 @@ function PaymentScreen(props) {
         setLoading(false);
       });
   };
+
+  const timeNow = () => {
+    const timeNow = db.Timestamp.now();
+    console.log(timeNow);
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Card Form Example</Text>
@@ -155,10 +161,7 @@ function PaymentScreen(props) {
         Click button to show Card Form dialog.
       </Text>
       {!loading ? (
-        <Button
-          title='Enter you card and pay'
-          onPress={releasePaymentToSeller}
-        />
+        <Button title='Enter you card and pay' onPress={timeNow} />
       ) : (
         <Button title='Enter you card and pay' color='#841584' />
       )}

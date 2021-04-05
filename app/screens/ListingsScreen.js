@@ -16,7 +16,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AuthApi from "../api/auth"; // for context
 import db from "../api/db";
 import AppTextInput from "../components/AppTextInput";
-import { Directions } from "react-native-gesture-handler";
 import Icon from "../components/Icon";
 
 function ListingsScreen({ navigation }) {
@@ -39,23 +38,30 @@ function ListingsScreen({ navigation }) {
     const subscriber = db
       .collection("all_listings")
       .orderBy("createdAt", "desc") //order the listings by timestamp (createdAt)
-      .onSnapshot((querySnapshot) => {
-        //onSnapshot allows for updates if any changes are made from elsewhere
-        const listings = []; // make a temp array to store listings
+      .onSnapshot(
+        (querySnapshot) => {
+          //onSnapshot allows for updates if any changes are made from elsewhere
+          const listings = []; // make a temp array to store listings
 
-        querySnapshot.forEach((documentSnapshot) => {
-          // push listing one by one into temp array
-          listings.push({
-            //(push as an object)
-            ...documentSnapshot.data(), // spread all properties of a listing document
-            key: documentSnapshot.id, // used by flatlist to identify each ListItem
-            count: 1,
+          querySnapshot.forEach((documentSnapshot) => {
+            // push listing one by one into temp array
+            listings.push({
+              //(push as an object)
+              ...documentSnapshot.data(), // spread all properties of a listing document
+              key: documentSnapshot.id, // used by flatlist to identify each ListItem ( document id )
+              // document id is not the same as listingId
+              count: 1,
+            });
           });
-        });
 
-        setListings(listings); //set listings state to be replaced by temp array
-        setLoading(false); // *********USED LATER TO SET LOADING SCREEN
-      });
+          setListings(listings); //set listings state to be replaced by temp array
+          setLoading(false); // *********USED LATER TO SET LOADING SCREEN
+        },
+        (error) => {
+          console.log(error.message);
+          setLoading(false); // *********USED LATER TO SET LOADING SCREEN
+        }
+      );
 
     // Unsubscribe from events when no longer in use
     return () => subscriber();
@@ -100,7 +106,7 @@ function ListingsScreen({ navigation }) {
           style={{
             justifyContent: "center",
             alignItems: "center",
-            marginVertical: 10,
+            marginBottom: 10,
             borderBottomLeftRadius: 25,
             borderTopLeftRadius: 25,
             backgroundColor: colors.white,
@@ -124,7 +130,7 @@ function ListingsScreen({ navigation }) {
             borderTopRightRadius: 25,
             flexDirection: "row",
             padding: 15,
-            marginVertical: 10,
+            marginBottom: 10,
             alignItems: "center",
             backgroundColor: colors.white,
             flex: 1,
@@ -158,7 +164,9 @@ function ListingsScreen({ navigation }) {
             discount={item.discount}
             quantity={item.quantity}
             image={item.images[0]} // pick the 1st element url from images array
-            onPress={() => navigation.navigate(routes.LISTING_DETAILS, item)} //passing current {item} into ListingDetailsScreen
+            onPress={
+              () => navigation.navigate(routes.LISTING_DETAILS, item.key) //passes document id from all_listings collection
+            } //passing current {item} into ListingDetailsScreen
             //********* WILL NEED TO PUT IN MORE PROPERTIES TO BE PASSED TO CARD
             //********* REMEMBER TO SET  ...otherProps in parameters in CARD component !!!!!!!!
             // imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
@@ -175,7 +183,7 @@ function ListingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   screen: {
     paddingHorizontal: 10,
-    paddingTop: 0,
+
     backgroundColor: colors.whitegrey,
   },
 });
