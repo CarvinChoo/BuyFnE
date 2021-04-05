@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
 const db = admin.firestore();
-
+const stripe = require("stripe")(functions.config().stripe.secret_key);
 // Region Specification to lower latency using .region()
 //https://firebase.google.com/docs/functions/locations
 // exports.myStorageFunction = functions
@@ -107,15 +107,88 @@ const db = admin.firestore();
 
 exports.completePaymentWithStripe = functions.https.onRequest(
   (request, response) => {
-    const stripe = require("stripe")(functions.config().stripe.secret_key);
     stripe.charges
       .create({
         amount: request.body.amount,
         currency: request.body.currency,
-        source: "tok_mastercard",
+        source: request.body.token,
       })
       .then((charge) => {
         response.send(charge);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+);
+// Step 1 - creating a Stripe account at the backend for all users
+exports.createStripeAccount = functions.https.onRequest((request, response) => {
+  stripe.accounts
+    .create({
+      country: "SG",
+      type: "custom",
+      tos_acceptance: {
+        date: Math.floor(Date.now() / 1000),
+        ip: request.socket.remoteAddress,
+        service_agreement: "full",
+      },
+      business_type: "individual",
+      individual: {
+        first_name: "Man",
+        last_name: "Do",
+        dob: {
+          day: 1,
+          month: 1,
+          year: 1995,
+        },
+      },
+      capabilities: {
+        card_payments: {
+          requested: true,
+        },
+        transfers: {
+          requested: true,
+        },
+      },
+    })
+    .then((account) => {
+      response.send(account);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+// User that opt to become seller will input their bank details and payout is allowed on their account
+exports.createBankAccount = functions.https.onRequest((request, response) => {
+  stripe.accounts
+    .createExternalAccount("acct_1IcQUN2cfMQkBftI", {
+      external_account: {
+        object: "bank_account",
+        country: "SG",
+        currency: "sgd",
+        account_holder_name: "Man Do",
+        account_number: "000123456",
+        routing_number: "1100-000",
+      },
+    })
+    .then((account) => {
+      response.send(account);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
+exports.releasePaymentToSeller = functions.https.onRequest(
+  (request, response) => {
+    stripe.transfers
+      .create({
+        amount: 1000,
+        currency: "sgd",
+        destination: request.body.sellerAccountId,
+      })
+      .then((account) => {
+        response.send(account);
       })
       .catch((error) => {
         console.log(error);

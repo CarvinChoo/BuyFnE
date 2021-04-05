@@ -28,7 +28,7 @@ function PaymentScreen(props) {
   useEffect(() => {
     Stripe.setOptionsAsync({
       publishableKey:
-        "pk_test_51IaC6WBpR8rInpG52iqhGFYLoJ25g1nDaUw7fxhhSgpIwox3jfb1IzFbCoXMS2UtVVqgzK6ZsyX7Etqs2nVPRt3E00iMY6cfDA", // Your key
+        "pk_test_51IcPqUGtUzx3ZmTbhejEutSdJPmxgIYt8MIFJMuub6RSfRaASxU2Db9LwJNUAQdcTTsQCulLk4LU7jw2ca7jplKB00NKDHVNFh", // Your key
     });
   }, []);
 
@@ -56,6 +56,7 @@ function PaymentScreen(props) {
     setLoading(true);
     Stripe.createTokenWithCardAsync(params) // !!!!params card expiry date must be future date or application will crash
       .then((newtoken) => {
+        console.log(newtoken);
         setToken(newtoken);
         setLoading(false);
       })
@@ -72,9 +73,70 @@ function PaymentScreen(props) {
       url:
         "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
       data: {
-        amount: 1000, // amount = 1000 = SG$10
+        amount: 10000, // amount = 1000 = SG$10
         currency: "sgd",
-        token: token.tokenId,
+        // token: token.tokenId,
+        token: "tok_bypassPending",
+      },
+    })
+      .then((response) => {
+        console.log(response);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("Error : ", error.message);
+        setLoading(false);
+      });
+  };
+
+  const createAccount = () => {
+    setLoading(true);
+    axios({
+      method: "POST",
+      url:
+        "https://us-central1-buyfne-63905.cloudfunctions.net/createStripeAccount",
+      data: {
+        country: "SG",
+      },
+    })
+      .then((response) => {
+        console.log(response);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("Error : ", error.message);
+        setLoading(false);
+      });
+  };
+
+  const addBankAccount = () => {
+    setLoading(true);
+    axios({
+      method: "POST",
+      url:
+        "https://us-central1-buyfne-63905.cloudfunctions.net/createBankAccount",
+      data: {
+        country: "SG",
+      },
+    })
+      .then((response) => {
+        console.log(response);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("Error : ", error.message);
+        setLoading(false);
+      });
+  };
+
+  const releasePaymentToSeller = () => {
+    setLoading(true);
+    axios({
+      method: "POST",
+      url:
+        "https://us-central1-buyfne-63905.cloudfunctions.net/releasePaymentToSeller",
+      data: {
+        sellerAccountId: "acct_1IcQUN2cfMQkBftI",
       },
     })
       .then((response) => {
@@ -92,11 +154,14 @@ function PaymentScreen(props) {
       <Text style={styles.instruction}>
         Click button to show Card Form dialog.
       </Text>
-      <Button
-        title='Enter you card and pay'
-        loading={loading}
-        onPress={handleCardPayPress}
-      />
+      {!loading ? (
+        <Button
+          title='Enter you card and pay'
+          onPress={releasePaymentToSeller}
+        />
+      ) : (
+        <Button title='Enter you card and pay' color='#841584' />
+      )}
       <View style={styles.token}>
         {token && (
           <>
@@ -131,6 +196,15 @@ const styles = StyleSheet.create({
   },
   token: {
     height: 20,
+  },
+  field: {
+    width: 300,
+    color: "#449aeb",
+    borderColor: "#000000",
+    borderWidth: 1,
+    borderRadius: 5,
+    backgroundColor: "#FFFFFF",
+    overflow: "hidden",
   },
 });
 
