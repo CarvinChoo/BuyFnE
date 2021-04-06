@@ -138,8 +138,8 @@ function ListingEditScreen() {
     return promises;
   };
 
-  const addInAllListings = async (listing, images, id, timeNow) => {
-    const ref = await db.collection("all_listings").doc();
+  const addInAllListings = (listing, images, id, timeNow) => {
+    const ref = db.collection("all_listings").doc();
 
     ref
       .set({
@@ -156,20 +156,22 @@ function ListingEditScreen() {
       })
       .then(() => {
         console.log("Listing Successfully Added to All Listings.");
+        resetForm();
+        Alert.alert("Add Listing Success", "Listing Created!");
       })
       .catch((error) => {
         console.log("addInAllListings error:", error.message);
       });
   };
 
-  const createListingCollection = async (listing) => {
-    const ref = await db
+  const createListingCollection = (listing, resetForm) => {
+    const ref = db
       .collection("listings")
       .doc(currentUser.uid)
       .collection("my_listings")
       .doc();
 
-    const query = await db
+    const query = db
       .collection("listings")
       .doc(currentUser.uid)
       .collection("my_listings")
@@ -200,7 +202,6 @@ function ListingEditScreen() {
             .then(() => {
               console.log("Listing Successfully Created.");
               addInAllListings(listing, images, ref.id, timeNow);
-              Alert.alert("Add Listing Success", "Listing Created!");
             })
             .catch((error) => {
               console.log("createListingCollection error:", error.message);
@@ -216,8 +217,7 @@ function ListingEditScreen() {
 
   //Function waits for input to POST new listing to server
   const handleSubmit = async (listing, { resetForm }) => {
-    createListingCollection(listing);
-    resetForm();
+    createListingCollection(listing, resetForm);
   };
 
   return (

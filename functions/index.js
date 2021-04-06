@@ -196,6 +196,15 @@ exports.releasePaymentToSeller = functions.https.onRequest(
   }
 );
 
+// //Example of Scheduled update to database
+// exports.scheduledFunction = functions.pubsub.schedule('every 5 minutes').onRun((context) => {
+//    let query =  db.collection("users").where('type','==', 2)
+//    query.get().then((sellers)=> sellers.forEach((seller)=>{
+//        seller.ref.update({status:"seller"})
+//    }))
+
+//   });
+
 // exports.addMessage = functions.https.onCall((data, context) => {
 //     // [START_EXCLUDE]
 //     // [START readMessageData]
