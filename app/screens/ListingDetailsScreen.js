@@ -65,7 +65,7 @@ function ListingDetailsScreen({ route }) {
                     // removes trailing milliseconds
                     timeleft = Math.round(timeleft / 1000) * 1000;
                     // Calls interval that subtract 1 sec to the remaining time
-                    myIntervalRef = setMyInterval(timeleft);
+                    myIntervalRef = setMyInterval(timeleft, groupbuy.data());
                   } else {
                     console.log("Group buy does not exist");
                     setLoading(false);
@@ -97,15 +97,18 @@ function ListingDetailsScreen({ route }) {
   }, []);
 
   // Group buy Countdown Timer
-  const setMyInterval = (timeleft) => {
+  const setMyInterval = (timeleft, groupbuydata) => {
     var timer = setInterval(function () {
       timeleft = timeleft - 1000;
       var date = new Date(timeleft);
       if (timeleft < 0) {
         console.log("STOPPED: ", timeleft);
-        if (groupbuy.currentOrderCount < minimumOrderCount) {
+        setHour("00");
+        setMinute("00");
+        setSecond("00");
+        if (groupbuydata.currentOrderCount < groupbuydata.minimumOrderCount) {
           db.collection("all_groupbuys")
-            .doc(groupbuy.groupbuyId)
+            .doc(groupbuydata.groupbuyId)
             .update({ status: "Unsuccessful" })
             .then(() => {
               console.log("Group buy failed");
@@ -115,7 +118,7 @@ function ListingDetailsScreen({ route }) {
             });
         } else {
           db.collection("all_groupbuys")
-            .doc(groupbuy.groupbuyId)
+            .doc(groupbuydata.groupbuyId)
             .update({ status: "Awaiting seller confirmation" })
             .then(() => {
               console.log("Awaiting seller confirmation");
@@ -124,7 +127,7 @@ function ListingDetailsScreen({ route }) {
               console.log(error.message);
             });
         }
-
+        setLoading(false);
         clearInterval(timer);
       } else {
         console.log("Running: ", timeleft);
