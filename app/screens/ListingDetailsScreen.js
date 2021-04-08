@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Image, ScrollView, Text, Alert } from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler";
+import { useFocusEffect } from "@react-navigation/native";
 import AppText from "../components/AppText";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
@@ -8,6 +9,7 @@ import AppButton from "../components/AppButton";
 import ReadMore from "react-native-read-more-text";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import ListItem from "../components/lists/ListItem";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 // BackEnd
 import AuthApi from "../api/auth";
@@ -19,127 +21,162 @@ function ListingDetailsScreen({ route }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
   const all_listingId = route.params;
   const scrollView = useRef();
+  const isMounted = useRef(true);
   const [imageOnFocus, setImageOnFocus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [listing, setListing] = useState(null);
   const [groupbuy, setGroupBuy] = useState(null);
+  const [day, setDay] = useState(0);
   const [second, setSecond] = useState(0);
   const [minute, setMinute] = useState(0);
   const [hour, setHour] = useState(0);
   const { cart, setCart, currentUser } = useContext(AuthApi.AuthContext);
-
-  useEffect(() => {
-    setLoading(true);
-    var myIntervalRef;
-    var GBsubscriber;
-    const subscriber = db
-      .collection("all_listings")
-      .doc(all_listingId)
-      .onSnapshot(
-        (doc) => {
-          setImageOnFocus(doc.data().images[0]);
-          setListing({ ...doc.data(), key: all_listingId });
-          //////// Initalized timer to maximum under assumption that there is no current group buy ////////////
-          // If there is group buy active, timer will be set accordingly later //
-          setSecond("00");
-          setMinute(doc.data().timelimitMinutes);
-          if (doc.data().timelimitHours < 10)
-            setHour("0" + doc.data().timelimitHours);
-          else setHour(doc.data().timelimitHours);
-          ///////////////////////////////////////////////
-          // Retreive group buy info and set timer
-          if (doc.data().groupbuyId) {
-            GBsubscriber = db
-              .collection("all_groupbuys")
-              .doc(doc.data().groupbuyId)
-              .onSnapshot(
-                (groupbuy) => {
-                  console.log("GB");
-                  //Check if groupbuyId provided has an existing groupbuy document
-                  if (groupbuy.exists) {
-                    setGroupBuy(groupbuy.data());
-                    // subtract expiry time with current time
-                    let timeleft =
-                      groupbuy.data().timeEnd.toDate() -
-                      firebase.firestore.Timestamp.now().toDate();
-                    // removes trailing milliseconds
-                    timeleft = Math.round(timeleft / 1000) * 1000;
-                    // Calls interval that subtract 1 sec to the remaining time
-                    myIntervalRef = setMyInterval(timeleft, groupbuy.data());
-                  } else {
-                    console.log("Group buy does not exist");
-                    setLoading(false);
-                  }
-                },
-                (error) => {
-                  //Error catching for group buy query
-                  console.log(error.message);
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("Product Mounted");
+      setLoading(true);
+      var myIntervalRef;
+      var GBsubscriber = () => {};
+      const subscriber = db
+        .collection("all_listings")
+        .doc(all_listingId)
+        .onSnapshot(
+          (doc) => {
+            if (doc.exists) {
+              if (isMounted.current) {
+                setImageOnFocus(doc.data().images[0]);
+                setListing({ ...doc.data(), key: all_listingId });
+                //////// Initalized timer to maximum under assumption that there is no current group buy ////////////
+                // If there is group buy active, timer will be set accordingly later //
+                setDay(doc.data().timelimitDays);
+                setSecond("00");
+                if (doc.data().timelimitMinutes < 10)
+                  setMinute("0" + doc.data().timelimitMinutes);
+                else setMinute(doc.data().timelimitMinutes);
+                if (doc.data().timelimitHours < 10)
+                  setHour("0" + doc.data().timelimitHours);
+                else setHour(doc.data().timelimitHours);
+                ///////////////////////////////////////////////
+                // Retreive group buy info and set timer
+                if (doc.data().groupbuyId) {
+                  GBsubscriber = db
+                    .collection("all_groupbuys")
+                    .doc(doc.data().groupbuyId)
+                    .onSnapshot(
+                      (groupbuy) => {
+                        console.log("GB");
+                        //Check if groupbuyId provided has an existing groupbuy document
+                        if (groupbuy.exists) {
+                          setGroupBuy(groupbuy.data());
+                          // subtract expiry time with current time
+                          let timeleft =
+                            groupbuy.data().timeEnd.toDate() -
+                            firebase.firestore.Timestamp.now().toDate();
+                          // removes trailing milliseconds
+                          timeleft = Math.round(timeleft / 1000) * 1000;
+                          // Calls interval that subtract 1 sec to the remaining time
+                          myIntervalRef = setMyInterval(
+                            timeleft,
+                            groupbuy.data()
+                          );
+                        } else {
+                          console.log("Group buy does not exist");
+                          setLoading(false);
+                        }
+                      },
+                      (error) => {
+                        //Error catching for group buy query
+                        console.log(error.message);
+                        setLoading(false);
+                      }
+                    );
+                } else {
+                  console.log("No ongoing groupbuy");
                   setLoading(false);
                 }
-              );
+                ///////////////////////////////
+              } else {
+                console.log("Listing has been deleted");
+                setLoading(false);
+              }
+            }
+          },
+          (error) => {
+            // Error catching for listing query
+            console.log(error.message);
+            setLoading(false);
           }
-          ///////////////////////////////
+        );
 
-          // console.log("hello");
-        },
-        (error) => {
-          // Error catching for listing query
-          console.log(error.message);
-          setLoading(false);
-        }
-      );
+      return () => {
+        isMounted.current = false;
+        clearInterval(myIntervalRef);
+        GBsubscriber();
 
-    return () => {
-      clearInterval(myIntervalRef);
-      GBsubscriber();
-      subscriber();
-    };
-  }, []);
+        subscriber();
+        console.log("Product Unmounted");
+      };
+    }, [])
+  );
 
   // Group buy Countdown Timer
   const setMyInterval = (timeleft, groupbuydata) => {
     var timer = setInterval(function () {
       timeleft = timeleft - 1000;
       var date = new Date(timeleft);
-      if (timeleft < 0) {
-        console.log("STOPPED: ", timeleft);
-        setHour("00");
-        setMinute("00");
-        setSecond("00");
-        if (groupbuydata.currentOrderCount < groupbuydata.minimumOrderCount) {
-          db.collection("all_groupbuys")
-            .doc(groupbuydata.groupbuyId)
-            .update({ status: "Unsuccessful" })
-            .then(() => {
-              console.log("Group buy failed");
-            })
-            .catch((error) => {
-              console.log(error.message);
-            });
+      if (isMounted.current) {
+        if (timeleft < 0) {
+          console.log("STOPPED: ", timeleft);
+          if (isMounted.current) {
+            setDay("0");
+            setHour("00");
+            setMinute("00");
+            setSecond("00");
+          }
+          if (groupbuydata.status == "Ongoing") {
+            if (
+              groupbuydata.currentOrderCount < groupbuydata.minimumOrderCount
+            ) {
+              db.collection("all_groupbuys")
+                .doc(groupbuydata.groupbuyId)
+                .update({ status: "Unsuccessful" })
+                .then(() => {
+                  console.log("Group buy failed");
+                })
+                .catch((error) => {
+                  console.log(error.message);
+                });
+            } else {
+              db.collection("all_groupbuys")
+                .doc(groupbuydata.groupbuyId)
+                .update({ status: "Awaiting seller confirmation" })
+                .then(() => {
+                  console.log("Awaiting seller confirmation");
+                })
+                .catch((error) => {
+                  console.log(error.message);
+                });
+            }
+          }
+          setLoading(false);
+          clearInterval(timer);
         } else {
-          db.collection("all_groupbuys")
-            .doc(groupbuydata.groupbuyId)
-            .update({ status: "Awaiting seller confirmation" })
-            .then(() => {
-              console.log("Awaiting seller confirmation");
-            })
-            .catch((error) => {
-              console.log(error.message);
-            });
+          console.log("Running: ", timeleft);
+          if (isMounted.current) {
+            var Difference_In_Days = Math.round(timeleft / (1000 * 3600 * 24));
+            setDay(Difference_In_Days);
+            if (date.getSeconds() < 10) setSecond("0" + date.getSeconds());
+            else setSecond(date.getSeconds());
+            if (date.getMinutes() < 10) setMinute("0" + date.getMinutes());
+            else setMinute(date.getMinutes());
+
+            if (date.getHours() < 10) setHour("0" + date.getHours());
+            else setHour(date.getHours());
+            setLoading(false);
+          }
         }
-        setLoading(false);
-        clearInterval(timer);
       } else {
-        console.log("Running: ", timeleft);
-        if (date.getSeconds() < 10) setSecond("0" + date.getSeconds());
-        else setSecond(date.getSeconds());
-        setMinute(date.getMinutes());
-        if (date.getHours() < 10) {
-          setHour("0" + date.getHours());
-        } else {
-          setHour(date.getHours());
-        }
-        setLoading(false);
+        clearInterval(timer);
       }
     }, 1000);
     return timer;
@@ -173,15 +210,6 @@ function ListingDetailsScreen({ route }) {
   };
 
   const addToCart = (listing) => {
-    // for (const i in cart) {
-    //   console.log(listing.key);
-    //   // if (i.key === listing.key) {
-    //   //   i.count = i.count + 1;
-    //   // } else {
-    //   //   setCart((cart) => [...cart, listing]);
-    //   // }
-    // }
-    // console.log(listing.key);
     var similar = false;
     if (cart.length > 0) {
       cart.forEach((item) => {
@@ -203,7 +231,11 @@ function ListingDetailsScreen({ route }) {
   };
 
   const createGroup = () => {
-    const expIn = listing.timelimitHours * 3600 + listing.timelimitHours * 60;
+    // Days in seconds + Hours in seconds + Minutes in seconds
+    const expIn =
+      listing.timelimitDays * 86400 +
+      listing.timelimitHours * 3600 +
+      listing.timelimitMinutes * 60;
     const timeNow = firebase.firestore.Timestamp.now();
     let createdAt = timeNow.toDate();
     createdAt.setSeconds(createdAt.getSeconds() + expIn);
@@ -214,6 +246,8 @@ function ListingDetailsScreen({ route }) {
       (listing.price / 100) * listing.discount
     ).toFixed(2);
     const ref = db.collection("all_groupbuys").doc();
+
+    const groupbuyId = ref.id;
 
     ref
       .set({
@@ -231,13 +265,40 @@ function ListingDetailsScreen({ route }) {
         status: "Ongoing",
         shoppers: [currentUser.uid],
       })
-      .then((doc) => {
-        // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller
-        console.log("GroupBuy Successfully Created.");
+      .then(() => {
+        db.collection("all_listings")
+          .doc(listing.key)
+          .update({
+            groupbuyId: groupbuyId,
+          })
+          .then(() => {
+            console.log("GroupBuy Successfully Created.");
+          })
+          .catch(() => {
+            console.log("Setting Listing's groupbuyId error.");
+          });
       })
       .catch((error) => {
         console.log("createGroup error:", error.message);
       });
+  };
+
+  const joinGroup = () => {
+    if (listing.groupbuyId) {
+      const ref = db.collection("all_groupbuys").doc(listing.groupbuyId);
+
+      ref
+        .update({
+          shoppers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+          currentOrderCount: firebase.firestore.FieldValue.increment(1),
+        })
+        .then(() => {
+          console.log("Successfully Updated groupbuy's members");
+        })
+        .catch((error) => {
+          console.log("Updating group buy member error :", error.message);
+        });
+    } else console.log("Group buy id is null. May have been deleted");
   };
 
   return (
@@ -254,7 +315,7 @@ function ListingDetailsScreen({ route }) {
             paddingTop: 0,
           }}
         >
-          {listing && (
+          {listing ? (
             <View>
               {/* New Image component imported from react-native-expo-image-cache and uses new props*/}
               <Image style={styles.image} source={{ uri: imageOnFocus }} />
@@ -453,7 +514,7 @@ function ListingDetailsScreen({ route }) {
                       marginRight: 15,
                     }}
                   >
-                    {groupbuy ? (
+                    {listing.groupbuyId && groupbuy ? (
                       <AppText
                         style={{
                           fontSize: 18,
@@ -539,17 +600,25 @@ function ListingDetailsScreen({ route }) {
                     justifyContent: "space-between",
                   }}
                 >
-                  <AppText
-                    style={{
-                      fontSize: 18,
-                      color: "#ff3300",
-                      fontFamily: "sans-serif-light",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Time Left: {hour}:{minute}:{second}
-                  </AppText>
-                  {groupbuy ? (
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <MaterialCommunityIcons
+                      name='clock-outline'
+                      size={18}
+                      color='#ff3300'
+                      style={{ marginRight: 5 }}
+                    />
+                    <AppText
+                      style={{
+                        fontSize: 18,
+                        color: "#ff3300",
+                        fontFamily: "sans-serif-light",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {day} day {hour}:{minute}:{second}
+                    </AppText>
+                  </View>
+                  {listing.groupbuyId && groupbuy ? (
                     <AppText
                       style={{
                         fontSize: 18,
@@ -561,33 +630,27 @@ function ListingDetailsScreen({ route }) {
                       purchased
                     </AppText>
                   ) : (
-                    <AppText
-                      style={{
-                        fontSize: 18,
-                        fontFamily: "sans-serif-condensed",
-                        marginLeft: 10,
-                      }}
-                    >
-                      0/10 purchased
-                    </AppText>
+                    <AppText a>0/{listing.minimumOrderCount} purchased</AppText>
                   )}
                 </View>
-                {!groupbuy ? (
+                {listing.groupbuyId && groupbuy && currentUser ? (
+                  groupbuy.shoppers.includes(currentUser.uid) ? (
+                    <AppButton
+                      color='darkgrey'
+                      title='Already in this Group Buy'
+                    />
+                  ) : (
+                    <AppButton
+                      title='Join Group Buy'
+                      icon='account-group'
+                      onPress={joinGroup}
+                    />
+                  )
+                ) : (
                   <AppButton
                     title='Create Group Buy'
                     icon='account-group'
                     onPress={createGroup}
-                  />
-                ) : groupbuy.shoppers.includes(currentUser.uid) ? (
-                  <AppButton
-                    color='darkgrey'
-                    title='Already in this Group Buy'
-                  />
-                ) : (
-                  <AppButton
-                    title='Join Group Buy'
-                    icon='account-group'
-                    // onPress={createGroup}  ******change to join group buy function later
                   />
                 )}
               </View>
@@ -606,6 +669,8 @@ function ListingDetailsScreen({ route }) {
                 <AppText>Timed Based Milestones for Group Buy</AppText>
               </View>
             </View>
+          ) : (
+            <AppText>Listing has been deleted.</AppText>
           )}
         </Screen>
       </ScrollView>
@@ -651,6 +716,12 @@ const styles = StyleSheet.create({
     color: "red",
     textDecorationLine: "line-through",
     textDecorationStyle: "solid",
+  },
+  timer: {
+    fontSize: 18,
+    color: "#ff3300",
+    fontFamily: "sans-serif-light",
+    fontWeight: "bold",
   },
 });
 export default ListingDetailsScreen;

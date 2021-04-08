@@ -35,6 +35,7 @@ function ListingsScreen({ navigation }) {
   const [loading, setLoading] = useState(true); //*********USED LATER TO SET LOADING SCREEN
 
   useEffect(() => {
+    console.log("Listings Mounted");
     const subscriber = db
       .collection("all_listings")
       .orderBy("createdAt", "desc") //order the listings by timestamp (createdAt)
@@ -64,7 +65,10 @@ function ListingsScreen({ navigation }) {
       );
 
     // Unsubscribe from events when no longer in use
-    return () => subscriber();
+    return () => {
+      console.log("Listings unMounted");
+      subscriber();
+    };
   }, []);
 
   // const listings = [

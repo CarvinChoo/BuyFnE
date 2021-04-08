@@ -12,9 +12,11 @@ const AuthProvider = ({ children }) => {
   const [userType, setUserType] = useState(0);
   const [guestMode, setGuestMode] = useState(false);
   const [cart, setCart] = useState([]);
+  const [productMounted, setProductMounted] = useState(false);
 
   useEffect(() => {
-    app.auth().onAuthStateChanged((user) => {
+    console.log("Auth Mounted");
+    const subscriber = app.auth().onAuthStateChanged((user) => {
       if (user) {
         if (user.emailVerified == true) {
           db.collection("users")
@@ -44,6 +46,11 @@ const AuthProvider = ({ children }) => {
         setinitialLoading(false);
       }
     });
+
+    return () => {
+      subscriber();
+      console.log("Auth UnMounted");
+    };
   }, []);
 
   return (
@@ -61,6 +68,8 @@ const AuthProvider = ({ children }) => {
         setGuestMode,
         cart,
         setCart,
+        productMounted,
+        setProductMounted,
       }}
     >
       {children}

@@ -105,96 +105,130 @@ const stripe = require("stripe")(functions.config().stripe.secret_key);
 //     };
 // });
 
-exports.completePaymentWithStripe = functions.https.onRequest(
-  (request, response) => {
-    stripe.charges
-      .create({
-        amount: request.body.amount,
-        currency: request.body.currency,
-        source: request.body.token,
-      })
-      .then((charge) => {
-        response.send(charge);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-);
-// Step 1 - creating a Stripe account at the backend for all users
-exports.createStripeAccount = functions.https.onRequest((request, response) => {
-  stripe.accounts
-    .create({
-      country: "SG",
-      type: "custom",
-      tos_acceptance: {
-        date: Math.floor(Date.now() / 1000),
-        ip: request.socket.remoteAddress,
-        service_agreement: "full",
-      },
-      business_type: "individual",
-      individual: {
-        first_name: "Man",
-        last_name: "Do",
-        dob: {
-          day: 1,
-          month: 1,
-          year: 1995,
-        },
-      },
-      capabilities: {
-        card_payments: {
-          requested: true,
-        },
-        transfers: {
-          requested: true,
-        },
-      },
-    })
-    .then((account) => {
-      response.send(account);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-});
-// User that opt to become seller will input their bank details and payout is allowed on their account
-exports.createBankAccount = functions.https.onRequest((request, response) => {
-  stripe.accounts
-    .createExternalAccount("acct_1IcQUN2cfMQkBftI", {
-      external_account: {
-        object: "bank_account",
-        country: "SG",
-        currency: "sgd",
-        account_holder_name: "Man Do",
-        account_number: "000123456",
-        routing_number: "1100-000",
-      },
-    })
-    .then((account) => {
-      response.send(account);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-});
+exports.scheduledGroupBuyCheck = functions
+  .region("asia-southeast2")
+  .pubsub.schedule("every 5 minutes")
+  .onRun((context) => {
+    let query = db.collection("all_groupbuys").where("status", "==", "Ongoing");
+    query.get().then((groupbuys) => {
+      if (!groupbuys.empty) {
+        groupbuys.forEach((groupbuy) => {
+          const timeleft =
+            groupbuy.data().timeEnd.toDate() -
+            admin.firestore.Timestamp.now().toDate();
+          if (timeleft <= 0) {
+            console.log("Updating groupbuy : ");
 
-exports.releasePaymentToSeller = functions.https.onRequest(
-  (request, response) => {
-    stripe.transfers
-      .create({
-        amount: 1000,
-        currency: "sgd",
-        destination: request.body.sellerAccountId,
-      })
-      .then((account) => {
-        response.send(account);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-);
+            if (
+              groupbuy.data().currentOrderCount <
+              groupbuy.data().minimumOrderCount
+            )
+              groupbuy.ref.update({
+                status: "Unsuccessful",
+              });
+            else {
+              groupbuy.ref.update({
+                status: "Awaiting seller confirmation",
+              });
+            }
+          } else {
+            console.log("Not updating groupbuy");
+          }
+        });
+      }
+    });
+  });
+
+// exports.completePaymentWithStripe = functions.https.onRequest(
+//   (request, response) => {
+//     stripe.charges
+//       .create({
+//         amount: request.body.amount,
+//         currency: request.body.currency,
+//         source: request.body.token,
+//       })
+//       .then((charge) => {
+//         response.send(charge);
+//       })
+//       .catch((error) => {
+//         console.log(error);
+//       });
+//   }
+// );
+// // Step 1 - creating a Stripe account at the backend for all users
+// exports.createStripeAccount = functions.https.onRequest((request, response) => {
+//   stripe.accounts
+//     .create({
+//       country: "SG",
+//       type: "custom",
+//       tos_acceptance: {
+//         date: Math.floor(Date.now() / 1000),
+//         ip: request.socket.remoteAddress,
+//         service_agreement: "full",
+//       },
+//       business_type: "individual",
+//       individual: {
+//         first_name: "Man",
+//         last_name: "Do",
+//         dob: {
+//           day: 1,
+//           month: 1,
+//           year: 1995,
+//         },
+//       },
+//       capabilities: {
+//         card_payments: {
+//           requested: true,
+//         },
+//         transfers: {
+//           requested: true,
+//         },
+//       },
+//     })
+//     .then((account) => {
+//       response.send(account);
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// });
+// // User that opt to become seller will input their bank details and payout is allowed on their account
+// exports.createBankAccount = functions.https.onRequest((request, response) => {
+//   stripe.accounts
+//     .createExternalAccount("acct_1IcQUN2cfMQkBftI", {
+//       external_account: {
+//         object: "bank_account",
+//         country: "SG",
+//         currency: "sgd",
+//         account_holder_name: "Man Do",
+//         account_number: "000123456",
+//         routing_number: "1100-000",
+//       },
+//     })
+//     .then((account) => {
+//       response.send(account);
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// });
+
+// exports.releasePaymentToSeller = functions.https.onRequest(
+//   (request, response) => {
+//     stripe.transfers
+//       .create({
+//         amount: 1000,
+//         currency: "sgd",
+//         destination: request.body.sellerAccountId,
+//       })
+//       .then((account) => {
+//         response.send(account);
+//       })
+//       .catch((error) => {
+//         console.log(error);
+//       });
+//   }
+// );
 
 // //Example of Scheduled update to database
 // exports.scheduledFunction = functions.pubsub.schedule('every 5 minutes').onRun((context) => {
