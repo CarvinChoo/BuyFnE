@@ -1,4 +1,5 @@
 import React from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
   StyleSheet,
@@ -8,6 +9,7 @@ import {
 // import { Image } from "react-native-expo-image-cache"; //for image blur when loading
 import colors from "../config/colors";
 import AppText from "./AppText";
+import ListItemSeperator from "./lists/ListItemSeperator";
 // function Card({ title, subTitle, imageUrl, onPress, thumbnailUrl })
 function ListingsCard({ item, image, onPress }) {
   return (
@@ -80,46 +82,64 @@ function ListingsCard({ item, image, onPress }) {
           </View>
           {/*!!!!!!!!!!!!!!!!!!!!!!! Hard coded Timer and stock*/}
           {item.groupbuyId ? (
-            <View
-              style={[
-                styles.subTitleContainer,
-                {
-                  justifyContent: "space-between",
-                  marginTop: 5,
-                },
-              ]}
-            >
+            <>
+              <ListItemSeperator />
               <View
-                style={{
-                  backgroundColor: colors.green,
-                  paddingHorizontal: 5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                style={[
+                  styles.subTitleContainer,
+                  {
+                    marginVertical: 5,
+                    justifyContent: "center",
+                  },
+                ]}
               >
-                <AppText
+                <View
                   style={{
-                    fontSize: 18,
-                    color: "white",
-                    fontWeight: "bold",
+                    backgroundColor: colors.green,
+                    paddingHorizontal: 10,
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  {"Group Buy " + item.groupbuyStatus}
-                </AppText>
+                  <AppText
+                    style={{
+                      fontSize: 18,
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {"Group Buy " + item.groupbuyStatus}
+                  </AppText>
+                </View>
               </View>
-              <AppText
+
+              <View
                 style={{
-                  color: "black",
-                  fontFamily: "sans-serif-condensed",
-                  fontWeight: "bold",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "row",
                 }}
               >
-                {"Current orders: " +
-                  item.currentOrderCount +
-                  "/" +
-                  item.minimumOrderCount}
-              </AppText>
-            </View>
+                <MaterialCommunityIcons
+                  name='cart-outline'
+                  size={20}
+                  color={colors.chocolate}
+                  style={{}}
+                />
+                <AppText
+                  style={{
+                    fontSize: 14,
+                    color: colors.chocolate,
+                    fontWeight: "bold",
+                    fontFamily: "sans-serif-medium",
+                  }}
+                >
+                  {item.currentOrderCount +
+                    (item.currentOrderCount < item.minimumOrderCount &&
+                      "/" + item.minimumOrderCount)}
+                </AppText>
+              </View>
+            </>
           ) : (
             <View
               style={[
@@ -153,6 +173,7 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     padding: 20,
+    paddingBottom: 10,
   },
   image: {
     width: "100%",

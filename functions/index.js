@@ -107,36 +107,65 @@ const stripe = require("stripe")(functions.config().stripe.secret_key);
 
 exports.scheduledGroupBuyCheck = functions
   .region("asia-southeast2")
-  .pubsub.schedule("every 5 minutes")
-  .onRun((context) => {
-    let query = db.collection("all_groupbuys").where("status", "==", "Ongoing");
-    query.get().then((groupbuys) => {
-      if (!groupbuys.empty) {
-        groupbuys.forEach((groupbuy) => {
-          const timeleft =
-            groupbuy.data().timeEnd.toDate() -
-            admin.firestore.Timestamp.now().toDate();
-          if (timeleft <= 0) {
-            console.log("Updating groupbuy : ");
+  .pubsub.schedule("* * * * *")
+  .timeZone("Asia/Singapore")
+  .onRun(async (context) => {
+    return db
+      .collection("all_listings")
+      .where("groupbuyStatus", "==", "Ongoing")
+      .get()
+      .then((groupbuys) => {
+        if (!groupbuys.empty) {
+          console.log("Not Empty");
+          groupbuys.forEach((groupbuy) => {
+            const timeleft =
+              groupbuy.data().timeEnd.toDate() -
+              admin.firestore.Timestamp.now().toDate();
+            if (timeleft <= 0) {
+              console.log("Updating groupbuy : ");
 
-            if (
-              groupbuy.data().currentOrderCount <
-              groupbuy.data().minimumOrderCount
-            )
-              groupbuy.ref.update({
-                status: "Unsuccessful",
-              });
-            else {
-              groupbuy.ref.update({
-                status: "Awaiting seller confirmation",
-              });
+              if (
+                groupbuy.data().currentOrderCount <
+                groupbuy.data().minimumOrderCount
+              )
+                groupbuy.ref
+                  .update({
+                    groupbuyStatus: "Unsuccessful",
+                  })
+                  .then(() => {
+                    console.log("Successfully updated Unsuccessful status");
+                  })
+                  .catch((error) => {
+                    console.log(
+                      "Error when setting Unsuccessful status: ",
+                      error.message
+                    );
+                  });
+              else {
+                groupbuy.ref
+                  .update({
+                    groupbuyStatus: "Awaiting seller confirmation",
+                  })
+                  .then(() => {
+                    console.log(
+                      "Successfully updated Awaiting seller confirmation status"
+                    );
+                  })
+                  .catch((error) => {
+                    console.log(
+                      "Error when setting Awaiting seller confirmation status: ",
+                      error.message
+                    );
+                  });
+              }
+            } else {
+              console.log("Not updating groupbuy");
             }
-          } else {
-            console.log("Not updating groupbuy");
-          }
-        });
-      }
-    });
+          });
+        } else {
+          console.log("No ongoing group buy");
+        }
+      });
   });
 
 // exports.completePaymentWithStripe = functions.https.onRequest(

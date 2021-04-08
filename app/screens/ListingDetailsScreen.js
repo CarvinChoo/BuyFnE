@@ -265,7 +265,7 @@ function ListingDetailsScreen({ route }) {
           ref
             .get()
             .then((doc) => {
-              if (doc.inGroupBuys) {
+              if (doc.data().inGroupBuys) {
                 // if user has an existing group buy
                 ref
                   .update({
@@ -273,6 +273,9 @@ function ListingDetailsScreen({ route }) {
                     inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
                       listing.groupbuyId
                     ),
+                  })
+                  .then(() => {
+                    console.log("Successfully updated inGroupBuys using union");
                   })
                   .catch((error) => {
                     console.log("Retreiving user info error", error.message);
@@ -283,6 +286,11 @@ function ListingDetailsScreen({ route }) {
                   .update({
                     // update by setting an new array
                     inGroupBuys: [listing.groupbuyId],
+                  })
+                  .then(() => {
+                    console.log(
+                      "Successfully updated inGroupBuys using new array"
+                    );
                   })
                   .catch((error) => {
                     console.log("Retreiving user info error", error.message);
@@ -521,7 +529,7 @@ function ListingDetailsScreen({ route }) {
                         fontWeight: "bold",
                       }}
                     >
-                      {listing.groupbuyStatus}
+                      {listing.groupbuyId ? listing.groupbuyStatus : "Inactive"}
                     </AppText>
                   </View>
                 </View>
@@ -621,26 +629,28 @@ function ListingDetailsScreen({ route }) {
                     <AppText a>0/{listing.minimumOrderCount} purchased</AppText>
                   )}
                 </View>
-                {listing.groupbuyId && currentUser ? (
-                  listing.shoppers.includes(currentUser.uid) ? (
-                    <AppButton
-                      color='darkgrey'
-                      title='Already in this Group Buy'
-                    />
+                {currentUser &&
+                  currentUser.uid != listing.seller &&
+                  (listing.groupbuyId ? (
+                    listing.shoppers.includes(currentUser.uid) ? (
+                      <AppButton
+                        color='darkgrey'
+                        title='Already in this Group Buy'
+                      />
+                    ) : (
+                      <AppButton
+                        title='Join Group Buy'
+                        icon='account-group'
+                        onPress={joinGroup}
+                      />
+                    )
                   ) : (
                     <AppButton
-                      title='Join Group Buy'
+                      title='Create Group Buy'
                       icon='account-group'
-                      onPress={joinGroup}
+                      onPress={createGroup}
                     />
-                  )
-                ) : (
-                  <AppButton
-                    title='Create Group Buy'
-                    icon='account-group'
-                    onPress={createGroup}
-                  />
-                )}
+                  ))}
               </View>
               <ListItemSeperator />
               {/* Timed Based Milestones for Group Buy */}
