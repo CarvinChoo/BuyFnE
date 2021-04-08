@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, TextInput, View } from "react-native";
 
-import Card from "../components/Card";
+import ListingsCard from "../components/ListingsCard";
 
 import routes from "../navigation/routes";
 import Screen from "../components/Screen";
@@ -162,9 +162,9 @@ function ListingsScreen({ navigation }) {
         //ListHeaderComponent property for single render seperate components on the topp of flat list scrollable
         //https://stackoverflow.com/questions/60341135/react-native-separate-view-component-scrollable-with-flatlist
         renderItem={({ item }) => (
-          <Card
+          <ListingsCard
             title={item.title}
-            subTitle={"$" + item.price.toFixed(2)}
+            item={item}
             discount={item.discount}
             quantity={item.quantity}
             image={item.images[0]} // pick the 1st element url from images array

@@ -69,18 +69,13 @@ function Card({ title, subTitle, discount, quantity = 0, image, onPress }) {
           <View
             style={[
               styles.subTitleContainer,
-              { justifyContent: "space-between", marginTop: 5 },
+              {
+                justifyContent: "space-between",
+                marginTop: 5,
+                flexDirection: "row-reverse",
+              },
             ]}
           >
-            <AppText
-              style={{
-                color: "red",
-                fontWeight: "bold",
-                fontFamily: "sans-serif-light",
-              }}
-            >
-              Time Left: 00:00:00
-            </AppText>
             <AppText
               style={{ color: "black", fontFamily: "sans-serif-condensed" }}
             >
