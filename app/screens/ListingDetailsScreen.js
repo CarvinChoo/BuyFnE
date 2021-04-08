@@ -25,99 +25,71 @@ function ListingDetailsScreen({ route }) {
   const [imageOnFocus, setImageOnFocus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [listing, setListing] = useState(null);
-  const [groupbuy, setGroupBuy] = useState(null);
   const [day, setDay] = useState(0);
   const [second, setSecond] = useState(0);
   const [minute, setMinute] = useState(0);
   const [hour, setHour] = useState(0);
   const { cart, setCart, currentUser } = useContext(AuthApi.AuthContext);
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log("Product Mounted");
-      setLoading(true);
-      var myIntervalRef;
-      var GBsubscriber = () => {};
-      const subscriber = db
-        .collection("all_listings")
-        .doc(all_listingId)
-        .onSnapshot(
-          (doc) => {
-            if (doc.exists) {
-              if (isMounted.current) {
-                setImageOnFocus(doc.data().images[0]);
-                setListing({ ...doc.data(), key: all_listingId });
-                //////// Initalized timer to maximum under assumption that there is no current group buy ////////////
-                // If there is group buy active, timer will be set accordingly later //
-                setDay(doc.data().timelimitDays);
-                setSecond("00");
-                if (doc.data().timelimitMinutes < 10)
-                  setMinute("0" + doc.data().timelimitMinutes);
-                else setMinute(doc.data().timelimitMinutes);
-                if (doc.data().timelimitHours < 10)
-                  setHour("0" + doc.data().timelimitHours);
-                else setHour(doc.data().timelimitHours);
-                ///////////////////////////////////////////////
-                // Retreive group buy info and set timer
-                if (doc.data().groupbuyId) {
-                  GBsubscriber = db
-                    .collection("all_groupbuys")
-                    .doc(doc.data().groupbuyId)
-                    .onSnapshot(
-                      (groupbuy) => {
-                        console.log("GB");
-                        //Check if groupbuyId provided has an existing groupbuy document
-                        if (groupbuy.exists) {
-                          setGroupBuy(groupbuy.data());
-                          // subtract expiry time with current time
-                          let timeleft =
-                            groupbuy.data().timeEnd.toDate() -
-                            firebase.firestore.Timestamp.now().toDate();
-                          // removes trailing milliseconds
-                          timeleft = Math.round(timeleft / 1000) * 1000;
-                          // Calls interval that subtract 1 sec to the remaining time
-                          myIntervalRef = setMyInterval(
-                            timeleft,
-                            groupbuy.data()
-                          );
-                        } else {
-                          console.log("Group buy does not exist");
-                          setLoading(false);
-                        }
-                      },
-                      (error) => {
-                        //Error catching for group buy query
-                        console.log(error.message);
-                        setLoading(false);
-                      }
-                    );
-                } else {
-                  console.log("No ongoing groupbuy");
-                  setLoading(false);
-                }
-                ///////////////////////////////
+  useEffect(() => {
+    console.log("Product Mounted");
+    setLoading(true);
+    var myIntervalRef;
+    const subscriber = db
+      .collection("all_listings")
+      .doc(all_listingId)
+      .onSnapshot(
+        (doc) => {
+          if (doc.exists) {
+            if (isMounted.current) {
+              setImageOnFocus(doc.data().images[0]);
+              setListing({ ...doc.data(), key: all_listingId });
+              //////// Initalized timer to maximum under assumption that there is no current group buy ////////////
+              // If there is group buy active, timer will be set accordingly later //
+              setDay(doc.data().timelimitDays);
+              setSecond("00");
+              if (doc.data().timelimitMinutes < 10)
+                setMinute("0" + doc.data().timelimitMinutes);
+              else setMinute(doc.data().timelimitMinutes);
+              if (doc.data().timelimitHours < 10)
+                setHour("0" + doc.data().timelimitHours);
+              else setHour(doc.data().timelimitHours);
+              ///////////////////////////////////////////////
+              // Retreive group buy info and set timer
+              if (doc.data().groupbuyId) {
+                console.log("GB");
+                // subtract expiry time with current time
+                let timeleft =
+                  doc.data().timeEnd.toDate() -
+                  firebase.firestore.Timestamp.now().toDate();
+                // removes trailing milliseconds
+                timeleft = Math.round(timeleft / 1000) * 1000;
+                // Calls interval that subtract 1 sec to the remaining time
+                myIntervalRef = setMyInterval(timeleft, doc.data());
               } else {
-                console.log("Listing has been deleted");
+                console.log("No ongoing groupbuy");
                 setLoading(false);
               }
+              ///////////////////////////////
+            } else {
+              console.log("Listing has been deleted");
+              setLoading(false);
             }
-          },
-          (error) => {
-            // Error catching for listing query
-            console.log(error.message);
-            setLoading(false);
           }
-        );
+        },
+        (error) => {
+          // Error catching for listing query
+          console.log(error.message);
+          setLoading(false);
+        }
+      );
 
-      return () => {
-        isMounted.current = false;
-        clearInterval(myIntervalRef);
-        GBsubscriber();
-
-        subscriber();
-        console.log("Product Unmounted");
-      };
-    }, [])
-  );
+    return () => {
+      isMounted.current = false;
+      clearInterval(myIntervalRef);
+      subscriber();
+      console.log("Product Unmounted");
+    };
+  }, []);
 
   // Group buy Countdown Timer
   const setMyInterval = (timeleft, groupbuydata) => {
@@ -133,13 +105,13 @@ function ListingDetailsScreen({ route }) {
             setMinute("00");
             setSecond("00");
           }
-          if (groupbuydata.status == "Ongoing") {
+          if (groupbuydata.groupbuyStatus == "Ongoing") {
             if (
               groupbuydata.currentOrderCount < groupbuydata.minimumOrderCount
             ) {
-              db.collection("all_groupbuys")
+              db.collection("all_listings")
                 .doc(groupbuydata.groupbuyId)
-                .update({ status: "Unsuccessful" })
+                .update({ groupbuyStatus: "Unsuccessful" })
                 .then(() => {
                   console.log("Group buy failed");
                 })
@@ -147,9 +119,9 @@ function ListingDetailsScreen({ route }) {
                   console.log(error.message);
                 });
             } else {
-              db.collection("all_groupbuys")
+              db.collection("all_listings")
                 .doc(groupbuydata.groupbuyId)
-                .update({ status: "Awaiting seller confirmation" })
+                .update({ groupbuyStatus: "Awaiting seller confirmation" })
                 .then(() => {
                   console.log("Awaiting seller confirmation");
                 })
@@ -241,59 +213,85 @@ function ListingDetailsScreen({ route }) {
     createdAt.setSeconds(createdAt.getSeconds() + expIn);
     const timeExpireAt = firebase.firestore.Timestamp.fromDate(createdAt);
 
-    const discountedPrice = (
-      listing.price -
-      (listing.price / 100) * listing.discount
-    ).toFixed(2);
-    const ref = db.collection("all_groupbuys").doc();
-
-    const groupbuyId = ref.id;
-
-    ref
-      .set({
-        groupbuyId: ref.id,
-        all_listingId: listing.key,
-        seller_listingId: listing.listingID,
-        sellerId: listing.seller,
-        timelimitHours: listing.timelimitHours,
-        timelimitMinutes: listing.timelimitHours,
-        discountedPrice: discountedPrice,
+    db.collection("all_listings") // updating global listings
+      .doc(listing.listingId) // listingId and groupbuyId is the same id
+      .update({
+        groupbuyId: listing.listingId,
         timeStart: timeNow,
         timeEnd: timeExpireAt,
         currentOrderCount: 1,
-        minimumOrderCount: listing.minimumOrderCount,
-        status: "Ongoing",
+        groupbuyStatus: "Ongoing",
         shoppers: [currentUser.uid],
       })
       .then(() => {
-        db.collection("all_listings")
-          .doc(listing.key)
+        db.collection("listings") // updating a personal copy of seller's own listing
+          .doc(listing.seller)
+          .collection("my_listings")
+          .doc(listing.listingId)
           .update({
-            groupbuyId: groupbuyId,
+            groupbuyId: listing.listingId,
+            timeStart: timeNow,
+            timeEnd: timeExpireAt,
+            currentOrderCount: 1,
+            groupbuyStatus: "Ongoing",
+            shoppers: [currentUser.uid],
           })
           .then(() => {
             console.log("GroupBuy Successfully Created.");
           })
-          .catch(() => {
-            console.log("Setting Listing's groupbuyId error.");
+          .catch((error) => {
+            console.log(
+              "Updating seller's personal group buy order copy error: ",
+              error.message
+            );
           });
       })
-      .catch((error) => {
-        console.log("createGroup error:", error.message);
+      .catch(() => {
+        console.log("Updating groupbuy information in all_listings error.");
       });
   };
 
   const joinGroup = () => {
     if (listing.groupbuyId) {
-      const ref = db.collection("all_groupbuys").doc(listing.groupbuyId);
-
-      ref
+      //Updates groupbuy info with new member uid and increment order count by 1
+      db.collection("all_listings")
+        .doc(listing.groupbuyId)
         .update({
           shoppers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
           currentOrderCount: firebase.firestore.FieldValue.increment(1),
         })
         .then(() => {
-          console.log("Successfully Updated groupbuy's members");
+          const ref = db.collection("users").doc(currentUser.uid);
+          ref
+            .get()
+            .then((doc) => {
+              if (doc.inGroupBuys) {
+                // if user has an existing group buy
+                ref
+                  .update({
+                    // Updating using union
+                    inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
+                      listing.groupbuyId
+                    ),
+                  })
+                  .catch((error) => {
+                    console.log("Retreiving user info error", error.message);
+                  });
+              } else {
+                // if user is not a member of any group buy, means inGroupBuys will return null
+                ref
+                  .update({
+                    // update by setting an new array
+                    inGroupBuys: [listing.groupbuyId],
+                  })
+                  .catch((error) => {
+                    console.log("Retreiving user info error", error.message);
+                  });
+              }
+            })
+            .catch((error) => {
+              console.log("Retreiving user info error", error.message);
+            });
         })
         .catch((error) => {
           console.log("Updating group buy member error :", error.message);
@@ -507,34 +505,24 @@ function ListingDetailsScreen({ route }) {
                   </AppText>
                   <View
                     style={{
-                      backgroundColor: groupbuy ? colors.green : colors.darkred,
+                      backgroundColor: listing.groupbuyId
+                        ? colors.green
+                        : colors.darkred,
                       paddingHorizontal: 5,
                       alignItems: "center",
                       justifyContent: "center",
                       marginRight: 15,
                     }}
                   >
-                    {listing.groupbuyId && groupbuy ? (
-                      <AppText
-                        style={{
-                          fontSize: 18,
-                          color: "white",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {groupbuy.status}
-                      </AppText>
-                    ) : (
-                      <AppText
-                        style={{
-                          fontSize: 18,
-                          color: "white",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Inactive
-                      </AppText>
-                    )}
+                    <AppText
+                      style={{
+                        fontSize: 18,
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {listing.groupbuyStatus}
+                    </AppText>
                   </View>
                 </View>
                 <View
@@ -618,7 +606,7 @@ function ListingDetailsScreen({ route }) {
                       {day} day {hour}:{minute}:{second}
                     </AppText>
                   </View>
-                  {listing.groupbuyId && groupbuy ? (
+                  {listing.groupbuyId ? (
                     <AppText
                       style={{
                         fontSize: 18,
@@ -626,15 +614,15 @@ function ListingDetailsScreen({ route }) {
                         marginLeft: 10,
                       }}
                     >
-                      {groupbuy.currentOrderCount}/{groupbuy.minimumOrderCount}{" "}
+                      {listing.currentOrderCount}/{listing.minimumOrderCount}{" "}
                       purchased
                     </AppText>
                   ) : (
                     <AppText a>0/{listing.minimumOrderCount} purchased</AppText>
                   )}
                 </View>
-                {listing.groupbuyId && groupbuy && currentUser ? (
-                  groupbuy.shoppers.includes(currentUser.uid) ? (
+                {listing.groupbuyId && currentUser ? (
+                  listing.shoppers.includes(currentUser.uid) ? (
                     <AppButton
                       color='darkgrey'
                       title='Already in this Group Buy'

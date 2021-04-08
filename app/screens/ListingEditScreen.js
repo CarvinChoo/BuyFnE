@@ -170,8 +170,20 @@ function ListingEditScreen() {
     return promises;
   };
 
-  const addInAllListings = (listing, images, id, timeNow, resetForm) => {
-    const ref = db.collection("all_listings").doc();
+  // Called in createListingCollection after creating all_listings collection
+  const addIntoPersonalListings = (
+    listing,
+    images,
+    id,
+    timeNow,
+    discountedPrice,
+    resetForm
+  ) => {
+    const ref = db
+      .collection("listings")
+      .doc(currentUser.uid)
+      .collection("my_listings")
+      .doc(id);
 
     ref
       .set({
@@ -183,31 +195,36 @@ function ListingEditScreen() {
         category: listing.category.value,
         images: images,
         createdAt: timeNow,
-        listingID: id,
+        listingId: id,
         groupbuyId: null,
         discount: Number(listing.discount),
+        discountedPrice: discountedPrice,
         timelimitDays: Number(listing.days),
         timelimitHours: Number(listing.hours),
         timelimitMinutes: Number(listing.minutes),
         minimumOrderCount: Number(listing.minOrder),
+        timeStart: null,
+        timeEnd: null,
+        currentOrderCount: 0,
+        groupbuyStatus: "Inactive",
+        shoppers: null,
       })
       .then(() => {
-        console.log("Listing Successfully Added to All Listings.");
-        resetForm();
+        console.log("Listing Successfully Added to User Listings.");
+        resetForm(); // resets all fields in the form
         Alert.alert("Add Listing Success", "Listing Created!");
       })
       .catch((error) => {
-        console.log("addInAllListings error:", error.message);
+        console.log("addIntoPersonalListings error:", error.message);
       });
   };
-
+  // Runs 1st to create all_listing collection
   const createListingCollection = (listing, resetForm) => {
-    const ref = db
-      .collection("listings")
-      .doc(currentUser.uid)
-      .collection("my_listings")
-      .doc();
-
+    const discountedPrice = //Calculate the discounted price
+    (listing.price - (listing.price / 100) * listing.discount).toFixed(2);
+    //Ready the all_listing collection for creation
+    const ref = db.collection("all_listings").doc();
+    // Query to check for existing similar titles by same seller
     const query = db
       .collection("listings")
       .doc(currentUser.uid)
@@ -234,17 +251,30 @@ function ListingEditScreen() {
               category: listing.category.value,
               images: images,
               createdAt: timeNow,
-              listingID: ref.id,
+              listingId: ref.id,
               groupbuyId: null,
               discount: Number(listing.discount),
+              discountedPrice: discountedPrice,
               timelimitDays: Number(listing.days),
               timelimitHours: Number(listing.hours),
               timelimitMinutes: Number(listing.minutes),
               minimumOrderCount: Number(listing.minOrder),
+              timeStart: null,
+              timeEnd: null,
+              currentOrderCount: 0,
+              groupbuyStatus: "Inactive",
+              shoppers: null,
             })
             .then(() => {
               console.log("Listing Successfully Created.");
-              addInAllListings(listing, images, ref.id, timeNow, resetForm);
+              addIntoPersonalListings(
+                listing,
+                images,
+                ref.id,
+                timeNow,
+                discountedPrice,
+                resetForm
+              );
             })
             .catch((error) => {
               console.log("createListingCollection error:", error.message);

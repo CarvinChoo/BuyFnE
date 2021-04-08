@@ -9,15 +9,7 @@ import {
 import colors from "../config/colors";
 import AppText from "./AppText";
 // function Card({ title, subTitle, imageUrl, onPress, thumbnailUrl })
-function Card({
-  title,
-  subTitle,
-  discount,
-  timer,
-  quantity = 0,
-  image,
-  onPress,
-}) {
+function Card({ title, subTitle, discount, quantity = 0, image, onPress }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.card}>
