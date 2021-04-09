@@ -629,28 +629,39 @@ function ListingDetailsScreen({ route }) {
                     <AppText a>0/{listing.minimumOrderCount} purchased</AppText>
                   )}
                 </View>
-                {currentUser &&
-                  currentUser.uid != listing.seller &&
-                  (listing.groupbuyId ? (
-                    listing.shoppers.includes(currentUser.uid) ? (
-                      <AppButton
-                        color='darkgrey'
-                        title='Already in this Group Buy'
-                      />
+                {
+                  //Dont display button if user is not logged in or if owner is the current user
+                  currentUser &&
+                    currentUser.uid != listing.seller &&
+                    (listing.groupbuyId ? ( // check if there is an ongoing group buy
+                      listing.groupbuyStatus == "Ongoing" ? (
+                        listing.shoppers.includes(currentUser.uid) ? (
+                          <AppButton //already in group buy button
+                            color='darkgrey'
+                            title='Already in this Group Buy'
+                          />
+                        ) : (
+                          <AppButton //join group buy button
+                            title='Join Group Buy'
+                            icon='account-group'
+                            color='cornflowerblue'
+                            onPress={joinGroup}
+                          />
+                        )
+                      ) : (
+                        <AppButton //Group buy ended button
+                          title='Group buy has ended'
+                          color='grey'
+                        />
+                      )
                     ) : (
-                      <AppButton
-                        title='Join Group Buy'
+                      <AppButton // create group buy button
+                        title='Create Group Buy'
                         icon='account-group'
-                        onPress={joinGroup}
+                        onPress={createGroup}
                       />
-                    )
-                  ) : (
-                    <AppButton
-                      title='Create Group Buy'
-                      icon='account-group'
-                      onPress={createGroup}
-                    />
-                  ))}
+                    ))
+                }
               </View>
               <ListItemSeperator />
               {/* Timed Based Milestones for Group Buy */}

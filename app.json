@@ -29,6 +29,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Group Buy Functionalities\n"
+    "description": "Able to join expired group buys *Fixed"
   }
 }
