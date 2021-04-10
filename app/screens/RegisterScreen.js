@@ -162,11 +162,13 @@ function RegisterScreen({ navigation }) {
     db.collection("users")
       .doc(user.uid)
       .set({
+        uid: user.uid,
         displayName: registrationDetails.name,
         email: registrationDetails.email,
         type: isEnabled ? 2 : 1, // set type numeric 1 for Buyer and 2 for Seller
         storename: isEnabled ? registrationDetails.storename : "",
         profilePic: url,
+        inGroupBuys: null,
       })
       .then(() => {
         // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller

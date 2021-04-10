@@ -75,7 +75,7 @@ const menuItemsBuyer = [
       name: "account-group",
       backgroundColor: colors.darkorchid,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.MYGROUPBUYS,
   },
   {
     title: "Watchlist",
@@ -193,12 +193,12 @@ function AccountScreen({ navigation }) {
             title={currentUser ? currentUser.displayName : "Guest"}
             subTitle={currentUser ? currentUser.email : "No Email"}
             image={
-              currentUser && currentUser.photoURL
-                ? currentUser.photoURL // user's profile picture
+              currentUser && currentUser.profilePic
+                ? currentUser.profilePic // user's profile picture
                 : require("../assets/default-profile-pic.jpg") // default profile picture
             }
             border={true}
-            defaultimage={currentUser && currentUser.photoURL ? false : true}
+            defaultimage={currentUser && currentUser.profilePic ? false : true}
             onPress={() => navigation.navigate(routes.ACCOUNTMANAGEMENT)}
           />
         </View>

@@ -16,4 +16,5 @@ export default Object.freeze({
   FORGETPASSWORD: "Forget Password",
   ACCOUNTMANAGEMENT: "Edit Account Details",
   ORDERHISTORY: "Order History",
+  MYGROUPBUYS: "My Group Buys",
 });

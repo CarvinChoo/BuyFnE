@@ -71,9 +71,10 @@ function ListingDetailsScreen({ route }) {
               }
               ///////////////////////////////
             } else {
-              console.log("Listing has been deleted");
               setLoading(false);
             }
+          } else {
+            console.log("Listing has been deleted");
           }
         },
         (error) => {
@@ -237,7 +238,47 @@ function ListingDetailsScreen({ route }) {
             shoppers: [currentUser.uid],
           })
           .then(() => {
-            console.log("GroupBuy Successfully Created.");
+            const ref = db.collection("users").doc(currentUser.uid);
+            ref
+              .get()
+              .then((doc) => {
+                if (doc.data().inGroupBuys) {
+                  // if user has an existing group buy
+                  ref
+                    .update({
+                      // Updating using union
+                      inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
+                        listing.listingId
+                      ),
+                    })
+                    .then(() => {
+                      console.log(
+                        "Successfully updated inGroupBuys using union"
+                      );
+                    })
+                    .catch((error) => {
+                      console.log("Retreiving user info error", error.message);
+                    });
+                } else {
+                  // if user is not a member of any group buy, means inGroupBuys will return null
+                  ref
+                    .update({
+                      // update by setting an new array
+                      inGroupBuys: [listing.listingId],
+                    })
+                    .then(() => {
+                      console.log(
+                        "Successfully updated inGroupBuys using new array"
+                      );
+                    })
+                    .catch((error) => {
+                      console.log("Retreiving user info error", error.message);
+                    });
+                }
+              })
+              .catch((error) => {
+                console.log("Retreiving user info error", error.message);
+              });
           })
           .catch((error) => {
             console.log(
@@ -632,7 +673,7 @@ function ListingDetailsScreen({ route }) {
                 {
                   //Dont display button if user is not logged in or if owner is the current user
                   currentUser &&
-                    currentUser.uid != listing.seller &&
+                    currentUser.id != listing.seller &&
                     (listing.groupbuyId ? ( // check if there is an ongoing group buy
                       listing.groupbuyStatus == "Ongoing" ? (
                         listing.shoppers.includes(currentUser.uid) ? (

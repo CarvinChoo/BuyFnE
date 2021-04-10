@@ -188,6 +188,7 @@ function ListingEditScreen() {
     ref
       .set({
         seller: currentUser.uid,
+        storename: currentUser.storename,
         title: listing.title,
         price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
         quantity: Number(listing.quantity),
@@ -208,6 +209,8 @@ function ListingEditScreen() {
         currentOrderCount: 0,
         groupbuyStatus: "Inactive",
         shoppers: null,
+        soldCount: 0,
+        soldAmount: 0,
       })
       .then(() => {
         console.log("Listing Successfully Added to User Listings.");
@@ -243,6 +246,7 @@ function ListingEditScreen() {
           ref
             .set({
               seller: currentUser.uid,
+              storename: currentUser.storename,
               title: listing.title,
               price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
               discount: Number(listing.discount),
@@ -264,6 +268,7 @@ function ListingEditScreen() {
               currentOrderCount: 0,
               groupbuyStatus: "Inactive",
               shoppers: null,
+              soldCount: 0,
             })
             .then(() => {
               console.log("Listing Successfully Created.");

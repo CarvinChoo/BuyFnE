@@ -6,7 +6,8 @@ import MessagesScreen from "../screens/MessagesScreen";
 import ListingsHistoryScreen from "../screens/ListingsHistoryScreen";
 import AccountManagementScreen from "../screens/AccountManagementScreen";
 import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
-
+import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
+import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import routes from "./routes";
 const Stack = createStackNavigator();
 
@@ -22,9 +23,19 @@ const AccountNavigator = () => (
     <Stack.Screen name={routes.ACCOUNT} component={AccountScreen} />
     {/* Add Stack Screen for Profile
     Add Stack Screen for myListings
-    Add Stack Screen for GroupBuy
     Add Stack Screen for Watchlist
     Add Stack Screen for Order History */}
+    {/* GroupBuys Section */}
+    <Stack.Screen
+      name={routes.MYGROUPBUYS}
+      component={PersonalGroupBuysScreen}
+    />
+    <Stack.Screen
+      name={routes.LISTING_DETAILS}
+      component={ListingDetailsScreen}
+      options={{ headerTitle: false }}
+    />
+    {/* GroupBuys Section End*/}
     <Stack.Screen
       name={routes.ORDERHISTORY}
       component={OrderHistoryNavigator}
