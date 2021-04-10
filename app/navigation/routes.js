@@ -15,4 +15,5 @@ export default Object.freeze({
   LISTINGSHISTORY: "My Listings",
   FORGETPASSWORD: "Forget Password",
   ACCOUNTMANAGEMENT: "Edit Account Details",
+  ORDERHISTORY: "Order History",
 });

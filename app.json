@@ -29,6 +29,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Able to join expired group buys *Fixed"
+    "description": "Added Order History Navigation"
   }
 }

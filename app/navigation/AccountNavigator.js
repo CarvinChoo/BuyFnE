@@ -5,6 +5,8 @@ import AccountScreen from "../screens/AccountScreen";
 import MessagesScreen from "../screens/MessagesScreen";
 import ListingsHistoryScreen from "../screens/ListingsHistoryScreen";
 import AccountManagementScreen from "../screens/AccountManagementScreen";
+import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
+
 import routes from "./routes";
 const Stack = createStackNavigator();
 
@@ -23,6 +25,10 @@ const AccountNavigator = () => (
     Add Stack Screen for GroupBuy
     Add Stack Screen for Watchlist
     Add Stack Screen for Order History */}
+    <Stack.Screen
+      name={routes.ORDERHISTORY}
+      component={OrderHistoryNavigator}
+    />
     <Stack.Screen
       name={routes.LISTINGSHISTORY}
       component={ListingsHistoryScreen}

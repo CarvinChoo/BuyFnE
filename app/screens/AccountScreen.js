@@ -62,12 +62,12 @@ const menuItemsSeller = [
 
 const menuItemsBuyer = [
   {
-    title: "Orders",
+    title: "Order History",
     icon: {
       name: "shopping",
       backgroundColor: colors.orangered,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.ORDERHISTORY,
   },
   {
     title: "GroupBuys",
