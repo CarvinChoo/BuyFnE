@@ -7,25 +7,13 @@ import AppNavigator from "../navigation/AppNavigator";
 import AppLoading from "expo-app-loading";
 
 export default Route = ({ children }) => {
-  const {
-    initialLoading,
-    loginLoading,
-    currentUser,
-    isLoading,
-    userType,
-    guestMode,
-  } = useContext(AuthApi.AuthContext);
+  const { initialLoading, userType } = useContext(AuthApi.AuthContext);
   if (initialLoading) {
     return <AppLoading />;
   }
   return (
     <NavigationContainer theme={navigationTheme}>
-      {(!isLoading && guestMode) ||
-      (!loginLoading && !isLoading && currentUser) ? (
-        <AppNavigator userType={userType} />
-      ) : (
-        <AuthNavigator />
-      )}
+      <AuthNavigator userType={userType} />
     </NavigationContainer>
   );
 };

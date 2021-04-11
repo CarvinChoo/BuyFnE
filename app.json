@@ -29,6 +29,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "More group buy stuff"
+    "description": "Bugfix"
   }
 }

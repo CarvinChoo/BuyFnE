@@ -1,21 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
 
 import colors from "../config/colors";
 import AppButton from "../components/AppButton";
 import routes from "../navigation/routes";
-
-// Back End
-import AuthApi from "../api/auth";
-
 function WelcomeScreen({ navigation }) {
-  const { setGuestMode } = useContext(AuthApi.AuthContext);
-
-  const handleGuest = () => {
-    setGuestMode(true);
-  };
-
   return (
     <ImageBackground
       // blurRadius={2}
@@ -29,11 +19,6 @@ function WelcomeScreen({ navigation }) {
         />
       </View>
       <View style={styles.buttonscontainer}>
-        <AppButton //Guest mode button
-          title='Guest'
-          color='darkorange'
-          onPress={handleGuest}
-        />
         <AppButton
           title='Login'
           color='brightred'
@@ -53,11 +38,12 @@ function WelcomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "center",
     alignItems: "center",
   },
   buttonscontainer: {
     padding: 20,
+    marginTop: 100,
     width: "90%",
   },
   logo: {
@@ -67,7 +53,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: "center",
     position: "absolute",
-    top: 80,
+    top: 40,
   },
 });
 export default WelcomeScreen;

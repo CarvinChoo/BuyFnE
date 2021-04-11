@@ -166,9 +166,10 @@ function ListingsCard({ item, image, onPress }) {
 
 const styles = StyleSheet.create({
   card: {
+    marginHorizontal: 10,
     borderRadius: 15,
     backgroundColor: colors.white,
-    marginBottom: 20,
+    marginVertical: 10,
     overflow: "hidden", //hides overflowed elements and keep it within limits
   },
   detailsContainer: {

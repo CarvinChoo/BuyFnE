@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, TextInput, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  FlatList,
+  Image,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
 import ListingsCard from "../components/ListingsCard";
 
@@ -17,22 +26,11 @@ import AuthApi from "../api/auth"; // for context
 import db from "../api/db";
 import AppTextInput from "../components/AppTextInput";
 import Icon from "../components/Icon";
-
 function ListingsScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
-
-  // const {
-  //   data: listings, // alias for data
-  //   error,
-  //   loading,
-  //   request: loadListings, // alias for request function
-  // } = useApi(listingsApi.getListings);
-
-  // useEffect(() => {
-  //   loadListings(); // function to call listings
-  // }, []); // only call for listings once
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true); //*********USED LATER TO SET LOADING SCREEN
+  const { currentUser } = useContext(AuthApi.AuthContext);
 
   useEffect(() => {
     console.log("Listings Mounted");
@@ -70,24 +68,11 @@ function ListingsScreen({ navigation }) {
       subscriber();
     };
   }, []);
-
-  // const listings = [
-  //   {
-  //     id: 1,
-  //     title: "Red jacket for sale",
-  //     price: 100,
-  //     image: require("../assets/jacket.jpg"),
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Couch in great condition",
-  //     price: 1000,
-  //     image: require("../assets/couch.jpg"),
-  //   },
-  // ];
   return (
-    <Screen style={styles.screen}>
-      {/* {error && ( // if error is detected
+    <>
+      <StatusBar backgroundColor={colors.brightred} />
+      <Screen style={styles.screen}>
+        {/* {error && ( // if error is detected
         <>
           <AppText>Couldn't retrieve the listings.</AppText>
           <AppButton
@@ -100,95 +85,145 @@ function ListingsScreen({ navigation }) {
       <AppActivityIndicator // loading animation component
         visible={loading} // {loading} is a boolean state
       /> */}
-      <AppActivityIndicator // loading animation component
-        visible={loading} // {loading} is a boolean state
-      />
-      {/* !!!!!!!! Hard Coded Search Bar + category */}
-      <View style={{ flexDirection: "row" }}>
-        {/*  Category */}
+        <AppActivityIndicator // loading animation component
+          visible={loading} // {loading} is a boolean state
+        />
         <View
           style={{
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 10,
-            borderBottomLeftRadius: 25,
-            borderTopLeftRadius: 25,
-            backgroundColor: colors.white,
-          }}
-        >
-          <Icon
-            name='view-list'
-            backgroundColor={colors.white}
-            iconColor={colors.muted}
-            size={50}
-          />
-        </View>
-        {/*  Category END */}
-
-        {/* Actual Search Bar */}
-        <View
-          style={{
-            borderLeftWidth: 1,
-            borderColor: colors.muted,
-            borderBottomRightRadius: 25,
-            borderTopRightRadius: 25,
             flexDirection: "row",
-            padding: 15,
-            marginBottom: 10,
-            alignItems: "center",
-            backgroundColor: colors.white,
-            flex: 1,
+            justifyContent: "space-between",
+            backgroundColor: colors.brightred,
           }}
         >
-          <MaterialCommunityIcons
-            name='magnify'
-            size={25}
-            color={colors.muted}
-            style={{ marginRight: 10 }}
+          <Image
+            source={require("../assets/BuyFnELogo-3.png")}
+            style={{
+              width: 90,
+              height: 40,
+              marginLeft: 10,
+            }}
           />
-          <TextInput
-            placeholder='Search'
-            placeholderTextColor={colors.muted}
-            style={[defaultStyles.text]}
+
+          {!currentUser && (
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <TouchableWithoutFeedback
+                onPress={() => navigation.navigate(routes.WELCOME)}
+              >
+                <AppText
+                  style={{
+                    color: colors.white,
+                    fontSize: 16,
+                    fontWeight: "bold",
+                    paddingHorizontal: 10,
+                    paddingVertical: 8,
+                  }}
+                >
+                  Login / Register
+                </AppText>
+              </TouchableWithoutFeedback>
+            </View>
+          )}
+        </View>
+        {/* !!!!!!!! Hard Coded Search Bar + category */}
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: colors.brightred,
+            paddingTop: 5,
+            paddingBottom: 10,
+            paddingHorizontal: 5,
+          }}
+        >
+          {/*  Category */}
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              borderBottomLeftRadius: 15,
+              borderTopLeftRadius: 15,
+              backgroundColor: colors.white,
+            }}
+          >
+            <Icon
+              name='view-list'
+              backgroundColor={colors.white}
+              iconColor={colors.muted}
+              size={50}
+            />
+          </View>
+          {/*  Category END */}
+
+          {/* Actual Search Bar */}
+          <View
+            style={{
+              borderLeftWidth: 1,
+              borderColor: colors.muted,
+              borderBottomRightRadius: 15,
+              borderTopRightRadius: 15,
+              flexDirection: "row",
+              paddingLeft: 15,
+
+              alignItems: "center",
+              backgroundColor: colors.white,
+              flex: 1,
+            }}
+          >
+            <MaterialCommunityIcons
+              name='magnify'
+              size={25}
+              color={colors.muted}
+              style={{ marginRight: 10 }}
+            />
+            <TextInput
+              placeholder='Search'
+              placeholderTextColor={colors.muted}
+              style={[defaultStyles.text]}
+            />
+          </View>
+        </View>
+        {/* Actual Search Bar  END*/}
+        <View style={{ backgroundColor: colors.whitegrey }}>
+          <FlatList
+            data={listings}
+            // Normally needed but we already added a "key" property to each listing (above)
+            // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string
+            //!!!!!!!!! IMPLEMENT SEARCH BAR AND CATEGORIES HERE
+            //ListHeaderComponent property for single render seperate components on the topp of flat list scrollable
+            //https://stackoverflow.com/questions/60341135/react-native-separate-view-component-scrollable-with-flatlist
+            renderItem={({ item }) => (
+              <ListingsCard
+                title={item.title}
+                item={item}
+                discount={item.discount}
+                quantity={item.quantity}
+                image={item.images[0]} // pick the 1st element url from images array
+                onPress={
+                  () => navigation.navigate(routes.LISTING_DETAILS, item.key) //passes document id from all_listings collection
+                } //passing current {item} into ListingDetailsScreen
+                //********* WILL NEED TO PUT IN MORE PROPERTIES TO BE PASSED TO CARD
+                //********* REMEMBER TO SET  ...otherProps in parameters in CARD component !!!!!!!!
+                // imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
+                // image={item.image}
+                // //*routes.js is where you change the screen name
+                // // thumbnailUrl={item.images[0].thumbnailUrl} // sets thumbnail for progressive loading ( blur effect on image)
+              />
+            )}
           />
         </View>
-      </View>
-      {/* Actual Search Bar  END*/}
-      <FlatList
-        data={listings}
-        // Normally needed but we already added a "key" property to each listing (above)
-        // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string
-        //!!!!!!!!! IMPLEMENT SEARCH BAR AND CATEGORIES HERE
-        //ListHeaderComponent property for single render seperate components on the topp of flat list scrollable
-        //https://stackoverflow.com/questions/60341135/react-native-separate-view-component-scrollable-with-flatlist
-        renderItem={({ item }) => (
-          <ListingsCard
-            title={item.title}
-            item={item}
-            discount={item.discount}
-            quantity={item.quantity}
-            image={item.images[0]} // pick the 1st element url from images array
-            onPress={
-              () => navigation.navigate(routes.LISTING_DETAILS, item.key) //passes document id from all_listings collection
-            } //passing current {item} into ListingDetailsScreen
-            //********* WILL NEED TO PUT IN MORE PROPERTIES TO BE PASSED TO CARD
-            //********* REMEMBER TO SET  ...otherProps in parameters in CARD component !!!!!!!!
-            // imageUrl={item.images[0].url} // due to listing having a array of images now, this will pick the 1st image's url
-            // image={item.image}
-            // //*routes.js is where you change the screen name
-            // // thumbnailUrl={item.images[0].thumbnailUrl} // sets thumbnail for progressive loading ( blur effect on image)
-          />
-        )}
-      />
-    </Screen>
+      </Screen>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
-    paddingHorizontal: 10,
-
     backgroundColor: colors.whitegrey,
+    paddingTop: 0,
   },
 });
 

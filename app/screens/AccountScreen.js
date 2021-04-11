@@ -158,13 +158,9 @@ function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
   // uses custom hook "useAuth" from useAuth.js to perform useContext(AuthContext);
-  const {
-    currentUser,
-    isLoading,
-    guestMode,
-    setGuestMode,
-    userType,
-  } = useContext(AuthApi.AuthContext);
+  const { currentUser, userType, setLoggedIn } = useContext(
+    AuthApi.AuthContext
+  );
 
   //Used to grab image from cloud storage///////////////////////////////////////////////
   // useEffect(() => {
@@ -178,11 +174,12 @@ function AccountScreen({ navigation }) {
 
   //Function to handle logout process
   const handleLogout = () => {
-    app.auth().signOut();
-  };
-
-  const handleBackToWelcome = () => {
-    setGuestMode(false);
+    app
+      .auth()
+      .signOut()
+      .then(() => {
+        setLoggedIn(false);
+      });
   };
 
   const renderHeader = () => {
@@ -220,18 +217,8 @@ function AccountScreen({ navigation }) {
   };
 
   const renderFooter = () => {
-    return !isLoading ? (
-      guestMode ? (
-        <View style={styles.container}>
-          <ListItem
-            title='Back to Welcome Screen'
-            IconComponent={
-              <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
-            }
-            onPress={handleBackToWelcome} // call for function to handle logout process
-          />
-        </View>
-      ) : (
+    return (
+      currentUser && (
         <View style={styles.container}>
           <ListItem
             title='Log Out'
@@ -242,15 +229,6 @@ function AccountScreen({ navigation }) {
           />
         </View>
       )
-    ) : (
-      <View style={styles.container}>
-        <ListItem
-          title='Log Out'
-          IconComponent={
-            <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
-          }
-        />
-      </View>
     );
   };
 

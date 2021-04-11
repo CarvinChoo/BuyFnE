@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Yup from "yup"; // use to validation
 //Front End
@@ -17,6 +17,7 @@ import routes from "../navigation/routes";
 // Back end
 import app from "../auth/base.js";
 import AuthApi from "../api/auth";
+import db from "../api/db";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -28,19 +29,22 @@ const validationSchema = Yup.object().shape({
 });
 
 function LoginScreen({ navigation }) {
-  const {
-    setCurrentUser,
-    loginLoading,
-    setLoginLoading,
-    setIsLoading,
-  } = useContext(AuthApi.AuthContext);
+  const { currentUser, loggedIn, setLoggedIn } = useContext(
+    AuthApi.AuthContext
+  );
 
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      navigation.popToTop();
+    }
+  }, [currentUser]);
 
   // function to handle submission
   const handSubmit = (loginDetails) => {
-    setIsLoading(true);
-    setLoginLoading(true);
+    console.log(loggedIn);
+    setLoading(true);
     app
       .auth()
       .signInWithEmailAndPassword(loginDetails.email, loginDetails.password)
@@ -54,8 +58,7 @@ function LoginScreen({ navigation }) {
           "Wrong Credentials",
           "Please sign in using a valid email/password."
         );
-        setLoginLoading(false);
-        setIsLoading(false);
+        setLoading(false);
       });
   };
   const authVerification = (user) => {
@@ -68,25 +71,22 @@ function LoginScreen({ navigation }) {
             "Unverified Account",
             "Please verify your account via email first."
           );
-          setLoginLoading(false);
-          setIsLoading(false);
+          setLoading(false);
         })
         .catch((error) => {
           console.log("login signout error:", error.message);
-          setCurrentUser(null);
-          setLoginLoading(false);
-          setIsLoading(false);
+          setLoading(false);
         });
     }
     console.log("Login Successful");
-    setIsLoading(false);
+    setLoggedIn(true);
   };
   //////////////////////////////////////////////////////////////////////
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
     >
       <AppActivityIndicator // loagind screen when processing login authentication
-        visible={loginLoading}
+        visible={loading}
       />
       <Screen style={styles.container}>
         <Image

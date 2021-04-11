@@ -673,7 +673,7 @@ function ListingDetailsScreen({ route }) {
                 {
                   //Dont display button if user is not logged in or if owner is the current user
                   currentUser &&
-                    currentUser.id != listing.seller &&
+                    currentUser.uid != listing.seller &&
                     (listing.groupbuyId ? ( // check if there is an ongoing group buy
                       listing.groupbuyStatus == "Ongoing" ? (
                         listing.shoppers.includes(currentUser.uid) ? (

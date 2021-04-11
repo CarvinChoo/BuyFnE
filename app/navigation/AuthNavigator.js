@@ -1,6 +1,6 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-
+import AppNavigator from "./AppNavigator";
 import LoginNavigator from "./LoginNavigator";
 import RegisterScreen from "../screens/RegisterScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
@@ -15,13 +15,22 @@ const AuthNavigator = () => (
     screenOptions={{
       headerTintColor: colors.brightred,
       headerTitleAlign: "center",
-      headerBackTitleVisible: true,
+      headerBackTitleVisible: false,
     }}
   >
     <Stack.Screen
+      name={routes.AppNav}
+      component={AppNavigator}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
       name={routes.WELCOME}
       component={WelcomeScreen}
-      options={{ headerShown: false }}
+      options={{
+        headerStyle: {
+          height: 75,
+        },
+      }}
     />
     <Stack.Screen
       name={routes.LoginNav}
