@@ -46,6 +46,7 @@ function AppDatePicker() {
         <DateTimePicker
           testID='dateTimePicker'
           value={date == null ? new Date() : date}
+          maximumDate={new Date()}
           mode='date'
           display='spinner'
           onChange={(event, newdate) => {

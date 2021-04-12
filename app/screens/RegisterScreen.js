@@ -7,7 +7,6 @@ import {
   Alert,
 } from "react-native";
 import * as Yup from "yup";
-
 //BackEnd
 import app from "../auth/base.js";
 import db from "../api/db";
@@ -73,23 +72,32 @@ function RegisterScreen({ navigation }) {
 
   // Function to register user in Firbase Authentication
   const createUser = (registrationDetails) => {
-    app
-      .auth()
-      .createUserWithEmailAndPassword(
-        registrationDetails.email,
-        registrationDetails.password
-      )
-      .then((result) => {
-        setError(null);
-        if (registrationDetails.image)
-          uploadImage(result.user, registrationDetails);
-        else updateUser(result.user, registrationDetails);
-      })
-      .catch((error) => {
-        console.log("createUser error:", error.message);
-        setError(error.message);
-        setLoading(false);
-      });
+    const dob = new Date(JSON.parse(registrationDetails.dob));
+    const age = new Date().getFullYear() - dob.getFullYear();
+
+    if (age > 13) {
+      setError(null);
+      app
+        .auth()
+        .createUserWithEmailAndPassword(
+          registrationDetails.email,
+          registrationDetails.password
+        )
+        .then((result) => {
+          setError(null);
+          if (registrationDetails.image)
+            uploadImage(result.user, registrationDetails);
+          else updateUser(result.user, registrationDetails);
+        })
+        .catch((error) => {
+          console.log("createUser error:", error.message);
+          setError(error.message);
+          setLoading(false);
+        });
+    } else {
+      setError("Must be 13 years old or older to sign up.");
+      setLoading(false);
+    }
   };
   // Function to Upload Profile Pic into Firebase Storage
   const uploadImage = async (user, registrationDetails) => {
@@ -131,9 +139,11 @@ function RegisterScreen({ navigation }) {
         deleteUser(user);
       });
   };
+  // Function to create Stripe account
   const createStripeAccount = (user, registrationDetails, url) => {
     console.log("Creating Stripe Account.");
     const dob = new Date(JSON.parse(registrationDetails.dob));
+
     axios({
       method: "POST",
       url:
@@ -147,16 +157,9 @@ function RegisterScreen({ navigation }) {
         dob_year: dob.getFullYear(),
       },
     })
-      .then((response) => {
-        setAccount(response);
-        console.log(reponse);
-        // createUserCollectionDoc(
-        //   user,
-        //   registrationDetails,
-        //   response.id,
-        //   dob,
-        //   url
-        // );
+      .then(({ _, data }) => {
+        setLoading(false);
+        createUserCollectionDoc(user, registrationDetails, data.id, dob, url);
       })
       .catch((error) => {
         console.log("Error : ", error.message);
@@ -246,19 +249,6 @@ function RegisterScreen({ navigation }) {
         setLoading(false);
       });
   };
-  // For Error Implementation later//////////
-  // const signOutUser = (user) => {
-  //   app
-  //     .auth()
-  //     .signOut()
-  //     .then(() => {
-  //       console.log("Sign Out Successful.");
-  //     })
-  //     .catch((error) => {
-  //       console.log(error.message);
-  //       console.log("Sign Out Failed.");
-  //     });
-  // };
 
   // Function to handle submission
   const handleSubmit = (registrationDetails) => {

@@ -7,6 +7,7 @@ const AuthContext = React.createContext();
 const AuthProvider = ({ children }) => {
   const [initialLoading, setinitialLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState(0);
   const [cart, setCart] = useState([]);
@@ -16,8 +17,11 @@ const AuthProvider = ({ children }) => {
     console.log("Auth Mounted");
     var userListener;
     const subscriber = app.auth().onAuthStateChanged((user) => {
+      console.log("running");
       if (user) {
+        console.log("There is user");
         if (user.emailVerified == true) {
+          console.log("user is verified");
           userListener = db
             .collection("users")
             .doc(user.uid)
@@ -41,10 +45,12 @@ const AuthProvider = ({ children }) => {
                 console.log("Error in retreiving user: ", error.message);
                 setUserType(0);
                 setCurrentUser(null);
-
                 setinitialLoading(false);
               }
             );
+        } else {
+          console.log("User not verified");
+          // app.auth().signOut();
         }
       } else {
         if (stillListening.current) {
@@ -75,6 +81,8 @@ const AuthProvider = ({ children }) => {
       value={{
         initialLoading,
         currentUser,
+        isLoading,
+        setIsLoading,
         userType,
         setUserType,
         cart,
