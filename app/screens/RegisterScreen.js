@@ -1,10 +1,9 @@
-import React, { useRef, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   ScrollView,
-  Switch,
+  // Switch,
   StyleSheet,
   View,
-  Text,
   Alert,
 } from "react-native";
 import * as Yup from "yup";
@@ -14,6 +13,7 @@ import app from "../auth/base.js";
 import db from "../api/db";
 import filestorage from "../api/filestorage";
 import AuthApi from "../api/auth";
+import axios from "axios";
 //Front End
 import Screen from "../components/Screen";
 import {
@@ -23,68 +23,57 @@ import {
   SubmitButton,
   LoadingSubmitButton,
   AppFormSingleImagePicker,
+  AppDatePicker,
 } from "../components/forms";
 import AppActivityIndicator from "../components/AppActivityIndicator";
-import colors from "../config/colors.js";
-import AppText from "../components/AppText.js";
 
 // Validation Schema for Buyer
 const shopperValidationSchema = Yup.object().shape({
-  name: Yup.string().required().label("Name"),
-  email: Yup.string().required().email().label("Email"),
+  name: Yup.string().required("Name is required").label("Name"),
+  first_name: Yup.string()
+    .required("First Name is required")
+    .label("First Name"),
+  last_name: Yup.string().required("Last Name is required").label("Last Name"),
+  dob: Yup.string()
+    .required("Date of Birth is required")
+    .label("Date of Birth"),
+  email: Yup.string().required("Email is required").email().label("Email"),
   password: Yup.string()
-    .required()
+    .required("Password is required")
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
       "Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and one Special Case Character"
     ),
   image: Yup.string().nullable(),
 });
-// Validation Schema for Seller
-const retailerValidationSchema = Yup.object().shape({
-  storename: Yup.string().required().min(2).label("Store Name"),
-  name: Yup.string().required().label("Name"),
-  email: Yup.string().required().email().label("Email"),
-  password: Yup.string()
-    .required()
-    .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-      "Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and one Special Case Character"
-    ),
-  image: Yup.string().nullable(),
-});
+// // Validation Schema for Seller
+// const retailerValidationSchema = Yup.object().shape({
+//   storename: Yup.string().required().min(2).label("Store Name"),
+//   name: Yup.string().required().label("Name"),
+//   email: Yup.string().required().email().label("Email"),
+//   password: Yup.string()
+//     .required()
+//     .matches(
+//       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+//       "Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and one Special Case Character"
+//     ),
+//   image: Yup.string().nullable(),
+// });
 
 function RegisterScreen({ navigation }) {
-  const { isLoading, setIsLoading, setUserType } = useContext(
-    AuthApi.AuthContext
-  );
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isEnabled, setIsEnabled] = useState(false);
+  const [account, setAccount] = useState(null);
+  // const [isEnabled, setIsEnabled] = useState(false);
 
   // Handles Toggling of Form Switch
-  const toggleSwitch = () => {
-    setIsEnabled((previousState) => !previousState);
-  };
-  // //Function to upload image
-  // const uploadImage = async (user, registrationDetails) => {
-  //   const imageUri = registrationDetails.image;
-  //   let filename = imageUri.substring(imageUri.lastIndexOf("/") + 1);
-
-  //   try {
-  //     await filestorage
-  //       .ref(user.uid + "/profilePicture/" + filename)
-  //       .put(imageUri);
-
-  //     console.log("Successfully Uploaded Image.");
-  //   } catch (error) {
-  //     console.log(error);
-  //     console.log("Failed to Upload Image.");
-  //   }
+  // const toggleSwitch = () => {
+  //   setIsEnabled((previousState) => !previousState);
   // };
 
   // Function to register user in Firbase Authentication
-  const createUser = async (registrationDetails) => {
-    return await app
+  const createUser = (registrationDetails) => {
+    app
       .auth()
       .createUserWithEmailAndPassword(
         registrationDetails.email,
@@ -99,26 +88,11 @@ function RegisterScreen({ navigation }) {
       .catch((error) => {
         console.log("createUser error:", error.message);
         setError(error.message);
-        setIsLoading(false);
+        setLoading(false);
       });
   };
   // Function to Upload Profile Pic into Firebase Storage
   const uploadImage = async (user, registrationDetails) => {
-    // Why are we using XMLHttpRequest? See:
-    // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-    // const blob = await new Promise((resolve, reject) => {
-    //   const xhr = new XMLHttpRequest();
-    //   xhr.onload = function () {
-    //     resolve(xhr.response);
-    //   };
-    //   xhr.onerror = function (e) {
-    //     console.log(e);
-    //     reject(new TypeError("Network request failed"));
-    //   };
-    //   xhr.responseType = "blob";
-    //   xhr.open("GET", uri, true);
-    //   xhr.send(null);
-    // });
     const uri = registrationDetails.image;
     const response = await fetch(uri);
 
@@ -139,7 +113,7 @@ function RegisterScreen({ navigation }) {
         updateUser(user, registrationDetails);
         console.log("uploadImage:", error.message);
         console.log("Failed to Uploaded Image.");
-        setIsLoading(false);
+        setLoading(false);
       });
   };
   // Function to Update User properties in Firebase Authentication
@@ -150,30 +124,76 @@ function RegisterScreen({ navigation }) {
         photoURL: url,
       })
       .then(() => {
-        createUserCollectionDoc(user, registrationDetails, url);
+        createStripeAccount(user, registrationDetails, url);
       })
       .catch((error) => {
         console.log("updateUser error:", error.message);
         deleteUser(user);
       });
   };
+  const createStripeAccount = (user, registrationDetails, url) => {
+    console.log("Creating Stripe Account.");
+    const dob = new Date(JSON.parse(registrationDetails.dob));
+    axios({
+      method: "POST",
+      url:
+        "https://asia-southeast2-buyfne-63905.cloudfunctions.net/createStripeAccount",
+      data: {
+        email: registrationDetails.email,
+        first_name: registrationDetails.first_name,
+        last_name: registrationDetails.last_name,
+        dob_day: dob.getDate(),
+        dob_month: dob.getMonth(),
+        dob_year: dob.getFullYear(),
+      },
+    })
+      .then((response) => {
+        setAccount(response);
+        console.log(reponse);
+        // createUserCollectionDoc(
+        //   user,
+        //   registrationDetails,
+        //   response.id,
+        //   dob,
+        //   url
+        // );
+      })
+      .catch((error) => {
+        console.log("Error : ", error.message);
+        Alert.alert("Error", error.message);
+        setLoading(false);
+      });
+  };
   // Function to Create new User doc in Firestore
-  const createUserCollectionDoc = (user, registrationDetails, url = null) => {
+  const createUserCollectionDoc = (
+    user,
+    registrationDetails,
+    stripe_id,
+    dob,
+    url = null
+  ) => {
     db.collection("users")
       .doc(user.uid)
       .set({
         uid: user.uid,
+        stripe_id: stripe_id,
+        first_name: registrationDetails.first_name,
+        last_name: registrationDetails.last_name,
+        dob_day: dob.getDate(),
+        dob_month: dob.getMonth(),
+        dob_year: dob.getFullYear(),
         displayName: registrationDetails.name,
         email: registrationDetails.email,
-        type: isEnabled ? 2 : 1, // set type numeric 1 for Buyer and 2 for Seller
-        storename: isEnabled ? registrationDetails.storename : "",
+        type: 1,
+        // type: isEnabled ? 2 : 1, // set type numeric 1 for Buyer and 2 for Seller
+        // storename: isEnabled ? registrationDetails.storename : "",
         profilePic: url,
         inGroupBuys: null,
       })
       .then(() => {
         // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller
         console.log("User Successfully Created.");
-        emailVerification(user);
+        emailVerification(user, registrationDetails);
       })
       .catch((error) => {
         console.log("createUserCollectionDoc error:", error.message);
@@ -181,7 +201,7 @@ function RegisterScreen({ navigation }) {
       });
   };
 
-  const emailVerification = (user) => {
+  const emailVerification = (user, registrationDetails) => {
     user
       .sendEmailVerification()
       .then(() => {
@@ -196,6 +216,7 @@ function RegisterScreen({ navigation }) {
         deleteUser(user);
       });
   };
+  // Function to create stripe account for user for later activation if they want to be a seller
 
   const signOut = (user) => {
     app
@@ -203,7 +224,7 @@ function RegisterScreen({ navigation }) {
       .signOut()
       .then(() => {
         console.log("register signout success");
-        setIsLoading(false);
+        setLoading(false);
         navigation.goBack();
       })
       .catch((error) => {
@@ -217,12 +238,12 @@ function RegisterScreen({ navigation }) {
       .delete()
       .then(() => {
         console.log("User deleted.");
-        setIsLoading(false);
+        setLoading(false);
       })
       .catch((error) => {
         console.log(error.message);
         console.log("Deletion Failed.");
-        setIsLoading(false);
+        setLoading(false);
       });
   };
   // For Error Implementation later//////////
@@ -241,21 +262,27 @@ function RegisterScreen({ navigation }) {
 
   // Function to handle submission
   const handleSubmit = (registrationDetails) => {
-    setIsLoading(true);
+    setLoading(true);
     createUser(registrationDetails);
   };
-
+  const [show, setShow] = useState(false);
+  const showDatepicker = () => {
+    setShow(true);
+  };
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler
     >
       <AppActivityIndicator // Loading Screen when processing registration with Firebase
-        visible={isLoading}
+        visible={loading}
       />
       <View>
         <Screen style={styles.container}>
           <AppForm
             initialValues={{
-              storename: "",
+              // storename: "",
+              first_name: "",
+              last_name: "",
+              dob: "",
               name: "",
               email: "",
               password: "",
@@ -263,11 +290,12 @@ function RegisterScreen({ navigation }) {
             }}
             onSubmit={handleSubmit}
             validationSchema={
-              isEnabled ? retailerValidationSchema : shopperValidationSchema
+              // isEnabled ? retailerValidationSchema : shopperValidationSchema
+              shopperValidationSchema
             }
           >
             <AppFormSingleImagePicker name='image' />
-            {isEnabled && (
+            {/* {isEnabled && (
               <AppFormField
                 autoCapitalize='words'
                 autoCorrect={false}
@@ -275,12 +303,26 @@ function RegisterScreen({ navigation }) {
                 name='storename'
                 placeholder='Store Name'
               />
-            )}
+            )} */}
+            <AppFormField
+              autoCorrect={false}
+              icon='account'
+              name='first_name'
+              placeholder='First Name'
+            />
+            <AppFormField
+              autoCorrect={false}
+              icon='account'
+              name='last_name'
+              placeholder='Last Name'
+            />
+            {/* Date of Birth field */}
+            <AppDatePicker />
             <AppFormField
               autoCorrect={false}
               icon='account'
               name='name'
-              placeholder='Name'
+              placeholder='Display Name'
             />
             <AppFormField
               autoCapitalize='none'
@@ -301,12 +343,14 @@ function RegisterScreen({ navigation }) {
               textContentType='password'
             />
             <Error_Message error={error} visible={error} />
-            {!isLoading ? ( // !!!!!!Still pressable even when loading, May need an alternative
-              <SubmitButton title='Register' />
-            ) : (
-              <LoadingSubmitButton title='Register' />
-            )}
-            <View style={{ flexDirection: "row-reverse" }}>
+            <View style={{ marginBottom: 30 }}>
+              {!loading ? ( // !!!!!!Still pressable even when loading, May need an alternative
+                <SubmitButton title='Register' />
+              ) : (
+                <LoadingSubmitButton title='Register' />
+              )}
+            </View>
+            {/* <View style={{ flexDirection: "row-reverse" }}>
               <Switch
                 trackColor={{ false: "#767577", true: "#FD888C" }}
                 thumbColor={isEnabled ? colors.brightred : "#f4f3f4"}
@@ -322,7 +366,7 @@ function RegisterScreen({ navigation }) {
                   Shopper Registration
                 </AppText>
               )}
-            </View>
+            </View> */}
           </AppForm>
         </Screen>
       </View>

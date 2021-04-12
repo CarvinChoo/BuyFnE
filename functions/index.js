@@ -185,42 +185,45 @@ exports.scheduledGroupBuyCheck = functions
 //   }
 // );
 // // Step 1 - creating a Stripe account at the backend for all users
-// exports.createStripeAccount = functions.https.onRequest((request, response) => {
-//   stripe.accounts
-//     .create({
-//       country: "SG",
-//       type: "custom",
-//       tos_acceptance: {
-//         date: Math.floor(Date.now() / 1000),
-//         ip: request.socket.remoteAddress,
-//         service_agreement: "full",
-//       },
-//       business_type: "individual",
-//       individual: {
-//         first_name: "Man",
-//         last_name: "Do",
-//         dob: {
-//           day: 1,
-//           month: 1,
-//           year: 1995,
-//         },
-//       },
-//       capabilities: {
-//         card_payments: {
-//           requested: true,
-//         },
-//         transfers: {
-//           requested: true,
-//         },
-//       },
-//     })
-//     .then((account) => {
-//       response.send(account);
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     });
-// });
+exports.createStripeAccount = functions.https.onRequest((request, response) => {
+  stripe.accounts
+    .create({
+      country: "SG",
+      default_currency: "sgd",
+      type: "custom",
+      email: request.body.email,
+      tos_acceptance: {
+        date: Math.floor(Date.now() / 1000),
+        ip: request.socket.remoteAddress,
+        service_agreement: "full",
+      },
+      business_type: "individual",
+      individual: {
+        first_name: request.body.first_name,
+        last_name: request.body.last_name,
+        dob: {
+          day: request.body.dob_day,
+          month: request.body.dob_month,
+          year: request.body.dob_year,
+        },
+        email: request.body.email,
+      },
+      capabilities: {
+        card_payments: {
+          requested: true,
+        },
+        transfers: {
+          requested: true,
+        },
+      },
+    })
+    .then((account) => {
+      response.send(account);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
 // // User that opt to become seller will input their bank details and payout is allowed on their account
 // exports.createBankAccount = functions.https.onRequest((request, response) => {
 //   stripe.accounts

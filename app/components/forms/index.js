@@ -6,3 +6,4 @@ export { default as LoadingSubmitButton } from "./LoadingSubmitButton";
 export { default as AppFormPicker } from "./AppFormPicker";
 export { default as AppFormImagePicker } from "./AppFormImagePicker";
 export { default as AppFormSingleImagePicker } from "./AppFormSingleImagePicker";
+export { default as AppDatePicker } from "./AppDatePicker";

@@ -2,7 +2,6 @@ import React from "react";
 import { useFormikContext } from "formik"; //used to import formik properties context from where AppFormField is used
 
 import AppTextInput from "../AppTextInput";
-import AppTextInput2 from "../AppTextInput2";
 import Error_Message from "./Error_Message";
 
 function AppFormField({

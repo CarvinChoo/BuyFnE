@@ -7,7 +7,6 @@ const AuthContext = React.createContext();
 const AuthProvider = ({ children }) => {
   const [initialLoading, setinitialLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState(0);
   const [cart, setCart] = useState([]);
@@ -76,8 +75,6 @@ const AuthProvider = ({ children }) => {
       value={{
         initialLoading,
         currentUser,
-        isLoading,
-        setIsLoading,
         userType,
         setUserType,
         cart,
