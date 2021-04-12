@@ -174,12 +174,7 @@ function AccountScreen({ navigation }) {
 
   //Function to handle logout process
   const handleLogout = () => {
-    app
-      .auth()
-      .signOut()
-      .then(() => {
-        setLoggedIn(false);
-      });
+    app.auth().signOut();
   };
 
   const renderHeader = () => {

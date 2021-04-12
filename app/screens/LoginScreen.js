@@ -79,7 +79,6 @@ function LoginScreen({ navigation }) {
         });
     }
     console.log("Login Successful");
-    setLoggedIn(true);
   };
   //////////////////////////////////////////////////////////////////////
   return (

@@ -13,106 +13,107 @@ const AuthProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [productMounted, setProductMounted] = useState(false);
   const stillListening = useRef(false);
-  // useEffect(() => {
-  //   console.log("Auth Mounted");
-  //   var userListener;
-  //   const subscriber = app.auth().onAuthStateChanged((user) => {
-  //     if (user) {
-  //       if (user.emailVerified == true) {
-  //         userListener = db
-  //           .collection("users")
-  //           .doc(user.uid)
-  //           .onSnapshot(
-  //             (querySnapshot) => {
-  //               stillListening.current = true;
-  //               console.log("onSnapshot listener actively listening.");
-  //               if (querySnapshot.exists) {
-  //                 const utype = querySnapshot.data().type;
-  //                 setUserType(utype);
-  //                 setCurrentUser(querySnapshot.data());
-  //               } else {
-  //                 stillListening.current = false;
-  //                 setCurrentUser(null);
-  //               }
-  //               setLoginLoading(false);
-  //               setinitialLoading(false);
-  //             },
-  //             (error) => {
-  //               stillListening.current = false;
-  //               console.log("Error in retreiving user: ", error.message);
-  //               setCurrentUser(null);
-  //               setLoginLoading(false);
-  //               setinitialLoading(false);
-  //             }
-  //           );
-  //       }
-  //     } else {
-  //       if (stillListening.current) {
-  //         console.log("onSnapshot listener stop listening 2.");
-  //         userListener();
-  //         stillListening.current = false;
-  //       }
-  //       setUserType(0);
-  //       setCurrentUser(null);
-  //       setLoginLoading(false);
-  //       setinitialLoading(false);
-  //     }
-  //   });
-
-  //   return () => {
-  //     if (stillListening.current) {
-  //       userListener();
-  //       stillListening.current = false;
-  //       console.log("onSnapshot listener stop listening.");
-  //     }
-  //     subscriber();
-  //     console.log("Auth UnMounted");
-  //   };
-  // }, []);
-
   useEffect(() => {
-    console.log("Running Authenticator");
+    console.log("Auth Mounted");
     var userListener;
-    if (app.auth().currentUser) {
-      if (app.auth().currentUser.emailVerified == true) {
-        userListener = db
-          .collection("users")
-          .doc(app.auth().currentUser.uid)
-          .onSnapshot(
-            (user) => {
-              stillListening.current = true;
-              console.log("onSnapshot listener actively listening.");
-              if (user.exists) {
-                var utype = user.data().type;
-                setUserType(utype);
-                setCurrentUser(user.data());
-              } else {
+    const subscriber = app.auth().onAuthStateChanged((user) => {
+      if (user) {
+        if (user.emailVerified == true) {
+          userListener = db
+            .collection("users")
+            .doc(user.uid)
+            .onSnapshot(
+              (user) => {
+                stillListening.current = true;
+                console.log("onSnapshot listener actively listening.");
+                if (user.exists) {
+                  const utype = user.data().type;
+                  setUserType(utype);
+                  setCurrentUser(user.data());
+                } else {
+                  stillListening.current = false;
+                  setCurrentUser(null);
+                  setUserType(0);
+                }
+                setinitialLoading(false);
+              },
+              (error) => {
                 stillListening.current = false;
+                console.log("Error in retreiving user: ", error.message);
+                setUserType(0);
                 setCurrentUser(null);
+
+                setinitialLoading(false);
               }
-              setinitialLoading(false);
-            },
-            (error) => {
-              stillListening.current = false;
-              console.log("Error in retreiving user: ", error.message);
-              setCurrentUser(null);
-              setUserType(0);
-              setinitialLoading(false);
-            }
-          );
+            );
+        }
       } else {
-        console.log("User is not verified");
-        setCurrentUser(null);
+        if (stillListening.current) {
+          console.log("onSnapshot listener stop listening 2.");
+          userListener();
+          stillListening.current = false;
+        }
+        console.log("There is no user. Set to Guest");
         setUserType(0);
+        setCurrentUser(null);
         setinitialLoading(false);
       }
-    } else {
-      console.log("There is no user. Set to Guest");
-      setCurrentUser(null);
-      setUserType(0);
-      setinitialLoading(false);
-    }
-  }, [loggedIn]);
+    });
+
+    return () => {
+      if (stillListening.current) {
+        userListener();
+        stillListening.current = false;
+        console.log("onSnapshot listener stop listening.");
+      }
+      subscriber();
+      console.log("Auth UnMounted");
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   console.log("Running Authenticator");
+
+  //   if (app.auth().currentUser) {
+  //     if (app.auth().currentUser.emailVerified == true) {
+  //       userListener = db
+  //         .collection("users")
+  //         .doc(app.auth().currentUser.uid)
+  //         .onSnapshot(
+  //           (user) => {
+  //             stillListening.current = true;
+  //             console.log("onSnapshot listener actively listening.");
+  //             if (user.exists) {
+  //               var utype = user.data().type;
+  //               setUserType(utype);
+  //               setCurrentUser(user.data());
+  //             } else {
+  //               stillListening.current = false;
+  //               setCurrentUser(null);
+  //             }
+  //             setinitialLoading(false);
+  //           },
+  //           (error) => {
+  //             stillListening.current = false;
+  //             console.log("Error in retreiving user: ", error.message);
+  //             setCurrentUser(null);
+  //             setUserType(0);
+  //             setinitialLoading(false);
+  //           }
+  //         );
+  //     } else {
+  //       console.log("User is not verified");
+  //       setCurrentUser(null);
+  //       setUserType(0);
+  //       setinitialLoading(false);
+  //     }
+  //   } else {
+  //     console.log("There is no user. Set to Guest");
+  //     setCurrentUser(null);
+  //     setUserType(0);
+  //     setinitialLoading(false);
+  //   }
+  // }, [loggedIn]);
 
   return (
     <AuthContext.Provider
