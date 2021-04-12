@@ -71,50 +71,6 @@ const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   console.log("Running Authenticator");
-
-  //   if (app.auth().currentUser) {
-  //     if (app.auth().currentUser.emailVerified == true) {
-  //       userListener = db
-  //         .collection("users")
-  //         .doc(app.auth().currentUser.uid)
-  //         .onSnapshot(
-  //           (user) => {
-  //             stillListening.current = true;
-  //             console.log("onSnapshot listener actively listening.");
-  //             if (user.exists) {
-  //               var utype = user.data().type;
-  //               setUserType(utype);
-  //               setCurrentUser(user.data());
-  //             } else {
-  //               stillListening.current = false;
-  //               setCurrentUser(null);
-  //             }
-  //             setinitialLoading(false);
-  //           },
-  //           (error) => {
-  //             stillListening.current = false;
-  //             console.log("Error in retreiving user: ", error.message);
-  //             setCurrentUser(null);
-  //             setUserType(0);
-  //             setinitialLoading(false);
-  //           }
-  //         );
-  //     } else {
-  //       console.log("User is not verified");
-  //       setCurrentUser(null);
-  //       setUserType(0);
-  //       setinitialLoading(false);
-  //     }
-  //   } else {
-  //     console.log("There is no user. Set to Guest");
-  //     setCurrentUser(null);
-  //     setUserType(0);
-  //     setinitialLoading(false);
-  //   }
-  // }, [loggedIn]);
-
   return (
     <AuthContext.Provider
       value={{
