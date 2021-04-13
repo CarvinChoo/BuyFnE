@@ -40,7 +40,7 @@ const validationSchema = Yup.object().shape(
       .label("Discount (Percentage)"),
     minutes: Yup.number().integer().min(0).max(59).label("Minutes"),
     hours: Yup.number().when("days", {
-      is: (days) => days == 1,
+      is: (days) => days <= 0,
       then: Yup.number().required().integer().min(1).max(23).label("Hours"),
       otherwise: Yup.number().integer().min(0).max(23).label("Hours"),
     }),
@@ -188,7 +188,7 @@ function ListingEditScreen() {
     ref
       .set({
         seller: currentUser.uid,
-        storename: currentUser.storename,
+        store_name: currentUser.store_name,
         title: listing.title,
         price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
         quantity: Number(listing.quantity),
@@ -223,8 +223,10 @@ function ListingEditScreen() {
   };
   // Runs 1st to create all_listing collection
   const createListingCollection = (listing, resetForm) => {
-    const discountedPrice = //Calculate the discounted price
-    (listing.price - (listing.price / 100) * listing.discount).toFixed(2);
+    const discountedPrice = ( //Calculate the discounted price
+      listing.price -
+      (listing.price / 100) * listing.discount
+    ).toFixed(2);
     //Ready the all_listing collection for creation
     const ref = db.collection("all_listings").doc();
     // Query to check for existing similar titles by same seller
@@ -246,7 +248,7 @@ function ListingEditScreen() {
           ref
             .set({
               seller: currentUser.uid,
-              storename: currentUser.storename,
+              store_name: currentUser.store_name,
               title: listing.title,
               price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
               discount: Number(listing.discount),

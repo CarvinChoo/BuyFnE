@@ -86,12 +86,11 @@ function MerchantRegisterScreen({ navigation }) {
         type: 2,
       })
       .then(() => {
-        console.log("Succesfully updated database with merchant data");
-        setError(null);
         Alert.alert(
           "Welcome BuyFne Merchant",
           "Successfully registered as \n a BuyFnE merchant!"
         );
+        console.log("Succesfully updated database with merchant data");
       })
       .catch((error) => {
         console.log("Failed to update database with merchant data.");

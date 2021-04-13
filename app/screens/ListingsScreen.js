@@ -187,7 +187,12 @@ function ListingsScreen({ navigation }) {
           </View>
         </View>
         {/* Actual Search Bar  END*/}
-        <View style={{ backgroundColor: colors.whitegrey }}>
+        <View
+          style={{
+            backgroundColor: colors.whitegrey,
+            flex: 1,
+          }}
+        >
           <FlatList
             data={listings}
             // Normally needed but we already added a "key" property to each listing (above)
