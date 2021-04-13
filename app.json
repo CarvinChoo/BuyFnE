@@ -29,6 +29,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Login rework"
+    "description": "Register rework + Seller rework + Stripe backend v2"
   }
 }
