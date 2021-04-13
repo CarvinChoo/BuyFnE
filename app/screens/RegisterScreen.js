@@ -227,7 +227,6 @@ function RegisterScreen({ navigation }) {
       .signOut()
       .then(() => {
         console.log("register signout success");
-        setLoading(false);
         navigation.goBack();
       })
       .catch((error) => {
