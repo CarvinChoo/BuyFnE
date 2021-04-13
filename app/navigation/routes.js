@@ -17,4 +17,5 @@ export default Object.freeze({
   ACCOUNTMANAGEMENT: "Edit Account Details",
   ORDERHISTORY: "Order History",
   MYGROUPBUYS: "My Group Buys",
+  MERCHANTREGISTER: " Merchant Registration",
 });

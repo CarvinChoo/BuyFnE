@@ -62,7 +62,6 @@ const shopperValidationSchema = Yup.object().shape({
 function RegisterScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [account, setAccount] = useState(null);
   // const [isEnabled, setIsEnabled] = useState(false);
 
   // Handles Toggling of Form Switch
@@ -147,7 +146,7 @@ function RegisterScreen({ navigation }) {
     axios({
       method: "POST",
       url:
-        "https://asia-southeast2-buyfne-63905.cloudfunctions.net/createStripeAccount",
+        "https://us-central1-buyfne-63905.cloudfunctions.net/createStripeAccount",
       data: {
         email: registrationDetails.email,
         first_name: registrationDetails.first_name,
@@ -192,6 +191,7 @@ function RegisterScreen({ navigation }) {
         // storename: isEnabled ? registrationDetails.storename : "",
         profilePic: url,
         inGroupBuys: null,
+        isMerchant: false,
       })
       .then(() => {
         // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller
@@ -254,10 +254,6 @@ function RegisterScreen({ navigation }) {
   const handleSubmit = (registrationDetails) => {
     setLoading(true);
     createUser(registrationDetails);
-  };
-  const [show, setShow] = useState(false);
-  const showDatepicker = () => {
-    setShow(true);
   };
   return (
     <ScrollView // make sure to import from react-native, not react-native-gesture-handler

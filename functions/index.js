@@ -186,7 +186,7 @@ exports.scheduledGroupBuyCheck = functions
 // );
 // // Step 1 - creating a Stripe account at the backend for all users
 exports.createStripeAccount = functions.https.onRequest((request, response) => {
-  stripe.accounts
+  return stripe.accounts
     .create({
       country: "SG",
       default_currency: "sgd",
@@ -218,32 +218,62 @@ exports.createStripeAccount = functions.https.onRequest((request, response) => {
       },
     })
     .then((account) => {
+      console.log("Successfully created stripe account");
       response.send(account);
     })
     .catch((error) => {
-      console.log(error);
+      cconsole.log("Error when creating external account : ", error);
+      response.status(404).send(error.message);
     });
 });
-// // User that opt to become seller will input their bank details and payout is allowed on their account
-// exports.createBankAccount = functions.https.onRequest((request, response) => {
-//   stripe.accounts
-//     .createExternalAccount("acct_1IcQUN2cfMQkBftI", {
-//       external_account: {
-//         object: "bank_account",
-//         country: "SG",
-//         currency: "sgd",
-//         account_holder_name: "Man Do",
-//         account_number: "000123456",
-//         routing_number: "1100-000",
-//       },
-//     })
-//     .then((account) => {
-//       response.send(account);
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     });
-// });
+
+// User that opt to become seller will input their bank details and payout is allowed on their account
+exports.createBankAccount = functions.https.onRequest((request, response) => {
+  return stripe.accounts
+    .update(
+      request.body.stripe_id, // seller's stripe acct number
+      {
+        individual: {
+          address: {
+            country: "SG",
+            line1: request.body.store_address, // Address
+            line2: request.body.store_unitno, // Unit number
+            postal_code: request.body.postal_code, //Postal code
+          },
+        },
+      }
+    )
+    .then(() => {
+      console.log("Successfully Updated Stripe account");
+      stripe.accounts
+        .createExternalAccount(
+          request.body.stripe_id, //seller's stripe acct number
+          {
+            external_account: {
+              object: "bank_account",
+              country: "SG",
+              currency: "sgd",
+              account_holder_name: request.body.account_holder_name,
+              account_holder_type: "individual",
+              account_number: request.body.bank_account, //"000123456"
+              routing_number: "1100-000", // request.body.routing_number
+            },
+          }
+        )
+        .then((account) => {
+          console.log("Successfully created external account");
+          response.send(account);
+        })
+        .catch((error) => {
+          console.log("Error when creating external account : ", error);
+          response.send(error);
+        });
+    })
+    .catch((error) => {
+      console.log("Error when updating account : ", error);
+      response.send(error);
+    });
+});
 
 // exports.releasePaymentToSeller = functions.https.onRequest(
 //   (request, response) => {
@@ -261,15 +291,6 @@ exports.createStripeAccount = functions.https.onRequest((request, response) => {
 //       });
 //   }
 // );
-
-// //Example of Scheduled update to database
-// exports.scheduledFunction = functions.pubsub.schedule('every 5 minutes').onRun((context) => {
-//    let query =  db.collection("users").where('type','==', 2)
-//    query.get().then((sellers)=> sellers.forEach((seller)=>{
-//        seller.ref.update({status:"seller"})
-//    }))
-
-//   });
 
 // exports.addMessage = functions.https.onCall((data, context) => {
 //     // [START_EXCLUDE]

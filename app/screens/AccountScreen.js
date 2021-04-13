@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, FlatList, Image, SafeAreaView } from "react-native";
+import { StyleSheet, View, FlatList, Modal } from "react-native";
 
 //import { FlatList } from "react-native-gesture-handler";
 import ListItem from "../components/lists/ListItem";
@@ -158,19 +158,8 @@ function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
   // uses custom hook "useAuth" from useAuth.js to perform useContext(AuthContext);
-  const { currentUser, userType, setLoggedIn } = useContext(
-    AuthApi.AuthContext
-  );
-
-  //Used to grab image from cloud storage///////////////////////////////////////////////
-  // useEffect(() => {
-  //   var ref = filestorage.ref().child(currentUser.uid + "/profilePicture.jpeg");
-  //   ref.getDownloadURL().then((url) => {
-  //     // `url` is the download URL for 'currentUser.uid + "/profilePicture.jpeg"'
-  //     // Used local state to set profile picture url
-  //     setProfilePic(url);
-  //   });
-  // }, []);
+  const { currentUser, userType } = useContext(AuthApi.AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
 
   //Function to handle logout process
   const handleLogout = () => {
@@ -194,7 +183,21 @@ function AccountScreen({ navigation }) {
             onPress={() => navigation.navigate(routes.ACCOUNTMANAGEMENT)}
           />
         </View>
-
+        {currentUser && userType == 1 && currentUser.isMerchant == false && (
+          <View style={{ marginTop: 20 }}>
+            <ListItem
+              title='Sign up as merchant?'
+              IconComponent={
+                <Icon
+                  name='storefront'
+                  backgroundColor={colors.deepskyblue}
+                  iconColor='black'
+                />
+              }
+              onPress={() => navigation.navigate(routes.MERCHANTREGISTER)} // call for function to handle logout process
+            />
+          </View>
+        )}
         {/* Issue Voucher */}
         {userType == 3 && (
           <View style={{ marginTop: 20 }}>
@@ -213,17 +216,23 @@ function AccountScreen({ navigation }) {
 
   const renderFooter = () => {
     return (
-      currentUser && (
-        <View style={styles.container}>
-          <ListItem
-            title='Log Out'
-            IconComponent={
-              <Icon name='logout' backgroundColor='#ffe66d' iconColor='black' />
-            }
-            onPress={handleLogout} // call for function to handle logout process
-          />
-        </View>
-      )
+      <>
+        {currentUser && (
+          <View style={styles.container}>
+            <ListItem
+              title='Log Out'
+              IconComponent={
+                <Icon
+                  name='logout'
+                  backgroundColor='#ffe66d'
+                  iconColor='black'
+                />
+              }
+              onPress={handleLogout} // call for function to handle logout process
+            />
+          </View>
+        )}
+      </>
     );
   };
 

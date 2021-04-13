@@ -8,6 +8,8 @@ import AccountManagementScreen from "../screens/AccountManagementScreen";
 import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
 import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
+import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
+
 import routes from "./routes";
 const Stack = createStackNavigator();
 
@@ -25,6 +27,10 @@ const AccountNavigator = () => (
     Add Stack Screen for myListings
     Add Stack Screen for Watchlist
     Add Stack Screen for Order History */}
+    <Stack.Screen
+      name={routes.MERCHANTREGISTER}
+      component={MerchantRegisterScreen}
+    />
     {/* GroupBuys Section */}
     <Stack.Screen
       name={routes.MYGROUPBUYS}
