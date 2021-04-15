@@ -676,37 +676,35 @@ function ListingDetailsScreen({ route }) {
                   //Dont display button if user is not logged in or if owner is the current user
                   currentUser &&
                     currentUser.uid != listing.seller &&
-                    userType !=
-                      2(
-                        listing.groupbuyId ? ( // check if there is an ongoing group buy
-                          listing.groupbuyStatus == "Ongoing" ? (
-                            listing.shoppers.includes(currentUser.uid) ? (
-                              <AppButton //already in group buy button
-                                color='darkgrey'
-                                title='Already in this Group Buy'
-                              />
-                            ) : (
-                              <AppButton //join group buy button
-                                title='Join Group Buy'
-                                icon='account-group'
-                                color='cornflowerblue'
-                                onPress={joinGroup}
-                              />
-                            )
-                          ) : (
-                            <AppButton //Group buy ended button
-                              title='Group buy has ended'
-                              color='grey'
-                            />
-                          )
+                    userType != 2 &&
+                    (listing.groupbuyId ? ( // check if there is an ongoing group buy
+                      listing.groupbuyStatus == "Ongoing" ? (
+                        listing.shoppers.includes(currentUser.uid) ? (
+                          <AppButton //already in group buy button
+                            color='darkgrey'
+                            title='Already in this Group Buy'
+                          />
                         ) : (
-                          <AppButton // create group buy button
-                            title='Create Group Buy'
+                          <AppButton //join group buy button
+                            title='Join Group Buy'
                             icon='account-group'
-                            onPress={createGroup}
+                            color='cornflowerblue'
+                            onPress={joinGroup}
                           />
                         )
+                      ) : (
+                        <AppButton //Group buy ended button
+                          title='Group buy has ended'
+                          color='grey'
+                        />
                       )
+                    ) : (
+                      <AppButton // create group buy button
+                        title='Create Group Buy'
+                        icon='account-group'
+                        onPress={createGroup}
+                      />
+                    ))
                 }
               </View>
               <ListItemSeperator />

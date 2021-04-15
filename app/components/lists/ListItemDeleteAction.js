@@ -1,11 +1,8 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import colors from "../../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import {
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from "react-native-gesture-handler";
+
 function ListItemDeleteAction({ onPress }) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>

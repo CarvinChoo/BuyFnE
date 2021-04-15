@@ -15,6 +15,7 @@ export default Object.freeze({
   LISTINGSHISTORY: "My Listings",
   FORGETPASSWORD: "Forget Password",
   ACCOUNTMANAGEMENT: "Edit Account Details",
+  PAYMENTDETAILS: "Payment Details",
   ORDERHISTORY: "Order History",
   MYGROUPBUYS: "My Group Buys",
   MERCHANTREGISTER: " Merchant Registration",

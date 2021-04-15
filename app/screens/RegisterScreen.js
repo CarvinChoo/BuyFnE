@@ -157,8 +157,7 @@ function RegisterScreen({ navigation }) {
       },
     })
       .then(({ _, data }) => {
-        setLoading(false);
-        createUserCollectionDoc(user, registrationDetails, data.id, dob, url);
+        createCustomer(user, registrationDetails, data.id, dob, url);
       })
       .catch((error) => {
         console.log("Error : ", error.message);
@@ -166,11 +165,38 @@ function RegisterScreen({ navigation }) {
         setLoading(false);
       });
   };
+
+  const createCustomer = (user, registrationDetails, stripe_id, dob, url) => {
+    axios({
+      method: "POST",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/createCustomer",
+      data: {
+        email: registrationDetails.email,
+        name:
+          registrationDetails.first_name + " " + registrationDetails.last_name,
+      },
+    })
+      .then(({ _, data }) => {
+        createUserCollectionDoc(
+          user,
+          registrationDetails,
+          stripe_id,
+          data.id,
+          dob,
+          url
+        );
+      })
+      .catch((error) => {
+        console.log("Error : ", error.message);
+      });
+  };
+
   // Function to Create new User doc in Firestore
   const createUserCollectionDoc = (
     user,
     registrationDetails,
     stripe_id,
+    cus_id,
     dob,
     url = null
   ) => {
@@ -179,6 +205,7 @@ function RegisterScreen({ navigation }) {
       .set({
         uid: user.uid,
         stripe_id: stripe_id,
+        cus_id: cus_id,
         first_name: registrationDetails.first_name,
         last_name: registrationDetails.last_name,
         dob_day: dob.getDate(),

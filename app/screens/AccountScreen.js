@@ -15,12 +15,13 @@ import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import AppText from "../components/AppText";
+
 //Navigation
 import routes from "../navigation/routes";
 // Back End
 import AuthApi from "../api/auth";
 import app from "../auth/base.js";
-import AppText from "../components/AppText";
 import db from "../api/db";
 
 const menuItemsGuest = [

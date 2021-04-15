@@ -275,6 +275,102 @@ exports.createBankAccount = functions.https.onRequest((request, response) => {
     });
 });
 
+exports.retreiveBankAccount = functions.https.onRequest((request, response) => {
+  return stripe.accounts
+    .listExternalAccounts(request.body.stripe_id, {
+      object: "bank_account",
+      limit: 1,
+    })
+    .then((bank) => {
+      console.log("Successfully retrieve bank account");
+      response.send(bank);
+    })
+    .catch((error) => {
+      console.log("Error when retrieving bank account : ", error);
+      response.send(error);
+    });
+});
+
+exports.createCustomer = functions.https.onRequest((request, response) => {
+  return stripe.customers
+    .create({
+      email: request.body.email,
+      name: request.body.name,
+    })
+    .then((customer) => {
+      console.log("Successfully created customer");
+      response.send(customer);
+    })
+    .catch((error) => {
+      console.log("Error when creating customer : ", error);
+      response.send(error);
+    });
+});
+
+exports.addCardToSource = functions.https.onRequest((request, response) => {
+  return stripe.customers
+    .createSource(request.body.cust_id, { source: request.body.cardToken })
+    .then((source) => {
+      console.log("Successfully created source");
+      response.send(source);
+    })
+    .catch((error) => {
+      console.log("Error when creating source : ", error);
+      response.send(error);
+    });
+});
+
+exports.listCardSources = functions.https.onRequest((request, response) => {
+  return stripe.customers
+    .listSources(request.body.cust_id, { object: "card" })
+    .then((sources) => {
+      console.log("Successfully retrieved sources");
+      response.send(sources);
+    })
+    .catch((error) => {
+      console.log("Error when retrieving sources : ", error);
+      response.send(error);
+    });
+});
+
+exports.deleteCardSource = functions.https.onRequest((request, response) => {
+  return stripe.customers
+    .deleteSource(request.body.cust_id, request.body.card_id)
+    .then((deleted) => {
+      console.log("Successfully deleted source");
+      response.send(deleted);
+    })
+    .catch((error) => {
+      console.log("Error when deleting sources : ", error);
+      response.send(error);
+    });
+});
+
+exports.retrieveCustomer = functions.https.onRequest((request, response) => {
+  return stripe.customers
+    .retrieve(request.body.cust_id)
+    .then((customer) => {
+      console.log("Successfully retrieved customer");
+      response.send(customer);
+    })
+    .catch((error) => {
+      console.log("Error when retrieving customer : ", error);
+      response.send(error);
+    });
+});
+
+exports.setDefaultSource = functions.https.onRequest((request, response) => {
+  return stripe.customers
+    .update(request.body.cust_id, { default_source: request.body.card_id })
+    .then((customer) => {
+      console.log("Successfully updated customer default source");
+      response.send(customer);
+    })
+    .catch((error) => {
+      console.log("Error when updating customer default source: ", error);
+      response.send(error);
+    });
+});
 // exports.releasePaymentToSeller = functions.https.onRequest(
 //   (request, response) => {
 //     stripe.transfers

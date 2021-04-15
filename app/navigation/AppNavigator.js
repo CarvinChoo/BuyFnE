@@ -10,10 +10,12 @@ import NewListingButton from "./NewListingButton";
 import CartButton from "./CartButton";
 import routes from "./routes";
 import AuthApi from "../api/auth";
+import colors from "../config/colors";
 
 function AppNavigator() {
   const Tab = createBottomTabNavigator();
   const { userType } = useContext(AuthApi.AuthContext);
+
   // Tab Navigator Between FeedNavigator, ListingEditScreen and AccountScreen
   return (
     <Tab.Navigator
@@ -23,8 +25,8 @@ function AppNavigator() {
           fontSize: 15, // Changes Font Size of Tab Bar
         },
         // set style options for all tabs
-        // activeBackgroundColor: "tomato", // on tab bg color
-        // activeTintColor: "white", // on tab text color
+        activeBackgroundColor: colors.whitegrey, // on tab bg color
+        //activeTintColor: colors.darkgray, // on tab text color
         // inactiveBackgroundColor: "#eee", //off tab bg color
         // inactivateTintColor: "black", // off tab text color
       }}
@@ -81,7 +83,6 @@ function AppNavigator() {
         name={routes.ACCOUNT}
         component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
         options={{
-          //setting Icon for tab
           tabBarIcon: (
             { color, size } // setting size and color to react-native 's suggestion
           ) => (

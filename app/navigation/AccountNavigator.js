@@ -9,7 +9,7 @@ import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
 import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
-
+import CardDetailsScreen from "../screens/CardDetailsScreen";
 import routes from "./routes";
 const Stack = createStackNavigator();
 
@@ -51,10 +51,15 @@ const AccountNavigator = () => (
       component={ListingsHistoryScreen}
     />
     <Stack.Screen name={routes.MESSAGES} component={MessagesScreen} />
+    {/* Account Management Section */}
     <Stack.Screen
       name={routes.ACCOUNTMANAGEMENT}
       component={AccountManagementScreen}
     />
+    <Stack.Screen name={routes.PAYMENTDETAILS} component={CardDetailsScreen} />
+
+    {/* Account Management Section End */}
+
     {/* Add Stack Screen for FAQ */}
   </Stack.Navigator>
 );

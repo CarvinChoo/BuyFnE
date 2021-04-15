@@ -29,6 +29,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Register rework + Seller rework + Stripe backend v2"
+    "description": "Redesign Account Management Page + Editable Shopper Pyament Details"
   }
 }
