@@ -132,6 +132,7 @@ function MerchantRegisterScreen({ navigation }) {
           >
             <AppFormField
               autoCorrect={false}
+              maxLength={30}
               icon='storefront'
               name='store_name'
               placeholder='Store Name'
@@ -139,6 +140,7 @@ function MerchantRegisterScreen({ navigation }) {
             <AppFormField
               autoCorrect={false}
               autoCompleteType='street-address'
+              maxLength={40}
               icon='store'
               name='store_address'
               placeholder='Store Address'
@@ -148,6 +150,7 @@ function MerchantRegisterScreen({ navigation }) {
               autoCorrect={false}
               autoCapitalize='none'
               icon='store'
+              maxLength={7}
               keyboardType='numeric'
               width='50%'
               name='store_unitno'
@@ -158,6 +161,7 @@ function MerchantRegisterScreen({ navigation }) {
               autoCorrect={false}
               icon='store'
               keyboardType='numeric'
+              maxLength={6}
               name='postal_code'
               width='70%'
               placeholder='Store Postal Code'
@@ -166,6 +170,7 @@ function MerchantRegisterScreen({ navigation }) {
             <AppFormField
               autoCapitalize='none'
               autoCorrect={false}
+              maxLength={11}
               icon='bank'
               keyboardType='numeric'
               name='bank_account'

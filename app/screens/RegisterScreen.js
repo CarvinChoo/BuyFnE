@@ -214,6 +214,7 @@ function RegisterScreen({ navigation }) {
         displayName: registrationDetails.name,
         email: registrationDetails.email,
         type: 1,
+        shippingAddresses: null,
         // type: isEnabled ? 2 : 1, // set type numeric 1 for Buyer and 2 for Seller
         // storename: isEnabled ? registrationDetails.storename : "",
         profilePic: url,

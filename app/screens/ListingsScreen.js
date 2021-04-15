@@ -47,7 +47,7 @@ function ListingsScreen({ navigation }) {
             listings.push({
               //(push as an object)
               ...documentSnapshot.data(), // spread all properties of a listing document
-              key: documentSnapshot.id, // used by flatlist to identify each ListItem ( document id )
+              key: documentSnapshot.id, // used by flatlist to identify each ListItem ( document id )!!! MUST BE STRING
               // document id is not the same as listingId
               count: 1,
             });

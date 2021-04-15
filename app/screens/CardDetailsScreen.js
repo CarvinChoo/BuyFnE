@@ -4,35 +4,25 @@ import {
   StyleSheet,
   View,
   Alert,
-  TextInput,
-  Button,
   Modal,
   TouchableHighlight,
 } from "react-native";
-import * as Yup from "yup";
+
 //BackEnd
-import app from "../auth/base.js";
-import db from "../api/db";
 import AuthApi from "../api/auth";
 import axios from "axios";
 import { PaymentsStripe as Stripe } from "expo-payments-stripe";
 //Front End
 import Screen from "../components/Screen";
-import {
-  AppForm,
-  AppFormField,
-  Error_Message,
-  SubmitButton,
-  LoadingSubmitButton,
-} from "../components/forms";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import colors from "../config/colors.js";
 import AppText from "../components/AppText.js";
 import CardListItem from "../components/lists/CardListItem.js";
+import AddressListItem from "../components/lists/AddressListItem.js";
+
 import ListItem from "../components/lists/ListItem.js";
 import Icon from "../components/Icon.js";
-import Swipeable from "react-native-gesture-handler/Swipeable";
 import ListItemDeleteAction from "../components/lists/ListItemDeleteAction.js";
 
 function CardDetailsScreen(props) {
@@ -46,6 +36,7 @@ function CardDetailsScreen(props) {
   const { currentUser } = useContext(AuthApi.AuthContext);
   // First and subsequent refresh Functions //////////////////////////////////////////////////////
   useEffect(() => {
+    mounted.current = true;
     Stripe.setOptionsAsync({
       publishableKey:
         "pk_test_51IcPqUGtUzx3ZmTbhejEutSdJPmxgIYt8MIFJMuub6RSfRaASxU2Db9LwJNUAQdcTTsQCulLk4LU7jw2ca7jplKB00NKDHVNFh", // Your key
@@ -296,7 +287,9 @@ function CardDetailsScreen(props) {
             }
             title={"***" + item.last4}
             subTitle={item.id == customer.default_source && "Default"}
-            onPress={() => handleSetDefault(item)}
+            onPress={() => {
+              item.id != customer.default_source && handleSetDefault(item);
+            }}
             renderRightActions={() => (
               <ListItemDeleteAction onPress={() => handleDelete(item)} />
             )}

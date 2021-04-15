@@ -10,6 +10,7 @@ import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
 import CardDetailsScreen from "../screens/CardDetailsScreen";
+import ShippingAddressesScreen from "../screens/ShippingAddressesScreen";
 import routes from "./routes";
 const Stack = createStackNavigator();
 
@@ -57,6 +58,10 @@ const AccountNavigator = () => (
       component={AccountManagementScreen}
     />
     <Stack.Screen name={routes.PAYMENTDETAILS} component={CardDetailsScreen} />
+    <Stack.Screen
+      name={routes.SHIPPINGADDRESSES}
+      component={ShippingAddressesScreen}
+    />
 
     {/* Account Management Section End */}
 

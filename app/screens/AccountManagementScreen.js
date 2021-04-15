@@ -147,7 +147,11 @@ function AccountManagementScreen({ navigation }) {
             </View>
             {/* Address */}
             <ListItemSeperator />
-            <ListItem title='Shipping Addresses' style={{ paddingLeft: 0 }} />
+            <ListItem
+              title='Shipping Addresses'
+              style={{ paddingLeft: 0 }}
+              onPress={() => navigation.navigate(routes.SHIPPINGADDRESSES)}
+            />
             <ListItemSeperator />
 
             {/* Payment Info */}
