@@ -29,6 +29,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Redesign Account Management Page + Editable Shopper Pyament Details"
+    "description": "Edit and Add Shipping Addresses"
   }
 }

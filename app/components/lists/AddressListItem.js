@@ -11,8 +11,10 @@ function AddressListItem({
   subTitle,
   bottomTitle,
   onPress,
+  IconComponent,
   renderRightActions,
   style,
+  titleStyle,
 }) {
   return (
     <Swipeable renderRightActions={renderRightActions}>
@@ -28,12 +30,13 @@ function AddressListItem({
           }}
         >
           <View style={[styles.container, style]}>
+            {IconComponent}
             <View style={styles.detailsContainer}>
-              <AppText style={styles.title} numberOfLines={1}>
+              <AppText style={[styles.title, titleStyle]} numberOfLines={1}>
                 {title}
               </AppText>
               {subTitle && (
-                <AppText style={styles.subTitle} numberOfLines={2}>
+                <AppText style={styles.subTitle} numberOfLines={1}>
                   {subTitle}
                 </AppText>
               )}
@@ -45,7 +48,7 @@ function AddressListItem({
             />
           </View>
           {bottomTitle && (
-            <AppText style={styles.bottomTitle} numberOfLines={2}>
+            <AppText style={styles.bottomTitle} numberOfLines={1}>
               {bottomTitle}
             </AppText>
           )}

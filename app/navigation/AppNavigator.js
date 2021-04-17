@@ -72,9 +72,43 @@ function AppNavigator() {
           name={routes.CartNav}
           component={CartNavigator}
           options={({ navigation }) => ({
-            tabBarButton: () => (
-              <CartButton onPress={() => navigation.navigate(routes.CartNav)} />
-            ),
+            tabBarVisible: navigation.dangerouslyGetState().routes[1].state
+              ? navigation.dangerouslyGetState().routes[1].state.index == 0
+                ? true
+                : false
+              : true,
+            tabBarButton: () =>
+              navigation.dangerouslyGetState().routes[1].state ? (
+                navigation.dangerouslyGetState().routes[2].state ? (
+                  navigation.dangerouslyGetState().routes[1].state.index > 0 ||
+                  navigation.dangerouslyGetState().routes[2].state.index > 0 ? (
+                    <CartButton style={{ bottom: 0 }} />
+                  ) : (
+                    <CartButton
+                      onPress={() => navigation.navigate(routes.CartNav)}
+                    />
+                  )
+                ) : navigation.dangerouslyGetState().routes[1].state.index >
+                  0 ? (
+                  <CartButton style={{ bottom: 0 }} />
+                ) : (
+                  <CartButton
+                    onPress={() => navigation.navigate(routes.CartNav)}
+                  />
+                )
+              ) : navigation.dangerouslyGetState().routes[2].state ? (
+                navigation.dangerouslyGetState().routes[2].state.index > 0 ? (
+                  <CartButton style={{ bottom: 0 }} />
+                ) : (
+                  <CartButton
+                    onPress={() => navigation.navigate(routes.CartNav)}
+                  />
+                )
+              ) : (
+                <CartButton
+                  onPress={() => navigation.navigate(routes.CartNav)}
+                />
+              ),
             //setting Icon for tab
           })}
         />
@@ -82,13 +116,19 @@ function AppNavigator() {
       <Tab.Screen
         name={routes.ACCOUNT}
         component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
-        options={{
+        options={({ navigation }) => ({
+          tabBarVisible: navigation.dangerouslyGetState().routes[2].state
+            ? navigation.dangerouslyGetState().routes[2].state.index == 0
+              ? true
+              : false
+            : true,
+
           tabBarIcon: (
             { color, size } // setting size and color to react-native 's suggestion
           ) => (
             <MaterialCommunityIcons name='account' color={color} size={size} />
           ),
-        }}
+        })}
       />
     </Tab.Navigator>
   );

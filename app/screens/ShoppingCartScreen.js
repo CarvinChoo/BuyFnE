@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import {
+  Alert,
   FlatList,
   Image,
   StyleSheet,
@@ -14,8 +15,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 // BackEnd
 import AuthApi from "../api/auth";
 import AppButton from "../components/AppButton";
+//Navigation
+import routes from "../navigation/routes";
 
-function ShoppingCartScreen(props) {
+function ShoppingCartScreen({ navigation }) {
   const { cart, setCart } = useContext(AuthApi.AuthContext);
 
   //Change order1 to item.count property for each item
@@ -25,7 +28,7 @@ function ShoppingCartScreen(props) {
     //item.count = number
   };
   const onDelete = (item) => {
-    setCart((cart) => cart.filter((cartItem) => cartItem.key != item.key));
+    setCart((cart) => cart.filter((cartItem) => cartItem.key != item.key)); //filter out cart item
   };
   return (
     //{/* make sure there is a global state that saves cart info  */}
@@ -101,10 +104,7 @@ function ShoppingCartScreen(props) {
                     color: "teal",
                   }}
                 >
-                  {"$" +
-                    (item.price - (item.price / 100) * item.discount).toFixed(
-                      2
-                    )}
+                  {"$" + item.discountedPrice}
                 </AppText>
               </View>
 
@@ -158,10 +158,16 @@ function ShoppingCartScreen(props) {
         )}
       />
       <View style={{ backgroundColor: "white" }}>
+        {/* Make sure to prevent onPress when cart is empty */}
         <AppButton
           icon='cash-usd'
           style={{ marginBottom: 10 }}
           title='Checkout'
+          onPress={() => {
+            cart.length > 0
+              ? navigation.navigate(routes.CHECKOUT)
+              : Alert.alert("Oh no", "The cart is empty");
+          }}
         />
       </View>
     </Screen>
@@ -169,7 +175,6 @@ function ShoppingCartScreen(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {},
   image: {
     width: 100,
     height: 100,

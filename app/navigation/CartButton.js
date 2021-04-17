@@ -3,10 +3,10 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import colors from "../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-function CartButton({ onPress }) {
+function CartButton({ onPress, style }) {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View style={styles.container}>
+      <View style={[styles.container, style]}>
         <MaterialCommunityIcons name='cart' color={colors.white} size={35} />
       </View>
     </TouchableOpacity>

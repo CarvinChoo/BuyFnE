@@ -252,7 +252,7 @@ function CardDetailsScreen(props) {
 
       <View style={styles.instruction}>
         <AppText style={{ color: colors.white, fontSize: 15 }}>
-          Tap to set as default / Swipe right to delete
+          Tap to set as default / Swipe left to delete
         </AppText>
       </View>
       <ListItemSeperator />

@@ -168,22 +168,6 @@ exports.scheduledGroupBuyCheck = functions
       });
   });
 
-// exports.completePaymentWithStripe = functions.https.onRequest(
-//   (request, response) => {
-//     stripe.charges
-//       .create({
-//         amount: request.body.amount,
-//         currency: request.body.currency,
-//         source: request.body.token,
-//       })
-//       .then((charge) => {
-//         response.send(charge);
-//       })
-//       .catch((error) => {
-//         console.log(error);
-//       });
-//   }
-// );
 // // Step 1 - creating a Stripe account at the backend for all users
 exports.createStripeAccount = functions.https.onRequest((request, response) => {
   return stripe.accounts
@@ -371,6 +355,67 @@ exports.setDefaultSource = functions.https.onRequest((request, response) => {
       response.send(error);
     });
 });
+
+exports.completePaymentWithStripeUsingBypass = functions.https.onRequest(
+  (request, response) => {
+    return stripe.charges
+      .create({
+        amount: request.body.amount,
+        currency: request.body.currency,
+        customer: request.body.customer,
+        source: "tok_bypassPending",
+        receipt_email: request.body.receipt_email,
+        description: request.body.description,
+        shipping: {
+          address: {
+            line1: request.body.address.address,
+            line2: request.body.address.unitno,
+            postal_code: request.body.address.postal_code,
+          },
+          name: request.body.name,
+        },
+      })
+      .then((charge) => {
+        console.log("Successfully charged customer using bypass");
+        response.send(charge);
+      })
+      .catch((error) => {
+        console.log("Error when chargin customer using bypass: ", error);
+        response.send(error);
+      });
+  }
+);
+
+exports.completePaymentWithStripe = functions.https.onRequest(
+  (request, response) => {
+    return stripe.charges
+      .create({
+        amount: request.body.amount,
+        currency: request.body.currency,
+        customer: request.body.customer,
+        source: request.body.source,
+        receipt_email: request.body.receipt_email,
+        description: request.body.description,
+        shipping: {
+          address: {
+            line1: request.body.address.address,
+            line2: request.body.address.unitno,
+            postal_code: request.body.address.postal_code,
+          },
+          name: request.body.name,
+        },
+      })
+      .then((charge) => {
+        console.log("Successfully charged customer");
+        response.send(charge);
+      })
+      .catch((error) => {
+        console.log("Error charging customer: ", error);
+        response.send(error);
+      });
+  }
+);
+
 // exports.releasePaymentToSeller = functions.https.onRequest(
 //   (request, response) => {
 //     stripe.transfers
@@ -389,23 +434,19 @@ exports.setDefaultSource = functions.https.onRequest((request, response) => {
 // );
 
 // exports.addMessage = functions.https.onCall((data, context) => {
-//     // [START_EXCLUDE]
-//     // [START readMessageData]
-//     // Message text passed from the client.
-//     const text = data.text;
-//     // [END readMessageData]
-//     // [START messageHttpsErrors]
-//     // Checking attribute.
-//     if (!(typeof text === 'string') || text.length === 0) {
-//       // Throwing an HttpsError so that the client gets the error details.
-//       throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-//           'one arguments "text" containing the message text to add.');
-//     }
-//     // Checking that the user is authenticated.
-
-//     // [START returnMessageAsync]
-//     // Saving the new message to the Realtime Database.
-//     return(text.toUpperCase())
-//     // [END returnMessageAsync]
-//     // [END_EXCLUDE]
-//   });
+// const ref = db.collection(sellerTransaction).doc()
+//   return .set({
+//     text: sanitizedMessage,
+//     author: { uid, name, picture, email },
+//   }).then(() => {
+//     console.log('New Message written');
+//     // Returning the sanitized message to the client.
+//     return { text: sanitizedMessage };
+//   })
+//   // [END returnMessageAsync]
+//     .catch((error) => {
+//     // Re-throwing the error as an HttpsError so that the client gets the error details.
+//       throw new functions.https.HttpsError('unknown', error.message, error);
+//     });
+//   // [END_EXCLUDE]
+// });

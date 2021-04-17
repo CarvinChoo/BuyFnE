@@ -223,10 +223,8 @@ function ListingEditScreen() {
   };
   // Runs 1st to create all_listing collection
   const createListingCollection = (listing, resetForm) => {
-    const discountedPrice = ( //Calculate the discounted price
-      listing.price -
-      (listing.price / 100) * listing.discount
-    ).toFixed(2);
+    const discountedPrice = //Calculate the discounted price
+    (listing.price - (listing.price / 100) * listing.discount).toFixed(2);
     //Ready the all_listing collection for creation
     const ref = db.collection("all_listings").doc();
     // Query to check for existing similar titles by same seller

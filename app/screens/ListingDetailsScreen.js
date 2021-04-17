@@ -190,12 +190,17 @@ function ListingDetailsScreen({ route }) {
       cart.forEach((item) => {
         if (item.key == listing.key) similar = true;
       });
-      if (similar == true) alert("Item is already in Shopping Cart.");
-      else setCart((cart) => [...cart, listing]);
-      alert("Add item to cart.");
+      if (similar == true)
+        Alert.alert("Already in cart", "Item is already in shopping cart.");
+      else {
+        var addedListing = { ...listing, count: 1 };
+        setCart((cart) => [...cart, addedListing]);
+      }
+      Alert.alert("Added", "Item added to cart.");
     } else {
-      setCart((cart) => [...cart, listing]);
-      alert("Add item to cart.");
+      var addedListing = { ...listing, count: 1 };
+      setCart((cart) => [...cart, addedListing]);
+      Alert.alert("Added", "Item added to cart.");
     }
     console.log(cart);
   };

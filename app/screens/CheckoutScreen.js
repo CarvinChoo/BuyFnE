@@ -1,0 +1,918 @@
+import React, { useContext, useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  Modal,
+  StyleSheet,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import * as Yup from "yup";
+import Screen from "../components/Screen";
+import CheckoutAddressListItem from "../components/lists/CheckoutAddressListItem";
+import colors from "../config/colors";
+import Icon from "../components/Icon";
+import AppText from "../components/AppText";
+import ListItemSeperator from "../components/lists/ListItemSeperator";
+import AddressListItem from "../components/lists/AddressListItem";
+import AppButton from "../components/AppButton";
+import AppActivityIndicator from "../components/AppActivityIndicator";
+import {
+  AppForm,
+  AppFormField,
+  Error_Message,
+  SubmitButton,
+} from "../components/forms";
+//BackEnd
+import AuthApi from "../api/auth";
+import axios from "axios";
+import { PaymentsStripe as Stripe } from "expo-payments-stripe";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import db from "../api/db";
+import * as firebase from "firebase";
+
+//Navigation
+import routes from "../navigation/routes";
+
+// const cart = [
+//   {
+//     images: [
+//       "https://firebasestorage.googleapis.com/v0/b/buyfne-63905.appspot.com/o/gKr5aTSwqiRCEo8YVfhCqd51DcO2%2Flistings%2FSocks%2Fimage1.jpeg?alt=media&token=b71e6bab-d6d7-4694-93e4-dceb34169060",
+//     ],
+//     price: 10,
+//     discount: 50,
+//     discountedPrice: "5.00",
+//     title: "Socks",
+//     quantity: 100,
+//     soldCount: 0,
+//     store_name: "Best store",
+//     seller: "gKr5aTSwqiRCEo8YVfhCqd51DcO2",
+//     count: 3,
+//     listingId: "DJLwbSryTciKfBYQDx6N",
+//   },
+//   {
+//     images: [
+//       "https://firebasestorage.googleapis.com/v0/b/buyfne-63905.appspot.com/o/gKr5aTSwqiRCEo8YVfhCqd51DcO2%2Flistings%2FShoes%2Fimage1.jpeg?alt=media&token=276fee9c-62e9-4140-b102-1117820e2eec",
+//     ],
+//     price: 100,
+//     discount: 2,
+//     discountedPrice: "98.00",
+//     title: "Shoes",
+//     quantity: 200,
+//     soldCount: 0,
+//     store_name: "Best store",
+//     seller: "gKr5aTSwqiRCEo8YVfhCqd51DcO2",
+//     count: 1,
+//     listingId: "qKvT5UupDk11wAovDXGi",
+//   },
+// ];
+
+const validationSchema = Yup.object().shape({
+  address: Yup.string().required("Address is required"),
+  unitno: Yup.string().required("Unit Number is required"),
+  postal_code: Yup.string()
+    .required("Postal Code is required")
+    .matches(/^[0-9]+$/, "Must be only digits")
+    .min(6, "Must be exactly 6 digits")
+    .max(6, "Must be exactly 6 digits"),
+});
+
+function CheckoutScreen({ navigation }) {
+  const { cart, currentUser } = useContext(AuthApi.AuthContext);
+
+  const [orderTotal, setOrderTotal] = useState(() => {
+    var i = 0;
+    var len = cart.length;
+    var total = 0;
+    for (; i < len; i++) {
+      total = total + cart[i].price * cart[i].count;
+    }
+    return total;
+  });
+  const [loading, setLoading] = useState(true);
+  const [voucher, setVoucher] = useState(null);
+  const [sourceList, setSourceList] = useState([]);
+  const [shippings, setShippings] = useState([]);
+  const [currentShipping, setCurrentShipping] = useState(null);
+  const [payableTotal, setPayableTotal] = useState(0);
+  const [customer, setCustomer] = useState(null);
+  const [paymentOption, setPaymentOption] = useState(null);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [addressModalVisible, setAddressModalVisible] = useState(false);
+  const [addAddressModalVisible, setAddAddressModalVisible] = useState(false);
+  const [error, setError] = useState(null);
+  const mounted = useRef(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("mounted");
+      mounted.current = true;
+      if (mounted.current) {
+        setLoading(true);
+      }
+      if (voucher) {
+        // Calculate Voucher discount and deduct from payable total
+      } else {
+        if (mounted.current) {
+          setPayableTotal(orderTotal + 1.99);
+        }
+      }
+      if (mounted.current) {
+        getShippingAddress();
+      }
+
+      return () => {
+        console.log("unmounted");
+        mounted.current = false;
+      };
+    }, [])
+  );
+
+  const getShippingAddress = () => {
+    if (currentUser.shippingAddress) {
+      var i = 0;
+      var addresses = [];
+      currentUser.shippingAddress.forEach((address) => {
+        if (address.isDefault == true) {
+          setCurrentShipping(address);
+        }
+        addresses.push({
+          //(push as an object)
+          ...address,
+          key: i.toString(), // key must be a string
+        });
+
+        i = i + 1;
+      });
+
+      console.log("Addresses set");
+      setShippings(addresses);
+      retrieveCustomer();
+    } else {
+      console.log("No address");
+      setShippings([]);
+      retrieveCustomer();
+    }
+  };
+
+  //Get customer details to get default source id
+  const retrieveCustomer = () => {
+    axios({
+      method: "POST",
+      url:
+        "https://us-central1-buyfne-63905.cloudfunctions.net/retrieveCustomer",
+      data: {
+        cust_id: currentUser.cus_id, // currentUser.cus_id,
+      },
+    })
+      .then(({ _, data }) => {
+        if (mounted.current == true) {
+          setCustomer(data);
+          getCardSources(data);
+        }
+      })
+      .catch((error) => {
+        if (mounted.current == true) {
+          console.log("Error : ", error.message);
+          Alert.alert("Error", error.message);
+          setLoading(false);
+        }
+      });
+  };
+
+  // get source list
+  const getCardSources = (customer) => {
+    console.log("Getting Card sources");
+    axios({
+      method: "POST",
+      url:
+        "https://us-central1-buyfne-63905.cloudfunctions.net/listCardSources",
+      data: {
+        cust_id: currentUser.cus_id, // currentUser.cus_id,
+      },
+    })
+      .then(({ _, data }) => {
+        // console.log(data.data[0]);
+        // console.log(data.data);
+        if (data.data.length != 0) {
+          var sourcelist = [];
+          data.data.forEach((source) => {
+            // console.log(source);
+
+            sourcelist.push({
+              //(push as an object)
+              id: source.id,
+              last4: source.last4,
+              key: source.id,
+            });
+
+            // setLoading(false);
+          });
+          if (mounted.current == true) {
+            console.log("Successfully gotten Card sources");
+            let defaultpayment = sourcelist.filter(
+              (item) => item.id === customer.default_source
+            );
+            setPaymentOption(defaultpayment[0]);
+            console.log(defaultpayment);
+            setSourceList(sourcelist);
+            setLoading(false);
+          }
+        } else {
+          if (mounted.current == true) {
+            setPaymentOption(null);
+            setSourceList([]);
+            console.log("No Sources");
+            setLoading(false);
+          }
+        }
+      })
+      .catch((error) => {
+        if (mounted.current == true) {
+          console.log("Error : ", error.message);
+          Alert.alert("Error", error.message);
+          setLoading(false);
+        }
+      });
+  };
+  ////////////////////////////////////////////////////////////////
+
+  // Add address functions
+  const handleSubmit = (address) => {
+    setLoading(true);
+    setAddAddressModalVisible(false);
+    addAddress(address);
+  };
+
+  const handleCancel = () => {
+    setAddAddressModalVisible(false);
+  };
+
+  const addAddress = (address) => {
+    setLoading(true);
+    console.log("Adding address");
+
+    setShippings(() => [address]);
+    db.collection("users")
+      .doc(currentUser.uid)
+      .update({
+        shippingAddress: [
+          {
+            address: address.address,
+            unitno: address.unitno,
+            postal_code: address.postal_code,
+            isDefault: true,
+          },
+        ],
+      })
+      .then(() => {
+        console.log("Added Shipping Address");
+      })
+      .catch((error) => {
+        console.log(error.message);
+        Alert.alert("Error", error.message);
+        setLoading(false);
+      });
+  };
+
+  // Add Card Functions /////////////////////////////////////
+  const getToken = () => {
+    Stripe.setOptionsAsync({
+      publishableKey:
+        "pk_test_51IcPqUGtUzx3ZmTbhejEutSdJPmxgIYt8MIFJMuub6RSfRaASxU2Db9LwJNUAQdcTTsQCulLk4LU7jw2ca7jplKB00NKDHVNFh", // Your key
+    });
+
+    Stripe.paymentRequestWithCardFormAsync()
+      .then((data) => {
+        setLoading(true);
+        console.log("created card token");
+        addCardToSource(data.tokenId);
+      })
+      .catch((error) => {
+        console.log(error.message);
+        setLoading(false);
+      });
+  };
+
+  const addCardToSource = (cardToken) => {
+    console.log("Adding to source");
+    axios({
+      method: "POST",
+      url:
+        "https://us-central1-buyfne-63905.cloudfunctions.net/addCardToSource",
+      data: {
+        cust_id: currentUser.cus_id, // currentUser.cus_id,
+        cardToken: cardToken,
+      },
+    })
+      .then(({ _, data }) => {
+        setPaymentOption(data);
+        setSourceList([data]);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("Error : ", error.message);
+        Alert.alert("Error", error.message);
+        setLoading(false);
+      });
+  };
+
+  const handlePlaceOrder = () => {
+    if (paymentOption && currentShipping) {
+      setLoading(true);
+      setError(null);
+      makePayment();
+    } else {
+      // set error to please pick a payment option and a shipping address
+      setError(
+        "Please pick a payment option and a shipping address for your order"
+      );
+    }
+  };
+
+  const makePayment = () => {
+    // setLoading(true);
+
+    var description = "Order Item(s):\n";
+    var i = 0;
+    for (; i < cart.length; i++) {
+      description =
+        description + cart[i].title + "            x" + cart[i].count + "\n";
+    }
+    console.log(description);
+    axios({
+      method: "POST",
+      url:
+        "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
+      data: {
+        amount: payableTotal * 100, // amount = 1000 = SG$10
+        currency: "sgd",
+        // token: "tok_bypassPending",
+        customer: customer.id,
+        source: paymentOption.id,
+        description: description,
+        receipt_email: currentUser.email,
+        address: currentShipping,
+        name: currentUser.first_name + " " + currentUser.last_name,
+      },
+    })
+      .then(({ _, data }) => {
+        console.log("Successfully charged customer");
+        createTransactionStatement(data.id);
+      })
+      .catch((error) => {
+        console.log("Error : ", error.message);
+        Alert.alert("Error", "Payment Failed: " + error.message);
+        setLoading(false);
+      });
+  };
+
+  const createTransactionStatement = (charge_id) => {
+    var currentTime = new Date();
+    const timeNow = firebase.firestore.Timestamp.fromDate(currentTime);
+    const twoWeeks = 604800 * 2;
+    currentTime.setSeconds(currentTime.getSeconds() + twoWeeks);
+    const estimatedDeliveryTime = firebase.firestore.Timestamp.fromDate(
+      currentTime
+    );
+    var promises = [];
+
+    cart.forEach((item) => {
+      var ref = db.collection("transactions").doc();
+
+      promises.push(
+        ref
+          .set({
+            transaction_id: ref.id,
+            seller_id: item.seller,
+            charge_id: charge_id,
+            buyer_id: currentUser.uid,
+            paid: Number(item.price * item.count),
+            orderDate: timeNow,
+            estimatedDeliveryTime: estimatedDeliveryTime,
+            status: "To be Delivered",
+            refunded: false,
+            groupbuy: false,
+          })
+          .then(() => {
+            console.log("Successfully created " + item.title + " transaction");
+          })
+          .catch((error) => {
+            console.log(
+              "Failed to update " + item.title + " transaction in database : ",
+              error.message
+            );
+          })
+      );
+    });
+    Promise.all(promises)
+      .then(() => {
+        navigation.navigate(routes.ORDERCONFIRMED, {
+          currentShipping: currentShipping,
+          deliveryTime: currentTime.toDateString(),
+        });
+      })
+      .catch((error) => {
+        console.log(error.message);
+        setLoading(false);
+      });
+  };
+
+  const renderHeader = () => {
+    return (
+      <View style={{ marginBottom: 10 }}>
+        <CheckoutAddressListItem
+          title='Delivery Address'
+          subTitle={
+            currentShipping
+              ? currentShipping.address + ", #" + currentShipping.unitno
+              : "No address"
+          }
+          bottomTitle={
+            currentShipping
+              ? currentShipping.postal_code
+              : "Click to add a new shipping address"
+          }
+          onPress={() => {
+            if (currentShipping) {
+              setAddressModalVisible(true);
+            } else {
+              // click to bring up add shipping modal
+              setAddAddressModalVisible(true);
+            }
+          }}
+        />
+      </View>
+    );
+  };
+
+  const renderFooter = () => {
+    return (
+      <View style={{ marginBottom: 20 }}>
+        {/* Order Total section */}
+        <View
+          style={{
+            backgroundColor: colors.white,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            padding: 10,
+            marginBottom: 10,
+          }}
+        >
+          <AppText>Order Total:</AppText>
+          <AppText style={{ fontWeight: "bold", color: colors.chocolate }}>
+            {"$" + orderTotal.toFixed(2)}
+          </AppText>
+        </View>
+        {/* Voucher Section */}
+        <View
+          style={{
+            marginBottom: 10,
+          }}
+        >
+          <AddressListItem
+            title='BuyFnE Vouchers'
+            subTitle='Select'
+            IconComponent={
+              <Icon
+                name='ticket-percent'
+                backgroundColor={colors.white}
+                iconColor='black'
+                size={30}
+              />
+            }
+          />
+        </View>
+        {/* Payment Option Section */}
+        <View>
+          <AppText
+            style={{
+              marginLeft: 10,
+              fontSize: 13,
+              color: colors.muted,
+              marginBottom: 5,
+            }}
+          >
+            Payment Option
+          </AppText>
+          <View
+            style={{
+              marginBottom: 10,
+            }}
+          >
+            <AddressListItem
+              title='Credit / Debit Card'
+              subTitle={
+                paymentOption
+                  ? "****" + paymentOption.last4
+                  : "Add a payment option"
+              }
+              IconComponent={
+                <Icon
+                  name='credit-card'
+                  backgroundColor={colors.white}
+                  iconColor='black'
+                  size={30}
+                />
+              }
+              onPress={() => {
+                paymentOption ? setPaymentModalVisible(true) : getToken();
+              }}
+            />
+          </View>
+        </View>
+
+        {/* Calculation Display section */}
+        <View style={{ backgroundColor: colors.white, padding: 10 }}>
+          {/* Merchandise total */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 5,
+            }}
+          >
+            <AppText style={{ color: colors.muted, fontSize: 15 }}>
+              Order Subtotal
+            </AppText>
+            <AppText style={{ color: colors.muted, fontSize: 15 }}>
+              {"$" + orderTotal.toFixed(2)}
+            </AppText>
+          </View>
+          {/* Shipping total */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 5,
+            }}
+          >
+            <AppText style={{ color: colors.muted, fontSize: 15 }}>
+              Shipping Subtotal (*fixed for all orders)
+            </AppText>
+            <AppText style={{ color: colors.muted, fontSize: 15 }}>
+              $1.99
+            </AppText>
+          </View>
+          {/* Voucher Discount total */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 5,
+            }}
+          >
+            <AppText style={{ color: colors.muted, fontSize: 15 }}>
+              Voucher Discount
+            </AppText>
+            <AppText style={{ color: colors.muted, fontSize: 15 }}>
+              -$0.00
+            </AppText>
+          </View>
+          {/* Total Payable */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 5,
+            }}
+          >
+            <AppText style={{ fontSize: 18 }}>Payable Total</AppText>
+            <AppText style={{ color: colors.orangered, fontSize: 18 }}>
+              {"$" + payableTotal.toFixed(2)}
+            </AppText>
+          </View>
+        </View>
+        <AppButton title='Place Order' onPress={() => makePayment()} />
+      </View>
+    );
+  };
+
+  return (
+    <Screen style={styles.container}>
+      <AppActivityIndicator visible={loading} />
+      <FlatList
+        data={cart}
+        keyExtractor={(item) => item.listingId}
+        ListHeaderComponent={renderHeader}
+        ListFooterComponent={renderFooter}
+        renderItem={({ item }) => (
+          <View style={{ marginBottom: 5 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                backgroundColor: colors.white,
+              }}
+            >
+              <Icon
+                name='storefront'
+                backgroundColor={colors.white}
+                iconColor='black'
+              />
+              <AppText
+                style={{
+                  fontSize: 15,
+                  width: 200,
+                }}
+                numberOfLines={1}
+              >
+                {item.store_name}
+              </AppText>
+            </View>
+            <ListItemSeperator />
+            <View
+              style={{ backgroundColor: colors.white, flexDirection: "row" }}
+            >
+              <Image source={{ uri: item.images[0] }} style={styles.image} />
+              <View
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <AppText
+                  style={{ fontSize: 17, marginTop: 5, width: 250 }}
+                  numberOfLines={1}
+                >
+                  {item.title}
+                </AppText>
+                <View
+                  style={{
+                    justifyContent: "space-between",
+                    flexDirection: "row",
+                    width: 280,
+                  }}
+                >
+                  <View>
+                    <AppText
+                      style={{
+                        color: colors.muted,
+                        fontSize: 15,
+                        marginBottom: 5,
+                      }}
+                      numberOfLines={1}
+                    >
+                      {"$" + item.price.toFixed(2)}
+                    </AppText>
+                  </View>
+                  <View>
+                    <AppText
+                      style={{
+                        color: colors.muted,
+                        fontSize: 15,
+                        marginBottom: 5,
+                      }}
+                      numberOfLines={1}
+                    >
+                      {"x" + item.count}
+                    </AppText>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+        ItemSeparatorComponent={ListItemSeperator}
+      />
+
+      {/* Modal for Payment Option */}
+      <Modal transparent={true} visible={paymentModalVisible}>
+        <View style={styles.modal}>
+          <View style={styles.modalBoxContainer}>
+            <View
+              style={{
+                backgroundColor: colors.grey,
+                height: 15,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <AppText style={{ fontSize: 13, color: colors.white }}>
+                Select your payment option
+              </AppText>
+            </View>
+            <FlatList
+              data={sourceList}
+              renderItem={({ item }) => (
+                <AddressListItem
+                  title={item.last4}
+                  subTitle={item.id == customer.default_source && "Default"}
+                  IconComponent={
+                    <Icon
+                      name='credit-card'
+                      backgroundColor={colors.white}
+                      iconColor='black'
+                    />
+                  }
+                  onPress={() => {
+                    setPaymentOption(item);
+                    setPaymentModalVisible(false);
+                  }}
+                />
+              )}
+              ItemSeparatorComponent={ListItemSeperator}
+            />
+
+            <TouchableWithoutFeedback
+              style={{
+                height: 20,
+              }}
+              onPress={() => setPaymentModalVisible(false)}
+            >
+              <View
+                style={{
+                  backgroundColor: colors.lightslategrey,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <AppText style={{ fontSize: 13, color: colors.white }}>
+                  Cancel
+                </AppText>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for Address */}
+      <Modal transparent={true} visible={addressModalVisible}>
+        <View style={styles.modal}>
+          <View style={styles.modalBoxContainer2}>
+            <View
+              style={{
+                backgroundColor: colors.grey,
+                height: 15,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <AppText style={{ fontSize: 13, color: colors.white }}>
+                Select your delivery address
+              </AppText>
+            </View>
+            <FlatList
+              data={shippings}
+              renderItem={({ item }) => (
+                <AddressListItem
+                  title={item.address + ", #" + item.unitno}
+                  subTitle={item.isDefault == true && "Default"}
+                  bottomTitle={item.postal_code}
+                  titleStyle={{ width: 200 }}
+                  onPress={() => {
+                    setCurrentShipping(item);
+                    setAddressModalVisible(false);
+                  }}
+                />
+              )}
+              ItemSeparatorComponent={ListItemSeperator}
+            />
+
+            <TouchableWithoutFeedback
+              style={{
+                height: 20,
+              }}
+              onPress={() => setAddressModalVisible(false)}
+            >
+              <View
+                style={{
+                  backgroundColor: colors.lightslategrey,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <AppText style={{ fontSize: 13, color: colors.white }}>
+                  Cancel
+                </AppText>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for form to add new address */}
+      <Modal transparent={true} visible={addAddressModalVisible}>
+        <View style={styles.modal}>
+          <View style={[styles.modalBoxContainer2, { paddingHorizontal: 10 }]}>
+            <View
+              style={{
+                backgroundColor: colors.white,
+                height: 20,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <AppText style={{ fontSize: 13, color: colors.grey }}>
+                Add new shipping address
+              </AppText>
+            </View>
+            <AppForm
+              initialValues={{
+                address: "",
+                unitno: "",
+                postal_code: "",
+              }}
+              onSubmit={handleSubmit}
+              validationSchema={validationSchema}
+            >
+              <AppFormField
+                autoCorrect={false}
+                autoCompleteType='street-address'
+                icon='home-edit'
+                maxLength={40}
+                name='address'
+                placeholder='Address'
+                textContentType='streetAddressLine1'
+                numberOfLines={1}
+              />
+              <AppFormField
+                autoCorrect={false}
+                autoCapitalize='none'
+                icon='home-edit'
+                maxLength={7}
+                keyboardType='numeric'
+                width='80%'
+                name='unitno'
+                placeholder='Unit No #'
+              />
+              <AppFormField
+                autoCapitalize='none'
+                autoCorrect={false}
+                icon='home-edit'
+                maxLength={6}
+                keyboardType='numeric'
+                width='80%'
+                name='postal_code'
+                placeholder='Postal Code'
+                textContentType='postalCode'
+              />
+              <Error_Message error={error} visible={error} />
+              <View style={{ marginVertical: 10, alignItems: "center" }}>
+                <SubmitButton title='Add Address' />
+                <View style={{ marginTop: 5 }}>
+                  <TouchableHighlight
+                    onPress={handleCancel}
+                    underlayColor={colors.white}
+                  >
+                    <AppText
+                      style={{ color: colors.muted, fontWeight: "bold" }}
+                    >
+                      Cancel
+                    </AppText>
+                  </TouchableHighlight>
+                </View>
+              </View>
+            </AppForm>
+          </View>
+        </View>
+      </Modal>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { backgroundColor: colors.whitegrey, paddingTop: 0 },
+  image: { width: 80, height: 80, marginHorizontal: 10, marginVertical: 5 },
+  modal: {
+    backgroundColor: "#000000aa",
+    flex: 1,
+  },
+  modalBoxContainer: {
+    backgroundColor: colors.white,
+    margin: 50,
+    marginTop: 100,
+    borderRadius: 5,
+  },
+  modalBoxContainer2: {
+    backgroundColor: colors.white,
+    margin: 10,
+    marginTop: 100,
+    borderRadius: 5,
+  },
+
+  buttonYesContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopWidth: 2,
+    borderColor: colors.whitegrey,
+    width: "50%",
+  },
+  buttonNoContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: colors.whitegrey,
+    width: "50%",
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    width: "100%",
+    height: "40%",
+  },
+});
+
+export default CheckoutScreen;

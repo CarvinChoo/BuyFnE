@@ -32,8 +32,6 @@ import AddressListItem from "../components/lists/AddressListItem.js";
 import ListItem from "../components/lists/ListItem.js";
 import Icon from "../components/Icon.js";
 import ListItemDeleteAction from "../components/lists/ListItemDeleteAction.js";
-import AppButton from "../components/AppButton.js";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const validationSchema = Yup.object().shape({
   address: Yup.string().required("Address is required"),
@@ -248,7 +246,7 @@ function ShippingAddressesScreen({ navigation }) {
 
       <View style={styles.instruction}>
         <AppText style={{ color: colors.white, fontSize: 15 }}>
-          Tap to set as default / Swipe right to delete
+          Tap to set as default / Swipe left to delete
         </AppText>
       </View>
       <ListItemSeperator />
