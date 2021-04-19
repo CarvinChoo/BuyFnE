@@ -37,7 +37,7 @@ function ListingsCard({ item, image, onPress }) {
               }}
               numberOfLines={1}
             >
-              {"Sold by: " + "Hermen Miller Inc."}
+              {"Sold by: " + item.store_name}
             </AppText>
           </View>
           <View style={[styles.subTitleContainer]}>

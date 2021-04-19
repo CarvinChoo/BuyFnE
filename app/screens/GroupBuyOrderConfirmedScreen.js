@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { StyleSheet, View, Text, Image, Button, FlatList } from "react-native";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import colors from "../config/colors";
@@ -6,20 +6,13 @@ import Screen from "../components/Screen";
 
 // BackEnd
 import AuthApi from "../api/auth";
-import AppActivityIndicator from "../components/AppActivityIndicator";
 import AppText from "../components/AppText";
 import Icon from "../components/Icon";
 
 function OrderConfirmedScreen({ route, navigation }) {
-  const { cart, setCart, currentUser } = useContext(AuthApi.AuthContext);
-  const deliveryInfo = route.params;
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    if (cart.length == 0) {
-      navigation.popToTop();
-    }
-  }, [cart]);
-
+  const { currentUser } = useContext(AuthApi.AuthContext);
+  const deliveryInfo = route.params.currentShipping;
+  const cart = route.params.cart;
   const renderHeader = () => {
     return (
       <>
@@ -49,32 +42,15 @@ function OrderConfirmedScreen({ route, navigation }) {
           {/*view to insert address  */}
           <View style={styles.view2}>
             <AppText style={styles.text2}>
-              {"Address: " +
-                deliveryInfo.currentShipping.address +
-                ", #" +
-                deliveryInfo.currentShipping.unitno}
+              {"Address: " + deliveryInfo.address + ", #" + deliveryInfo.unitno}
             </AppText>
           </View>
 
           {/*view to insert postal code  */}
           <View style={styles.view2}>
             <AppText style={styles.text2}>
-              {"Postal Code: " + deliveryInfo.currentShipping.postal_code}
+              {"Postal Code: " + deliveryInfo.postal_code}
             </AppText>
-          </View>
-          <ListItemSeperator />
-          <View style={{ paddingVertical: 10 }}>
-            <AppText
-              style={{
-                paddingLeft: 15,
-                fontSize: 15,
-                fontWeight: "bold",
-                color: colors.muted,
-              }}
-            >
-              Estimated Delivery
-            </AppText>
-            <AppText style={styles.text2}>{deliveryInfo.deliveryTime}</AppText>
           </View>
           <ListItemSeperator />
         </View>
@@ -82,10 +58,7 @@ function OrderConfirmedScreen({ route, navigation }) {
         <View style={styles.button}>
           <Button //button for continue shopping
             title='Continue Shopping'
-            onPress={() => {
-              setLoading(true);
-              setCart([]);
-            }}
+            onPress={() => navigation.popToTop()}
           />
         </View>
       </>
@@ -94,7 +67,6 @@ function OrderConfirmedScreen({ route, navigation }) {
 
   return (
     <Screen style={styles.background}>
-      <AppActivityIndicator visible={loading} />
       {/*view for thank you message  */}
 
       {/*view for item image and item name  */}
@@ -171,7 +143,7 @@ function OrderConfirmedScreen({ route, navigation }) {
                       }}
                       numberOfLines={1}
                     >
-                      {"$" + item.price.toFixed(2)}
+                      {"$" + item.discountedPrice}
                     </AppText>
                   </View>
                   <View>

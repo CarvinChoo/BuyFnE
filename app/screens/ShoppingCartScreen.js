@@ -130,6 +130,7 @@ function ShoppingCartScreen({ navigation }) {
                   }}
                   start={1}
                   min={1}
+                  max={item.quantity}
                   //Change order to item.count
                   onChange={(number) => onChange(number, item)}
                 />

@@ -10,14 +10,15 @@ import ReadMore from "react-native-read-more-text";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import ListItem from "../components/lists/ListItem";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
+//Navigation
+import routes from "../navigation/routes";
 // BackEnd
 import AuthApi from "../api/auth";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import * as firebase from "firebase";
 import db from "../api/db";
 
-function ListingDetailsScreen({ route }) {
+function ListingDetailsScreen({ route, navigation }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
   const all_listingId = route.params;
   const scrollView = useRef();
@@ -183,7 +184,10 @@ function ListingDetailsScreen({ route }) {
       </Text>
     );
   };
-
+  // Function for readmore **Dont delete, it just need to exist
+  const handleTextReady = () => {
+    // ...
+  };
   const addToCart = (listing) => {
     var similar = false;
     if (cart.length > 0) {
@@ -203,156 +207,6 @@ function ListingDetailsScreen({ route }) {
       Alert.alert("Added", "Item added to cart.");
     }
     console.log(cart);
-  };
-
-  // Function for readmore **Dont delete, it just need to exist
-  const handleTextReady = () => {
-    // ...
-  };
-
-  const createGroup = () => {
-    // Days in seconds + Hours in seconds + Minutes in seconds
-    const expIn =
-      listing.timelimitDays * 86400 +
-      listing.timelimitHours * 3600 +
-      listing.timelimitMinutes * 60;
-    const timeNow = firebase.firestore.Timestamp.now();
-    let createdAt = timeNow.toDate();
-    createdAt.setSeconds(createdAt.getSeconds() + expIn);
-    const timeExpireAt = firebase.firestore.Timestamp.fromDate(createdAt);
-
-    db.collection("all_listings") // updating global listings
-      .doc(listing.listingId) // listingId and groupbuyId is the same id
-      .update({
-        groupbuyId: listing.listingId,
-        timeStart: timeNow,
-        timeEnd: timeExpireAt,
-        currentOrderCount: 1,
-        groupbuyStatus: "Ongoing",
-        shoppers: [currentUser.uid],
-      })
-      .then(() => {
-        db.collection("listings") // updating a personal copy of seller's own listing
-          .doc(listing.seller)
-          .collection("my_listings")
-          .doc(listing.listingId)
-          .update({
-            groupbuyId: listing.listingId,
-            timeStart: timeNow,
-            timeEnd: timeExpireAt,
-            currentOrderCount: 1,
-            groupbuyStatus: "Ongoing",
-            shoppers: [currentUser.uid],
-          })
-          .then(() => {
-            const ref = db.collection("users").doc(currentUser.uid);
-            ref
-              .get()
-              .then((doc) => {
-                if (doc.data().inGroupBuys) {
-                  // if user has an existing group buy
-                  ref
-                    .update({
-                      // Updating using union
-                      inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
-                        listing.listingId
-                      ),
-                    })
-                    .then(() => {
-                      console.log(
-                        "Successfully updated inGroupBuys using union"
-                      );
-                    })
-                    .catch((error) => {
-                      console.log("Retreiving user info error", error.message);
-                    });
-                } else {
-                  // if user is not a member of any group buy, means inGroupBuys will return null
-                  ref
-                    .update({
-                      // update by setting an new array
-                      inGroupBuys: [listing.listingId],
-                    })
-                    .then(() => {
-                      console.log(
-                        "Successfully updated inGroupBuys using new array"
-                      );
-                    })
-                    .catch((error) => {
-                      console.log("Retreiving user info error", error.message);
-                    });
-                }
-              })
-              .catch((error) => {
-                console.log("Retreiving user info error", error.message);
-              });
-          })
-          .catch((error) => {
-            console.log(
-              "Updating seller's personal group buy order copy error: ",
-              error.message
-            );
-          });
-      })
-      .catch(() => {
-        console.log("Updating groupbuy information in all_listings error.");
-      });
-  };
-
-  const joinGroup = () => {
-    if (listing.groupbuyId) {
-      //Updates groupbuy info with new member uid and increment order count by 1
-      db.collection("all_listings")
-        .doc(listing.groupbuyId)
-        .update({
-          shoppers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
-          currentOrderCount: firebase.firestore.FieldValue.increment(1),
-        })
-        .then(() => {
-          const ref = db.collection("users").doc(currentUser.uid);
-          ref
-            .get()
-            .then((doc) => {
-              if (doc.data().inGroupBuys) {
-                // if user has an existing group buy
-                ref
-                  .update({
-                    // Updating using union
-                    inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
-                      listing.groupbuyId
-                    ),
-                  })
-                  .then(() => {
-                    console.log("Successfully updated inGroupBuys using union");
-                  })
-                  .catch((error) => {
-                    console.log("Retreiving user info error", error.message);
-                  });
-              } else {
-                // if user is not a member of any group buy, means inGroupBuys will return null
-                ref
-                  .update({
-                    // update by setting an new array
-                    inGroupBuys: [listing.groupbuyId],
-                  })
-                  .then(() => {
-                    console.log(
-                      "Successfully updated inGroupBuys using new array"
-                    );
-                  })
-                  .catch((error) => {
-                    console.log("Retreiving user info error", error.message);
-                  });
-              }
-            })
-            .catch((error) => {
-              console.log("Retreiving user info error", error.message);
-            });
-        })
-        .catch((error) => {
-          console.log("Updating group buy member error :", error.message);
-        });
-    } else console.log("Group buy id is null. May have been deleted");
   };
 
   return (
@@ -524,7 +378,29 @@ function ListingDetailsScreen({ route }) {
                   color='cyan'
                   title='Add to Cart'
                   style={{ width: "48%" }}
-                  onPress={() => addToCart(listing)}
+                  onPress={() =>
+                    userType == 1
+                      ? listing.quantity != 0
+                        ? addToCart(listing)
+                        : Alert.alert(
+                            "No enough stock",
+                            "There is no current stock for this product."
+                          )
+                      : userType == 2
+                      ? currentUser.uid == listing.seller
+                        ? Alert.alert(
+                            "Listing owner",
+                            "You are the owner of this listing and cannot add it to your cart."
+                          )
+                        : Alert.alert(
+                            "Currently functioning as Merchant",
+                            "Please switch to shopper to access shopping cart functions."
+                          )
+                      : Alert.alert(
+                          "Not Logged In",
+                          "Please log in or sign up to add item to cart."
+                        )
+                  }
                 />
                 <AppButton
                   icon='clipboard-list'
@@ -680,6 +556,7 @@ function ListingDetailsScreen({ route }) {
                 {
                   //Dont display button if user is not logged in or if owner is the current user
                   currentUser &&
+                    listing.quantity != 0 &&
                     currentUser.uid != listing.seller &&
                     userType != 2 &&
                     (listing.groupbuyId ? ( // check if there is an ongoing group buy
@@ -694,7 +571,12 @@ function ListingDetailsScreen({ route }) {
                             title='Join Group Buy'
                             icon='account-group'
                             color='cornflowerblue'
-                            onPress={joinGroup}
+                            onPress={() =>
+                              navigation.navigate(
+                                routes.GBCHECKOUT,
+                                all_listingId
+                              )
+                            }
                           />
                         )
                       ) : (
@@ -707,7 +589,9 @@ function ListingDetailsScreen({ route }) {
                       <AppButton // create group buy button
                         title='Create Group Buy'
                         icon='account-group'
-                        onPress={createGroup}
+                        onPress={() =>
+                          navigation.navigate(routes.GBCHECKOUT, all_listingId)
+                        }
                       />
                     ))
                 }

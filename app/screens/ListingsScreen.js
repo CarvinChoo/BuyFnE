@@ -72,19 +72,6 @@ function ListingsScreen({ navigation }) {
     <>
       <StatusBar backgroundColor={colors.brightred} />
       <Screen style={styles.screen}>
-        {/* {error && ( // if error is detected
-        <>
-          <AppText>Couldn't retrieve the listings.</AppText>
-          <AppButton
-            title='Retry'
-            onPress={loadListings} // button to reload listing request again
-            color='cyan'
-          />
-        </>
-      )}
-      <AppActivityIndicator // loading animation component
-        visible={loading} // {loading} is a boolean state
-      /> */}
         <AppActivityIndicator // loading animation component
           visible={loading} // {loading} is a boolean state
         />
@@ -204,9 +191,6 @@ function ListingsScreen({ navigation }) {
               <ListingsCard
                 title={item.title}
                 item={item}
-                discount={item.discount}
-                quantity={item.quantity}
-                image={item.images[0]} // pick the 1st element url from images array
                 onPress={
                   () => navigation.navigate(routes.LISTING_DETAILS, item.key) //passes document id from all_listings collection
                 } //passing current {item} into ListingDetailsScreen

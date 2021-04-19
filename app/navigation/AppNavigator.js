@@ -34,12 +34,18 @@ function AppNavigator() {
       <Tab.Screen
         name={routes.LISTINGS}
         component={FeedNavigator} // Stack navigator between ListingsScreen and ListingDetailsScreen
-        options={{
-          //setting Icon for tab
+        options={({ navigation }) => ({
+          tabBarVisible: navigation
+            .dangerouslyGetState()
+            .routes[0].hasOwnProperty("state")
+            ? navigation.dangerouslyGetState().routes[0].state.index < 2
+              ? true
+              : false
+            : true,
           tabBarIcon: (
             { color, size } // setting size and color to react-native 's suggestion
           ) => <MaterialCommunityIcons name='home' color={color} size={size} />,
-        }}
+        })}
       />
       {/* Add Listings Navigation */}
       {userType === 2 && (
@@ -72,38 +78,28 @@ function AppNavigator() {
           name={routes.CartNav}
           component={CartNavigator}
           options={({ navigation }) => ({
-            tabBarVisible: navigation.dangerouslyGetState().routes[1].state
+            tabBarVisible: navigation
+              .dangerouslyGetState()
+              .routes[1].hasOwnProperty("state")
               ? navigation.dangerouslyGetState().routes[1].state.index == 0
                 ? true
                 : false
               : true,
             tabBarButton: () =>
-              navigation.dangerouslyGetState().routes[1].state ? (
-                navigation.dangerouslyGetState().routes[2].state ? (
-                  navigation.dangerouslyGetState().routes[1].state.index > 0 ||
-                  navigation.dangerouslyGetState().routes[2].state.index > 0 ? (
-                    <CartButton style={{ bottom: 0 }} />
-                  ) : (
-                    <CartButton
-                      onPress={() => navigation.navigate(routes.CartNav)}
-                    />
-                  )
-                ) : navigation.dangerouslyGetState().routes[1].state.index >
-                  0 ? (
-                  <CartButton style={{ bottom: 0 }} />
-                ) : (
-                  <CartButton
-                    onPress={() => navigation.navigate(routes.CartNav)}
-                  />
-                )
-              ) : navigation.dangerouslyGetState().routes[2].state ? (
-                navigation.dangerouslyGetState().routes[2].state.index > 0 ? (
-                  <CartButton style={{ bottom: 0 }} />
-                ) : (
-                  <CartButton
-                    onPress={() => navigation.navigate(routes.CartNav)}
-                  />
-                )
+              (navigation
+                .dangerouslyGetState()
+                .routes[0].hasOwnProperty("state") &&
+                navigation.dangerouslyGetState().routes[0].state.index > 1) ||
+              (navigation
+                .dangerouslyGetState()
+                .routes[1].hasOwnProperty("state") &&
+                navigation.dangerouslyGetState().routes[1].state.index > 0) ||
+              (navigation.dangerouslyGetState().routes[1] != "Account" &&
+                navigation
+                  .dangerouslyGetState()
+                  .routes[2].hasOwnProperty("state") &&
+                navigation.dangerouslyGetState().routes[2].state.index > 0) ? (
+                <CartButton style={{ bottom: 0 }} />
               ) : (
                 <CartButton
                   onPress={() => navigation.navigate(routes.CartNav)}
@@ -117,11 +113,15 @@ function AppNavigator() {
         name={routes.ACCOUNT}
         component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
         options={({ navigation }) => ({
-          tabBarVisible: navigation.dangerouslyGetState().routes[2].state
-            ? navigation.dangerouslyGetState().routes[2].state.index == 0
-              ? true
-              : false
-            : true,
+          tabBarVisible:
+            navigation.dangerouslyGetState().routes.length > 2
+              ? navigation
+                  .dangerouslyGetState()
+                  .routes[2].hasOwnProperty("state") &&
+                navigation.dangerouslyGetState().routes[2].state.index > 0
+                ? false
+                : true
+              : true,
 
           tabBarIcon: (
             { color, size } // setting size and color to react-native 's suggestion

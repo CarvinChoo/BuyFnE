@@ -14,6 +14,8 @@ export default Object.freeze({
   SHOPPINGCART: "Shopping Cart",
   CHECKOUT: "Checkout",
   ORDERCONFIRMED: "Order Confirmed",
+  GBCHECKOUT: "Checkout",
+  GBORDERCONFIRMED: "Groupbuy Order Confirmed",
   LoginNav: "LoginNavigator",
   LISTINGSHISTORY: "My Listings",
   FORGETPASSWORD: "Forget Password",

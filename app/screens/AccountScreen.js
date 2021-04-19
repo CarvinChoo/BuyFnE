@@ -242,7 +242,9 @@ function AccountScreen({ navigation }) {
             }
             border={true}
             defaultimage={currentUser && currentUser.profilePic ? false : true}
-            onPress={() => navigation.navigate(routes.ACCOUNTMANAGEMENT)}
+            onPress={() =>
+              userType != 0 && navigation.navigate(routes.ACCOUNTMANAGEMENT)
+            }
           />
         </View>
         {currentUser && userType == 1 && currentUser.isMerchant == false && (

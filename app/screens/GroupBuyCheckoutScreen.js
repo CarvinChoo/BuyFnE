@@ -29,45 +29,12 @@ import {
 import AuthApi from "../api/auth";
 import axios from "axios";
 import { PaymentsStripe as Stripe } from "expo-payments-stripe";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import db from "../api/db";
 import * as firebase from "firebase";
-
+import Counter from "react-native-counters";
 //Navigation
 import routes from "../navigation/routes";
-
-// const cart = [
-//   {
-//     images: [
-//       "https://firebasestorage.googleapis.com/v0/b/buyfne-63905.appspot.com/o/gKr5aTSwqiRCEo8YVfhCqd51DcO2%2Flistings%2FSocks%2Fimage1.jpeg?alt=media&token=b71e6bab-d6d7-4694-93e4-dceb34169060",
-//     ],
-//     price: 10,
-//     discount: 50,
-//     discountedPrice: "5.00",
-//     title: "Socks",
-//     quantity: 100,
-//     soldCount: 0,
-//     store_name: "Best store",
-//     seller: "gKr5aTSwqiRCEo8YVfhCqd51DcO2",
-//     count: 3,
-//     listingId: "DJLwbSryTciKfBYQDx6N",
-//   },
-//   {
-//     images: [
-//       "https://firebasestorage.googleapis.com/v0/b/buyfne-63905.appspot.com/o/gKr5aTSwqiRCEo8YVfhCqd51DcO2%2Flistings%2FShoes%2Fimage1.jpeg?alt=media&token=276fee9c-62e9-4140-b102-1117820e2eec",
-//     ],
-//     price: 100,
-//     discount: 2,
-//     discountedPrice: "98.00",
-//     title: "Shoes",
-//     quantity: 200,
-//     soldCount: 0,
-//     store_name: "Best store",
-//     seller: "gKr5aTSwqiRCEo8YVfhCqd51DcO2",
-//     count: 1,
-//     listingId: "qKvT5UupDk11wAovDXGi",
-//   },
-// ];
 
 const validationSchema = Yup.object().shape({
   address: Yup.string().required("Address is required"),
@@ -79,18 +46,12 @@ const validationSchema = Yup.object().shape({
     .max(6, "Must be exactly 6 digits"),
 });
 
-function CheckoutScreen({ navigation }) {
-  const { cart, currentUser } = useContext(AuthApi.AuthContext);
-
-  const [orderTotal, setOrderTotal] = useState(() => {
-    var i = 0;
-    var len = cart.length;
-    var total = 0;
-    for (; i < len; i++) {
-      total = total + cart[i].price * cart[i].count;
-    }
-    return total;
-  });
+function GroupBuyCheckoutScreen({ route, navigation }) {
+  const { currentUser } = useContext(AuthApi.AuthContext);
+  const listingId = route.params;
+  const [cart, setCart] = useState([]);
+  const [listing, setListing] = useState(null);
+  const [orderTotal, setOrderTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [voucher, setVoucher] = useState(null);
   const [sourceList, setSourceList] = useState([]);
@@ -103,6 +64,7 @@ function CheckoutScreen({ navigation }) {
   const [addressModalVisible, setAddressModalVisible] = useState(false);
   const [addAddressModalVisible, setAddAddressModalVisible] = useState(false);
   const [error, setError] = useState(null);
+  const [count, setCount] = useState(1);
   const mounted = useRef(true);
 
   useFocusEffect(
@@ -111,21 +73,51 @@ function CheckoutScreen({ navigation }) {
       mounted.current = true;
       if (mounted.current) {
         setLoading(true);
-      }
-      if (voucher) {
-        // Calculate Voucher discount and deduct from payable total
-      } else {
-        if (mounted.current) {
-          setPayableTotal(orderTotal + 1.99);
-        }
-      }
-      if (mounted.current) {
-        getShippingAddress();
+
+        var subscriber = db
+          .collection("all_listings")
+          .doc(listingId)
+          .onSnapshot(
+            (doc) => {
+              if (doc.exists) {
+                if (mounted.current) {
+                  setCart(() => [
+                    { ...doc.data(), count: count, key: doc.data().listingId },
+                  ]);
+                  setListing({ ...doc.data(), count: count });
+                  if (voucher) {
+                    // Calculate Voucher discount and deduct from payable total
+                  } else {
+                    if (mounted.current) {
+                      setOrderTotal(
+                        parseFloat(doc.data().discountedPrice) * count
+                      );
+                      setPayableTotal(
+                        parseFloat(doc.data().discountedPrice) * count + 1.99
+                      );
+                      getShippingAddress();
+                    }
+                  }
+                }
+              } else {
+                console.log("Listing has been deleted");
+                Alert.alert("Error", "Listing has been deleted");
+                navigation.goBack();
+              }
+            },
+            (error) => {
+              // Error catching for listing query
+              console.log(error.message);
+              Alert.alert("Error", error.message);
+              navigation.goBack();
+            }
+          );
       }
 
       return () => {
         console.log("unmounted");
         mounted.current = false;
+        subscriber();
       };
     }, [])
   );
@@ -306,6 +298,7 @@ function CheckoutScreen({ navigation }) {
         Alert.alert("Fail to retrieve address from database", error.message);
       });
   };
+
   // Add Card Functions /////////////////////////////////////
   const getToken = () => {
     Stripe.setOptionsAsync({
@@ -402,59 +395,233 @@ function CheckoutScreen({ navigation }) {
   const createTransactionStatement = (charge_id) => {
     var currentTime = new Date();
     const timeNow = firebase.firestore.Timestamp.fromDate(currentTime);
-    const twoWeeks = 604800 * 2;
-    currentTime.setSeconds(currentTime.getSeconds() + twoWeeks);
-    const estimatedDeliveryTime = firebase.firestore.Timestamp.fromDate(
-      currentTime
-    );
-    var promises = [];
+    var ref = db.collection("transactions").doc();
+    ref
+      .set({
+        product_title: listing.title,
+        product_id: listing.listingId,
+        transaction_id: ref.id,
+        seller_id: listing.seller,
+        charge_id: charge_id,
+        buyer_id: currentUser.uid,
+        image: listing.images[0],
+        count: listing.count,
+        original_price: listing.price,
+        discount: listing.discount,
+        paid: orderTotal, //!!!!!!!!!! NEED TO CHANGE TO INCLUDE INDIVIDUAL VOUCHER PRICES LATER
+        orderDate: timeNow,
+        estimatedDeliveryTime: null,
+        sellerConfirmedDeliveryTime: null,
+        status: "Awaiting group buy to end",
+        refunded: false,
+        groupbuy: true,
+      })
+      .then(() => {
+        console.log("Successfully created " + listing.title + " transaction");
+        if (listing.groupbuyId) {
+          console.log("there is an active group buy");
+          joinGroup();
+        } else {
+          console.log("No active group buy");
+          createGroup();
+        }
+      })
+      .catch((error) => {
+        console.log(
+          "Failed to update " + listing.title + " transaction in database : ",
+          error.message
+        );
+        Alert.alert("Failed to update database", error.message);
+      });
+  };
 
-    cart.forEach((item) => {
-      var ref = db.collection("transactions").doc();
-
-      promises.push(
-        ref
-          .set({
-            product_title: item.title,
-            product_id: item.listingId,
-            transaction_id: ref.id,
-            seller_id: item.seller,
-            charge_id: charge_id,
-            buyer_id: currentUser.uid,
-            image: item.images[0],
-            count: item.count,
-            original_price: item.price,
-            discount: 0,
-            paid: Number(item.price * item.count), //!!!!!!!!!! NEED TO CHANGE TO INCLUDE INDIVIDUAL VOUCHER PRICES LATER
-            orderDate: timeNow,
-            estimatedDeliveryTime: estimatedDeliveryTime,
-            sellerConfirmedDeliveryTime: null,
-            status: "To be Delivered",
-            refunded: false,
-            groupbuy: false,
+  const createGroup = () => {
+    // Days in seconds + Hours in seconds + Minutes in seconds
+    const expIn =
+      listing.timelimitDays * 86400 +
+      listing.timelimitHours * 3600 +
+      listing.timelimitMinutes * 60;
+    const timeNow = firebase.firestore.Timestamp.now();
+    let createdAt = timeNow.toDate();
+    createdAt.setSeconds(createdAt.getSeconds() + expIn);
+    const timeExpireAt = firebase.firestore.Timestamp.fromDate(createdAt);
+    console.log("Creating new group buy");
+    db.collection("all_listings") // updating global listings
+      .doc(listing.listingId) // listingId and groupbuyId is the same id
+      .update({
+        groupbuyId: listing.listingId,
+        timeStart: timeNow,
+        timeEnd: timeExpireAt,
+        currentOrderCount: 1,
+        groupbuyStatus: "Ongoing",
+        shoppers: [currentUser.uid],
+        quantity: listing.quantity - count,
+      })
+      .then(() => {
+        db.collection("listings") // updating a personal copy of seller's own listing
+          .doc(listing.seller)
+          .collection("my_listings")
+          .doc(listing.listingId)
+          .update({
+            groupbuyStatus: "Ongoing",
+            quantity: listing.quantity - count,
           })
           .then(() => {
-            console.log("Successfully created " + item.title + " transaction");
+            const ref = db.collection("users").doc(currentUser.uid);
+            ref
+              .get()
+              .then((doc) => {
+                if (doc.data().inGroupBuys) {
+                  // if user has an existing group buy
+                  ref
+                    .update({
+                      // Updating using union
+                      inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
+                        listing.listingId
+                      ),
+                    })
+                    .then(() => {
+                      console.log(
+                        "Successfully updated inGroupBuys using union"
+                      );
+                      navigation.navigate(routes.GBORDERCONFIRMED, {
+                        currentShipping: currentShipping,
+                        cart: [
+                          {
+                            title: listing.title,
+                            image: listing.images,
+                            count: count,
+                            discountedPrice: listing.discountedPrice,
+                            store_name: listing.store_name,
+                          },
+                        ],
+                      });
+                    })
+                    .catch((error) => {
+                      console.log("Retreiving user info error", error.message);
+                      Alert.alert("Retreiving user info error", error.message);
+                    });
+                } else {
+                  // if user is not a member of any group buy, means inGroupBuys will return null
+                  ref
+                    .update({
+                      // update by setting an new array
+                      inGroupBuys: [listing.listingId],
+                    })
+                    .then(() => {
+                      console.log(
+                        "Successfully updated inGroupBuys using new array"
+                      );
+                      navigation.navigate(routes.GBORDERCONFIRMED, {
+                        currentShipping: currentShipping,
+                        cart: [
+                          {
+                            title: listing.title,
+                            image: listing.images,
+                            count: count,
+                            discountedPrice: listing.discountedPrice,
+                            store_name: listing.store_name,
+                          },
+                        ],
+                      });
+                    })
+                    .catch((error) => {
+                      console.log("Retreiving user info error", error.message);
+                      Alert.alert("Retreiving user info error", error.message);
+                    });
+                }
+              })
+              .catch((error) => {
+                console.log("Retreiving user info error", error.message);
+                Alert.alert("Retreiving user info error", error.message);
+              });
           })
           .catch((error) => {
             console.log(
-              "Failed to update " + item.title + " transaction in database : ",
+              "Updating seller's personal group buy order copy error: ",
               error.message
             );
-          })
-      );
-    });
-    Promise.all(promises)
-      .then(() => {
-        navigation.navigate(routes.ORDERCONFIRMED, {
-          currentShipping: currentShipping,
-          deliveryTime: currentTime.toDateString(),
-        });
+          });
       })
-      .catch((error) => {
-        console.log(error.message);
-        setLoading(false);
+      .catch(() => {
+        console.log("Updating groupbuy information in all_listings error.");
+        Alert.alert(
+          "Updating groupbuy information in all_listings error",
+          error.message
+        );
       });
+  };
+
+  const joinGroup = () => {
+    if (listing) {
+      console.log("Joining existing group buy");
+      //Updates groupbuy info with new member uid and increment order count by 1
+      db.collection("all_listings")
+        .doc(listing.groupbuyId)
+        .update({
+          shoppers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+          currentOrderCount: firebase.firestore.FieldValue.increment(1),
+          quantity: listing.quantity - count,
+        })
+        .then(() => {
+          const ref = db.collection("users").doc(currentUser.uid);
+          ref
+            .get()
+            .then((doc) => {
+              if (doc.data().inGroupBuys) {
+                // if user has an existing group buy
+                ref
+                  .update({
+                    // Updating using union
+                    inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
+                      listing.groupbuyId
+                    ),
+                  })
+                  .then(() => {
+                    console.log("Successfully updated inGroupBuys using union");
+                    navigation.navigate(routes.GBORDERCONFIRMED, {
+                      currentShipping: currentShipping,
+                      cart: cart,
+                    });
+                  })
+                  .catch((error) => {
+                    console.log("Retreiving user info error", error.message);
+                  });
+              } else {
+                // if user is not a member of any group buy, means inGroupBuys will return null
+                ref
+                  .update({
+                    // update by setting an new array
+                    inGroupBuys: [listing.groupbuyId],
+                  })
+                  .then(() => {
+                    console.log(
+                      "Successfully updated inGroupBuys using new array"
+                    );
+                    navigation.navigate(routes.GBORDERCONFIRMED, {
+                      currentShipping: currentShipping,
+                      cart: cart,
+                    });
+                  })
+                  .catch((error) => {
+                    console.log("Retreiving user info error", error.message);
+                    Alert.alert("Retreiving user info error", error.message);
+                  });
+              }
+            })
+            .catch((error) => {
+              console.log("Retreiving user info error", error.message);
+              Alert.alert("Retreiving user info error", error.message);
+            });
+        })
+        .catch((error) => {
+          console.log("Updating group buy member error :", error.message);
+          Alert.alert("Retreiving user info error", error.message);
+        });
+    } else {
+      console.log("Group buy id is null. May have been deleted");
+      Alert.alert("Error", "Group buy may have been deleted");
+    }
   };
 
   const renderHeader = () => {
@@ -627,6 +794,13 @@ function CheckoutScreen({ navigation }) {
     );
   };
 
+  const onChange = (number, item) => {
+    setOrderTotal(parseFloat(item.discountedPrice) * number);
+    item.count = number;
+    setPayableTotal(parseFloat(item.discountedPrice) * number + 1.99);
+    setCount(number);
+    //item.count = number
+  };
   return (
     <Screen style={styles.container}>
       <AppActivityIndicator visible={loading} />
@@ -681,6 +855,8 @@ function CheckoutScreen({ navigation }) {
                     justifyContent: "space-between",
                     flexDirection: "row",
                     width: 280,
+                    marginBottom: 10,
+                    paddingRight: 20,
                   }}
                 >
                   <View>
@@ -692,21 +868,27 @@ function CheckoutScreen({ navigation }) {
                       }}
                       numberOfLines={1}
                     >
-                      {"$" + item.price.toFixed(2)}
+                      {"$" + item.discountedPrice}
                     </AppText>
                   </View>
-                  <View>
-                    <AppText
-                      style={{
-                        color: colors.muted,
-                        fontSize: 15,
-                        marginBottom: 5,
-                      }}
-                      numberOfLines={1}
-                    >
-                      {"x" + item.count}
-                    </AppText>
-                  </View>
+                  <Counter
+                    buttonStyle={{
+                      borderColor: "#333",
+                      borderWidth: 2,
+                      borderRadius: 25,
+                    }}
+                    buttonTextStyle={{
+                      color: "#333",
+                    }}
+                    countTextStyle={{
+                      color: "#333",
+                    }}
+                    start={item.quantity == 0 ? 0 : 1}
+                    min={item.quantity == 0 ? 0 : 1}
+                    max={item.quantity}
+                    //Change order to item.count
+                    onChange={(number) => onChange(number, item)}
+                  />
                 </View>
               </View>
             </View>
@@ -952,4 +1134,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CheckoutScreen;
+export default GroupBuyCheckoutScreen;
