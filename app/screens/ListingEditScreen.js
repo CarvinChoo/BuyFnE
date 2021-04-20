@@ -23,7 +23,6 @@ import filestorage from "../api/filestorage";
 import * as firebase from "firebase";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import AppText from "../components/AppText";
-import { yupToFormErrors } from "formik";
 
 const validationSchema = Yup.object().shape(
   {

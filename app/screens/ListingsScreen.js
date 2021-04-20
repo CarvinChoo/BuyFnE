@@ -15,22 +15,89 @@ import ListingsCard from "../components/ListingsCard";
 import routes from "../navigation/routes";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
-import defaultStyles from "../config/styles";
 import AppText from "../components/AppText";
-import AppButton from "../components/AppButton";
+import AppFormPickerCat from "../components/AppFormPickerCat";
 import AppActivityIndicator from "../components/AppActivityIndicator";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { SearchBar } from "react-native-elements";
 
 // Back End
 import AuthApi from "../api/auth"; // for context
 import db from "../api/db";
-import AppTextInput from "../components/AppTextInput";
 import Icon from "../components/Icon";
+
+const categories = [
+  {
+    label: "Furniture",
+    value: 1,
+    backgroundColor: "saddlebrown",
+    icon: "table-furniture",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Clothing",
+    value: 2,
+    backgroundColor: "palevioletred",
+    icon: "shoe-formal",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Food",
+    value: 3,
+    backgroundColor: "orange",
+    icon: "food-fork-drink",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Games",
+    value: 4,
+    backgroundColor: "green",
+    icon: "games",
+    IconType: MaterialIcons,
+  },
+  {
+    label: "Computer",
+    value: 5,
+    backgroundColor: colors.muted,
+    icon: "computer",
+    IconType: MaterialIcons,
+  },
+  {
+    label: "Health",
+    value: 6,
+    backgroundColor: "red",
+    icon: "heart-plus",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Books",
+    value: 7,
+    backgroundColor: "maroon",
+    icon: "bookshelf",
+    IconType: MaterialCommunityIcons,
+  },
+  {
+    label: "Electronic",
+    value: 8,
+    backgroundColor: "skyblue",
+    icon: "electrical-services",
+    IconType: MaterialIcons,
+  },
+  {
+    label: "Others",
+    value: 9,
+    backgroundColor: "blue",
+    icon: "devices-other",
+    IconType: MaterialIcons,
+  },
+];
 function ListingsScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
   const [listings, setListings] = useState([]);
+  const [allListings, setAllListings] = useState([]);
   const [loading, setLoading] = useState(true); //*********USED LATER TO SET LOADING SCREEN
   const { currentUser } = useContext(AuthApi.AuthContext);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     console.log("Listings Mounted");
@@ -47,13 +114,11 @@ function ListingsScreen({ navigation }) {
             listings.push({
               //(push as an object)
               ...documentSnapshot.data(), // spread all properties of a listing document
-              key: documentSnapshot.id, // used by flatlist to identify each ListItem ( document id )!!! MUST BE STRING
-              // document id is not the same as listingId
-              count: 1,
             });
           });
-
+          setAllListings(listings);
           setListings(listings); //set listings state to be replaced by temp array
+
           setLoading(false); // *********USED LATER TO SET LOADING SCREEN
         },
         (error) => {
@@ -68,6 +133,24 @@ function ListingsScreen({ navigation }) {
       subscriber();
     };
   }, []);
+
+  const updateSearch = (search) => {
+    setSearch(search);
+    console.log(search);
+    // setListings(() => {
+
+    // });
+    var tet = allListings.filter((product) => {
+      return (
+        product.description.toUpperCase().includes(search.toUpperCase()) ||
+        product.title.toUpperCase().includes(search.toUpperCase()) ||
+        product.store_name.toUpperCase().includes(search.toUpperCase())
+      );
+    });
+    console.log(tet);
+    setListings(tet);
+  };
+
   return (
     <>
       <StatusBar backgroundColor={colors.brightred} />
@@ -127,52 +210,29 @@ function ListingsScreen({ navigation }) {
           }}
         >
           {/*  Category */}
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              borderBottomLeftRadius: 15,
-              borderTopLeftRadius: 15,
-              backgroundColor: colors.white,
-            }}
-          >
-            <Icon
-              name='view-list'
-              backgroundColor={colors.white}
-              iconColor={colors.muted}
-              size={50}
-            />
-          </View>
+          <AppFormPickerCat
+            items={categories}
+            numOfColumns={3}
+            navigation={navigation}
+          />
           {/*  Category END */}
 
           {/* Actual Search Bar */}
-          <View
-            style={{
-              borderLeftWidth: 1,
-              borderColor: colors.muted,
-              borderBottomRightRadius: 15,
-              borderTopRightRadius: 15,
-              flexDirection: "row",
-              paddingLeft: 15,
 
-              alignItems: "center",
-              backgroundColor: colors.white,
+          <SearchBar
+            containerStyle={{
               flex: 1,
+              borderTopRightRadius: 15,
+              borderBottomRightRadius: 15,
             }}
-          >
-            <MaterialCommunityIcons
-              name='magnify'
-              size={25}
-              color={colors.muted}
-              style={{ marginRight: 10 }}
-            />
-            <TextInput
-              placeholder='Search'
-              placeholderTextColor={colors.muted}
-              style={[defaultStyles.text]}
-            />
-          </View>
+            placeholder='Search'
+            placeholderTextColor={colors.muted}
+            platform='android'
+            onChangeText={updateSearch}
+            value={search}
+          />
         </View>
+
         {/* Actual Search Bar  END*/}
         <View
           style={{
@@ -183,16 +243,16 @@ function ListingsScreen({ navigation }) {
           <FlatList
             data={listings}
             // Normally needed but we already added a "key" property to each listing (above)
-            // keyExtractor={(listing) => listing.key.toString()} // unqiue key is alway expected to be a string
+            keyExtractor={(item) => item.listingId} // unqiue key is alway expected to be a string
             //!!!!!!!!! IMPLEMENT SEARCH BAR AND CATEGORIES HERE
             //ListHeaderComponent property for single render seperate components on the topp of flat list scrollable
             //https://stackoverflow.com/questions/60341135/react-native-separate-view-component-scrollable-with-flatlist
             renderItem={({ item }) => (
               <ListingsCard
-                title={item.title}
                 item={item}
                 onPress={
-                  () => navigation.navigate(routes.LISTING_DETAILS, item.key) //passes document id from all_listings collection
+                  () =>
+                    navigation.navigate(routes.LISTING_DETAILS, item.listingId) //passes document id from all_listings collection
                 } //passing current {item} into ListingDetailsScreen
                 //********* WILL NEED TO PUT IN MORE PROPERTIES TO BE PASSED TO CARD
                 //********* REMEMBER TO SET  ...otherProps in parameters in CARD component !!!!!!!!

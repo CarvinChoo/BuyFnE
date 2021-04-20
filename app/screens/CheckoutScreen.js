@@ -390,11 +390,31 @@ function CheckoutScreen({ navigation }) {
     })
       .then(({ _, data }) => {
         console.log("Successfully charged customer");
-        createTransactionStatement(data.id);
+        updateQuantity(data.id);
       })
       .catch((error) => {
         console.log("Error : ", error.message);
         Alert.alert("Error", "Payment Failed: " + error.message);
+        setLoading(false);
+      });
+  };
+
+  const updateQuantity = (charge_id) => {
+    const quantity = listing.quantity - count;
+    if (quantity < 0) {
+      quantity = 0;
+    }
+    db.collection("all_listing")
+      .doc(listing.listingId)
+      .update({
+        quantity: quantity,
+      })
+      .then(() => {
+        createTransactionStatement(charge_id);
+      })
+      .catch((error) => {
+        console.log("Fail to update Quantity : ", error.message);
+        Alert.alert("Fail to update Quantity", error.message);
         setLoading(false);
       });
   };
