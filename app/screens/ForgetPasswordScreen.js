@@ -16,8 +16,8 @@ const validationSchema = Yup.object().shape({
 });
 
 function ForgetPasswordScreen({ navigation }) {
-  const passwordReset = (form, navgiation) => {
-    return app
+  const passwordReset = (form) => {
+    app
       .auth()
       .sendPasswordResetEmail(form.email)
       .then(() => {

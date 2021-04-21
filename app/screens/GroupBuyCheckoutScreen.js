@@ -458,89 +458,72 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
         quantity: listing.quantity - count,
       })
       .then(() => {
-        db.collection("listings") // updating a personal copy of seller's own listing
-          .doc(listing.seller)
-          .collection("my_listings")
-          .doc(listing.listingId)
-          .update({
-            groupbuyStatus: "Ongoing",
-            quantity: listing.quantity - count,
-          })
-          .then(() => {
-            const ref = db.collection("users").doc(currentUser.uid);
-            ref
-              .get()
-              .then((doc) => {
-                if (doc.data().inGroupBuys) {
-                  // if user has an existing group buy
-                  ref
-                    .update({
-                      // Updating using union
-                      inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
-                        listing.listingId
-                      ),
-                    })
-                    .then(() => {
-                      console.log(
-                        "Successfully updated inGroupBuys using union"
-                      );
-                      navigation.navigate(routes.GBORDERCONFIRMED, {
-                        currentShipping: currentShipping,
-                        cart: [
-                          {
-                            title: listing.title,
-                            image: listing.images,
-                            count: count,
-                            discountedPrice: listing.discountedPrice,
-                            store_name: listing.store_name,
-                          },
-                        ],
-                      });
-                    })
-                    .catch((error) => {
-                      console.log("Retreiving user info error", error.message);
-                      Alert.alert("Retreiving user info error", error.message);
-                    });
-                } else {
-                  // if user is not a member of any group buy, means inGroupBuys will return null
-                  ref
-                    .update({
-                      // update by setting an new array
-                      inGroupBuys: [listing.listingId],
-                    })
-                    .then(() => {
-                      console.log(
-                        "Successfully updated inGroupBuys using new array"
-                      );
-                      navigation.navigate(routes.GBORDERCONFIRMED, {
-                        currentShipping: currentShipping,
-                        cart: [
-                          {
-                            title: listing.title,
-                            image: listing.images,
-                            count: count,
-                            discountedPrice: listing.discountedPrice,
-                            store_name: listing.store_name,
-                          },
-                        ],
-                      });
-                    })
-                    .catch((error) => {
-                      console.log("Retreiving user info error", error.message);
-                      Alert.alert("Retreiving user info error", error.message);
-                    });
-                }
-              })
-              .catch((error) => {
-                console.log("Retreiving user info error", error.message);
-                Alert.alert("Retreiving user info error", error.message);
-              });
+        const ref = db.collection("users").doc(currentUser.uid);
+        ref
+          .get()
+          .then((doc) => {
+            if (doc.data().inGroupBuys) {
+              // if user has an existing group buy
+              ref
+                .update({
+                  // Updating using union
+                  inGroupBuys: firebase.firestore.FieldValue.arrayUnion(
+                    listing.listingId
+                  ),
+                })
+                .then(() => {
+                  console.log("Successfully updated inGroupBuys using union");
+                  navigation.navigate(routes.GBORDERCONFIRMED, {
+                    currentShipping: currentShipping,
+                    cart: [
+                      {
+                        title: listing.title,
+                        images: listing.images,
+                        count: count,
+                        discountedPrice: listing.discountedPrice,
+                        store_name: listing.store_name,
+                      },
+                    ],
+                  });
+                })
+                .catch((error) => {
+                  console.log("Retreiving user info error", error.message);
+                  Alert.alert("Retreiving user info error", error.message);
+                });
+            } else {
+              // if user is not a member of any group buy, means inGroupBuys will return null
+              ref
+                .update({
+                  // update by setting an new array
+                  inGroupBuys: [listing.listingId],
+                })
+                .then(() => {
+                  console.log(
+                    "Successfully updated inGroupBuys using new array"
+                  );
+                  navigation.navigate(routes.GBORDERCONFIRMED, {
+                    currentShipping: currentShipping,
+                    cart: [
+                      {
+                        listingId: listing.listingId,
+                        title: listing.title,
+                        images: listing.images,
+                        count: count,
+                        discountedPrice: listing.discountedPrice,
+                        store_name: listing.store_name,
+                      },
+                    ],
+                  });
+                })
+                .catch((error) => {
+                  console.log("Retreiving user info error", error.message);
+                  Alert.alert("Retreiving user info error", error.message);
+                });
+            }
           })
           .catch((error) => {
-            console.log(
-              "Updating seller's personal group buy order copy error: ",
-              error.message
-            );
+            console.log("Retreiving user info error", error.message);
+            Alert.alert("Retreiving user info error", error.message);
           });
       })
       .catch(() => {

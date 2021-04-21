@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, Text, Image, Button, FlatList } from "react-native";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import colors from "../config/colors";
@@ -13,6 +13,7 @@ function OrderConfirmedScreen({ route, navigation }) {
   const { currentUser } = useContext(AuthApi.AuthContext);
   const deliveryInfo = route.params.currentShipping;
   const cart = route.params.cart;
+
   const renderHeader = () => {
     return (
       <>

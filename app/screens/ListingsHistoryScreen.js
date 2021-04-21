@@ -16,8 +16,9 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AuthApi from "../api/auth"; // for context
 import db from "../api/db";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import routes from "../navigation/routes";
 
-function ListingsHistoryScreen(props) {
+function ListingsHistoryScreen({ navigation }) {
   const { currentUser } = useContext(AuthApi.AuthContext);
 
   const [listings, setListings] = useState([]);
@@ -25,9 +26,8 @@ function ListingsHistoryScreen(props) {
 
   useEffect(() => {
     const subscriber = db
-      .collection("listings")
-      .doc(currentUser.uid)
-      .collection("my_listings")
+      .collection("all_listings")
+      .where("seller", "==", currentUser.uid)
       .orderBy("createdAt", "desc") //order the listings by timestamp (createdAt)
       .onSnapshot((querySnapshot) => {
         //onSnapshot allows for updates if any changes are made from elsewhere
@@ -38,7 +38,6 @@ function ListingsHistoryScreen(props) {
           listings.push({
             //(push as an object)
             ...documentSnapshot.data(), // spread all properties of a listing document
-            key: documentSnapshot.id, // used by flatlist to identify each ListItem
           });
         });
 
@@ -64,6 +63,7 @@ function ListingsHistoryScreen(props) {
         <FlatList
           style={{ paddingTop: 10 }}
           data={listings}
+          keyExtractor={(item) => item.listingId}
           renderItem={({ item }) => (
             <View style={{ marginBottom: 35 }}>
               {/* Section 1 */}
@@ -324,7 +324,22 @@ function ListingsHistoryScreen(props) {
                       backgroundColor: "#BF7636",
                       borderRadius: 10,
                     }}
-                    // onPress={() => navigation.navgiate()}
+                    onPress={() =>
+                      navigation.navigate(routes.EDITLISTING, {
+                        listingId: item.listingId,
+                        title: item.title,
+                        price: item.price,
+                        discount: item.discount,
+                        description: item.description,
+                        minimumOrderCount: item.minimumOrderCount,
+                        quantity: item.quantity,
+                        timelimitDays: item.timelimitDays,
+                        timelimitHours: item.timelimitHours,
+                        timelimitMinutes: item.timelimitMinutes,
+                        buylimit: item.buylimit,
+                        category: item.category,
+                      })
+                    }
                   >
                     <View
                       style={{

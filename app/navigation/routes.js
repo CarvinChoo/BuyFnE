@@ -19,6 +19,7 @@ export default Object.freeze({
   GBORDERCONFIRMED: "Groupbuy Order Confirmed",
   LoginNav: "LoginNavigator",
   LISTINGSHISTORY: "My Listings",
+  EDITLISTING: "Edit Listing",
   FORGETPASSWORD: "Forget Password",
   ACCOUNTMANAGEMENT: "Edit Account Details",
   PAYMENTDETAILS: "Payment Details",

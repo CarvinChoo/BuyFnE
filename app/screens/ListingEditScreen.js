@@ -14,7 +14,6 @@ import {
 import Screen from "../components/Screen";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import colors from "../config/colors";
-import AppTextInput from "../components/AppTextInput";
 import AppTextInput2 from "../components/AppTextInput2";
 // Back End
 import AuthApi from "../api/auth";
@@ -23,6 +22,7 @@ import filestorage from "../api/filestorage";
 import * as firebase from "firebase";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import AppText from "../components/AppText";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 
 const validationSchema = Yup.object().shape(
   {
@@ -58,8 +58,23 @@ const validationSchema = Yup.object().shape(
         .label("Days"), // maximum is around 2 months
     }),
     minOrder: Yup.number()
+      .required()
       .integer()
-      .label("Minimum order for Group Buy")
+      .min(1)
+      .test({
+        name: "max",
+        exclusive: false,
+        params: {},
+        message: "${path} must be less than or equal to product quantity",
+        test: function (value) {
+          // You can access the price field with `this.parent`.
+          return value <= this.parent.quantity;
+        },
+      })
+      .label("Minimum order for Group Buy"),
+    buylimit: Yup.number()
+      .integer()
+      .label("Buy limit per user")
       .min(1)
       .test({
         name: "max",
@@ -146,6 +161,7 @@ function ListingEditScreen() {
   // const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const { currentUser } = useContext(AuthApi.AuthContext);
+  const [loading, setLoading] = useState(false);
 
   const uploadImage = async (uri, title, num) => {
     const response = await fetch(uri);
@@ -169,137 +185,94 @@ function ListingEditScreen() {
     return promises;
   };
 
-  // Called in createListingCollection after creating all_listings collection
-  const addIntoPersonalListings = (
-    listing,
-    images,
-    id,
-    timeNow,
-    discountedPrice,
-    resetForm
-  ) => {
-    const ref = db
-      .collection("listings")
-      .doc(currentUser.uid)
-      .collection("my_listings")
-      .doc(id);
-
-    ref
-      .set({
-        seller: currentUser.uid,
-        store_name: currentUser.store_name,
-        title: listing.title,
-        price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
-        quantity: Number(listing.quantity),
-        description: listing.description,
-        category: listing.category.value,
-        images: images,
-        createdAt: timeNow,
-        listingId: id,
-        groupbuyId: null,
-        discount: Number(listing.discount),
-        discountedPrice: discountedPrice,
-        timelimitDays: Number(listing.days),
-        timelimitHours: Number(listing.hours),
-        timelimitMinutes: Number(listing.minutes),
-        minimumOrderCount: Number(listing.minOrder),
-        timeStart: null,
-        timeEnd: null,
-        currentOrderCount: 0,
-        groupbuyStatus: "Inactive",
-        shoppers: null,
-        soldCount: 0,
-        soldAmount: 0,
-      })
-      .then(() => {
-        console.log("Listing Successfully Added to User Listings.");
-        resetForm(); // resets all fields in the form
-        Alert.alert("Add Listing Success", "Listing Created!");
-      })
-      .catch((error) => {
-        console.log("addIntoPersonalListings error:", error.message);
-      });
-  };
   // Runs 1st to create all_listing collection
   const createListingCollection = (listing, resetForm) => {
-    const discountedPrice = //Calculate the discounted price
-    (listing.price - (listing.price / 100) * listing.discount).toFixed(2);
+    const discountedPrice =
+      Math.round(
+        (listing.price - (listing.price / 100) * listing.discount) * 100
+      ) / 100;
     //Ready the all_listing collection for creation
     const ref = db.collection("all_listings").doc();
     // Query to check for existing similar titles by same seller
-    const query = db
-      .collection("listings")
-      .doc(currentUser.uid)
-      .collection("my_listings")
-      .where("title", "==", listing.title);
+    db.collection("all_listings")
+      .where("seller", "==", currentUser.uid)
+      .where("title", "==", listing.title)
+      .get()
+      .then((query) => {
+        if (query.empty) {
+          // Uploads list of images and returns their promises
+          const promises = uploadListingImagesArray(listing);
 
-    query.get().then((query) => {
-      if (query.empty) {
-        // Uploads list of images and returns their promises
-        const promises = uploadListingImagesArray(listing);
-
-        // Make sure all promises in the array are resolved and have URL string in them
-        Promise.all(promises).then((images) => {
-          // Sets User's listings Collection
-          const timeNow = firebase.firestore.Timestamp.now();
-          ref
-            .set({
-              seller: currentUser.uid,
-              store_name: currentUser.store_name,
-              title: listing.title,
-              price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
-              discount: Number(listing.discount),
-              quantity: Number(listing.quantity),
-              description: listing.description,
-              category: listing.category.value,
-              images: images,
-              createdAt: timeNow,
-              listingId: ref.id,
-              groupbuyId: null,
-              discount: Number(listing.discount),
-              discountedPrice: discountedPrice,
-              timelimitDays: Number(listing.days),
-              timelimitHours: Number(listing.hours),
-              timelimitMinutes: Number(listing.minutes),
-              minimumOrderCount: Number(listing.minOrder),
-              timeStart: null,
-              timeEnd: null,
-              currentOrderCount: 0,
-              groupbuyStatus: "Inactive",
-              shoppers: null,
-              soldCount: 0,
-            })
-            .then(() => {
-              console.log("Listing Successfully Created.");
-              addIntoPersonalListings(
-                listing,
-                images,
-                ref.id,
-                timeNow,
-                discountedPrice,
-                resetForm
-              );
-            })
-            .catch((error) => {
-              console.log("createListingCollection error:", error.message);
-            });
-
-          setError(null);
-        });
-      } else {
-        setError("Title already exist in your existing listings.");
-      }
-    });
+          // Make sure all promises in the array are resolved and have URL string in them
+          Promise.all(promises).then((images) => {
+            // Sets User's listings Collection
+            const timeNow = firebase.firestore.Timestamp.now();
+            ref
+              .set({
+                seller: currentUser.uid,
+                store_name: currentUser.store_name,
+                title: listing.title,
+                price: Number(listing.price), // even though price is a number, but in a form, it is represented as a string
+                discount: Number(listing.discount),
+                quantity: Number(listing.quantity),
+                description: listing.description,
+                category: listing.category.value,
+                images: images,
+                createdAt: timeNow,
+                listingId: ref.id,
+                groupbuyId: null,
+                discount: Number(listing.discount),
+                discountedPrice: discountedPrice,
+                timelimitDays: Number(listing.days),
+                timelimitHours: Number(listing.hours),
+                timelimitMinutes: Number(listing.minutes),
+                minimumOrderCount: Number(listing.minOrder),
+                timeStart: null,
+                timeEnd: null,
+                currentOrderCount: 0,
+                groupbuyStatus: "Inactive",
+                shoppers: null,
+                soldCount: 0,
+                milestoneSystem: false,
+                milestones: null,
+                buylimit: Number(listing.buylimit),
+              })
+              .then(() => {
+                setError(null);
+                console.log("Listing Successfully Created.");
+                resetForm(); // resets all fields in the form
+                Alert.alert("Add Listing Success", "Listing Created!");
+                setLoading(false);
+              })
+              .catch((error) => {
+                console.log("createListingCollection error:", error.message);
+                setError("Error communicating with database");
+                setLoading(false);
+              });
+          });
+        } else {
+          console.log("Title already exist in your existing listings.");
+          setError("Title already exist in your existing listings.");
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.log(error.message);
+        setError("Error communicating with database");
+        setLoading(false);
+      });
   };
 
   //Function waits for input to POST new listing to server
   const handleSubmit = (listing, { resetForm }) => {
+    setLoading(true);
     createListingCollection(listing, resetForm);
   };
 
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
     <ScrollView>
+      <AppActivityIndicator visible={loading} />
       <Screen style={styles.container}>
         {/* <UploadScreen
           onDone={() => setUploadVisible(false)}
@@ -311,14 +284,15 @@ function ListingEditScreen() {
             title: "",
             price: "", // even though price is a number, but in a form, it is represented as a string
             quantity: "",
+            buylimit: "",
             description: "",
             category: null,
             images: [],
             discount: "",
+            minOrder: "",
             minutes: "0",
             hours: "0",
             days: "0",
-            minimumOrderCount: "",
           }}
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
@@ -341,6 +315,14 @@ function ListingEditScreen() {
             placeholder='Quantity'
             width={130}
             icon='truck-delivery'
+          />
+          <AppFormField
+            name='buylimit'
+            maxLength={5}
+            keyboardType='number-pad'
+            placeholder='Buy limit per user'
+            width={210}
+            icon='cart-plus'
           />
           <AppFormPicker
             name='category'
@@ -446,8 +428,10 @@ function ListingEditScreen() {
             icon='timer-sand'
             trailingText='Minutes'
           />
-          <Error_Message error={error} visible={error} />
-          <SubmitButton title='Post' />
+          <View style={{ marginVertical: 10 }}>
+            <Error_Message error={error} visible={error} />
+            <SubmitButton title='Post' />
+          </View>
         </AppForm>
       </Screen>
     </ScrollView>
@@ -455,7 +439,7 @@ function ListingEditScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 10 },
+  container: { padding: 10, paddingBottom: 30 },
   discountContainer: {
     flexDirection: "row",
   },

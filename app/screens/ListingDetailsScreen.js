@@ -10,6 +10,8 @@ import ReadMore from "react-native-read-more-text";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import ListItem from "../components/lists/ListItem";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Progress from "expo-progress";
+
 //Navigation
 import routes from "../navigation/routes";
 // BackEnd
@@ -23,6 +25,7 @@ function ListingDetailsScreen({ route, navigation }) {
   const all_listingId = route.params;
   const scrollView = useRef();
   const isMounted = useRef(true);
+  const [progress, setProgress] = useState(0);
   const [imageOnFocus, setImageOnFocus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [listing, setListing] = useState(null);
@@ -33,6 +36,21 @@ function ListingDetailsScreen({ route, navigation }) {
   const { cart, setCart, currentUser, userType } = useContext(
     AuthApi.AuthContext
   );
+
+  const month = new Array();
+  month[0] = "Jan";
+  month[1] = "Feb";
+  month[2] = "Mar";
+  month[3] = "Apr";
+  month[4] = "May";
+  month[5] = "Jun";
+  month[6] = "Jul";
+  month[7] = "Aug";
+  month[8] = "Sep";
+  month[9] = "Oct";
+  month[10] = "Nov";
+  month[11] = "Dec";
+
   useEffect(() => {
     console.log("Product Mounted");
     setLoading(true);
@@ -65,9 +83,13 @@ function ListingDetailsScreen({ route, navigation }) {
                   doc.data().timeEnd.toDate() -
                   firebase.firestore.Timestamp.now().toDate();
                 // removes trailing milliseconds
-                timeleft = Math.round(timeleft / 1000) * 1000;
+                timeleft = Math.round(timeleft / 1000) * 1000; // in milliseconds
+                const timelimit =
+                  doc.data().timelimitDays * 86400 +
+                  doc.data().timelimitHours * 3600 +
+                  doc.data().timelimitMinutes * 60; // in seconds
                 // Calls interval that subtract 1 sec to the remaining time
-                myIntervalRef = setMyInterval(timeleft, doc.data());
+                myIntervalRef = setMyInterval(timeleft, doc.data(), timelimit);
               } else {
                 console.log("No ongoing groupbuy");
                 setLoading(false);
@@ -96,9 +118,12 @@ function ListingDetailsScreen({ route, navigation }) {
   }, []);
 
   // Group buy Countdown Timer
-  const setMyInterval = (timeleft, groupbuydata) => {
+  const setMyInterval = (timeleft, groupbuydata, timelimit) => {
     var timer = setInterval(function () {
       timeleft = timeleft - 1000;
+      let ratio = (timelimit - timeleft / 1000) / timelimit;
+
+      setProgress(ratio);
       var date = new Date(timeleft);
       if (isMounted.current) {
         if (timeleft < 0) {
@@ -137,9 +162,9 @@ function ListingDetailsScreen({ route, navigation }) {
           setLoading(false);
           clearInterval(timer);
         } else {
-          console.log("Running: ", timeleft);
+          // console.log("Running: ", timeleft);
           if (isMounted.current) {
-            var Difference_In_Days = Math.round(timeleft / (1000 * 3600 * 24));
+            var Difference_In_Days = Math.trunc(timeleft / (1000 * 3600 * 24));
             setDay(Difference_In_Days);
             if (date.getSeconds() < 10) setSecond("0" + date.getSeconds());
             else setSecond(date.getSeconds());
@@ -600,15 +625,41 @@ function ListingDetailsScreen({ route, navigation }) {
               {/* Timed Based Milestones for Group Buy */}
               <View
                 style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  paddingVertical: 5,
                   backgroundColor: "white",
                   marginBottom: 20,
                   paddingVertical: 50,
+                  paddingHorizontal: 20,
+                  justifyContent: "center",
                 }}
               >
-                <AppText>Timed Based Milestones for Group Buy</AppText>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    flex: 1,
+                  }}
+                >
+                  <View>
+                    <AppText>Milestone 1</AppText>
+                  </View>
+                  {/* <View>
+                    <AppText>
+                      Ends:{" "}
+                      {listing.timeEnd.toDate().getDate() +
+                        " " +
+                        month[listing.timeEnd.toDate().getMonth()] +
+                        " " +
+                        listing.timeEnd.toDate().getFullYear()}
+                    </AppText>
+                  </View> */}
+                </View>
+                <Progress.Bar
+                  progress={progress}
+                  height={20}
+                  color={colors.brightred}
+                  trackColor={colors.muted}
+                  isAnimated={true}
+                />
               </View>
             </View>
           ) : (
