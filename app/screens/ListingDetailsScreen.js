@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Image, ScrollView, Text, Alert } from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler";
-import { useFocusEffect } from "@react-navigation/native";
+
 import AppText from "../components/AppText";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
