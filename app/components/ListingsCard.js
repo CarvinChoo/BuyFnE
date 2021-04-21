@@ -11,12 +11,12 @@ import colors from "../config/colors";
 import AppText from "./AppText";
 import ListItemSeperator from "./lists/ListItemSeperator";
 // function Card({ title, subTitle, imageUrl, onPress, thumbnailUrl })
-function ListingsCard({ item, image, onPress }) {
+function ListingsCard({ item, onPress }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.card}>
         {/* Image component imported from react-native-expo-image-cache, different from reach-native */}
-        <Image style={styles.image} source={{ uri: item.images[0] }} />
+        <Image style={styles.image} source={{ uri: item.image }} />
         {/* <Image
           style={styles.image}
           // tint='light' // color of blur effect

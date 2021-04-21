@@ -177,7 +177,7 @@ function EditListingParameterScreen({ route }) {
         query.forEach(() => {
           length = length + 1;
         });
-        if (length === 1) {
+        if (length <= 1) {
           db.collection("all_listings")
             .doc(product.listingId)
             .update({

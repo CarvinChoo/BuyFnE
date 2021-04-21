@@ -103,6 +103,7 @@ function ListingsScreen({ navigation }) {
     console.log("Listings Mounted");
     const subscriber = db
       .collection("all_listings")
+      .where("listingStatus", "==", "Active")
       .orderBy("createdAt", "desc") //order the listings by timestamp (createdAt)
       .onSnapshot(
         (querySnapshot) => {
@@ -113,7 +114,19 @@ function ListingsScreen({ navigation }) {
             // push listing one by one into temp array
             listings.push({
               //(push as an object)
-              ...documentSnapshot.data(), // spread all properties of a listing document
+              listingId: documentSnapshot.data().listingId,
+              title: documentSnapshot.data().title,
+              description: documentSnapshot.data().description,
+              store_name: documentSnapshot.data().store_name,
+              price: documentSnapshot.data().price,
+              image: documentSnapshot.data().images[0],
+              groupbuyId: documentSnapshot.data().groupbuyId,
+              discountedPrice: documentSnapshot.data().discountedPrice,
+              discount: documentSnapshot.data().discount,
+              groupbuyStatus: documentSnapshot.data().groupbuyStatus,
+              currentOrderCount: documentSnapshot.data().currentOrderCount,
+              minimumOrderCount: documentSnapshot.data().minimumOrderCount,
+              quantity: documentSnapshot.data().quantity,
             });
           });
           setAllListings(listings);
@@ -136,7 +149,6 @@ function ListingsScreen({ navigation }) {
 
   const updateSearch = (search) => {
     setSearch(search);
-    console.log(search);
     // setListings(() => {
 
     // });

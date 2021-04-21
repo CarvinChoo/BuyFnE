@@ -236,6 +236,7 @@ function ListingEditScreen() {
                 milestoneSystem: false,
                 milestones: null,
                 buylimit: Number(listing.buylimit),
+                listingStatus: "Active",
               })
               .then(() => {
                 setError(null);
@@ -271,110 +272,76 @@ function ListingEditScreen() {
 
   return (
     // making it scrollable so if keyboard cuts into input, it can be scrolled up
-    <ScrollView>
+    <>
       <AppActivityIndicator visible={loading} />
-      <Screen style={styles.container}>
-        {/* <UploadScreen
+      <ScrollView>
+        <Screen style={styles.container}>
+          {/* <UploadScreen
           onDone={() => setUploadVisible(false)}
           progress={progress}
           visible={uploadVisible}
         /> */}
-        <AppForm
-          initialValues={{
-            title: "",
-            price: "", // even though price is a number, but in a form, it is represented as a string
-            quantity: "",
-            buylimit: "",
-            description: "",
-            category: null,
-            images: [],
-            discount: "",
-            minOrder: "",
-            minutes: "0",
-            hours: "0",
-            days: "0",
-          }}
-          onSubmit={handleSubmit}
-          validationSchema={validationSchema}
-        >
-          <AppFormImagePicker name='images' />
-          <AppFormField name='title' maxLength={255} placeholder='Title' />
-          <AppFormField
-            name='price'
-            maxLength={5}
-            keyboardType='numeric'
-            placeholder='Price'
-            width={120}
-            icon='currency-usd'
-          />
-
-          <AppFormField
-            name='quantity'
-            maxLength={5}
-            keyboardType='number-pad'
-            placeholder='Quantity'
-            width={130}
-            icon='truck-delivery'
-          />
-          <AppFormField
-            name='buylimit'
-            maxLength={5}
-            keyboardType='number-pad'
-            placeholder='Buy limit per user'
-            width={210}
-            icon='cart-plus'
-          />
-          <AppFormPicker
-            name='category'
-            items={categories}
-            numOfColumns={3}
-            PickerItemComponent={CategoryPickerItem}
-            placeholder='Category'
-            width='50%'
-          />
-          <AppFormField
-            name='description'
-            maxLength={600}
-            multiline
-            numberOfLines={3}
-            placeholder='Description (Optional)'
-          />
-          <ListItemSeperator />
-          <View
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-
-              paddingVertical: 5,
-              backgroundColor: colors.darkslategrey,
-              marginTop: 10,
+          <AppForm
+            initialValues={{
+              title: "",
+              price: "", // even though price is a number, but in a form, it is represented as a string
+              quantity: "",
+              buylimit: "",
+              description: "",
+              category: null,
+              images: [],
+              discount: "",
+              minOrder: "",
+              minutes: "0",
+              hours: "0",
+              days: "0",
             }}
+            onSubmit={handleSubmit}
+            validationSchema={validationSchema}
           >
-            <AppText style={{ fontWeight: "bold", color: colors.white }}>
-              Group Buy settings
-            </AppText>
-          </View>
-          <AppFormField
-            name='discount'
-            maxLength={2}
-            keyboardType='numeric'
-            placeholder='Group Buy Discount '
-            width={230}
-            icon='percent'
-          />
-          <AppFormField
-            name='minOrder'
-            keyboardType='numeric'
-            placeholder='Minimum Order Requirement'
-            width={300}
-            icon='account-multiple-check'
-          />
-          <View
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+            <AppFormImagePicker name='images' />
+            <AppFormField name='title' maxLength={255} placeholder='Title' />
+            <AppFormField
+              name='price'
+              maxLength={5}
+              keyboardType='numeric'
+              placeholder='Price'
+              width={120}
+              icon='currency-usd'
+            />
+
+            <AppFormField
+              name='quantity'
+              maxLength={5}
+              keyboardType='number-pad'
+              placeholder='Quantity'
+              width={130}
+              icon='truck-delivery'
+            />
+            <AppFormField
+              name='buylimit'
+              maxLength={5}
+              keyboardType='number-pad'
+              placeholder='Buy limit per user'
+              width={210}
+              icon='cart-plus'
+            />
+            <AppFormPicker
+              name='category'
+              items={categories}
+              numOfColumns={3}
+              PickerItemComponent={CategoryPickerItem}
+              placeholder='Category'
+              width='50%'
+            />
+            <AppFormField
+              name='description'
+              maxLength={600}
+              multiline
+              numberOfLines={3}
+              placeholder='Description (Optional)'
+            />
+            <ListItemSeperator />
             <View
               style={{
                 alignItems: "center",
@@ -382,59 +349,95 @@ function ListingEditScreen() {
 
                 paddingVertical: 5,
                 backgroundColor: colors.darkslategrey,
-                marginVertical: 10,
+                marginTop: 10,
               }}
             >
-              <AppText
-                style={{
-                  fontWeight: "bold",
-                  color: colors.white,
-                  marginHorizontal: 15,
-                }}
-              >
-                Group Buy Time Limit
+              <AppText style={{ fontWeight: "bold", color: colors.white }}>
+                Group Buy settings
               </AppText>
             </View>
-          </View>
-          <ListItemSeperator />
-          <AppFormField
-            InputType={AppTextInput2}
-            name='days'
-            maxLength={2}
-            keyboardType='number-pad'
-            placeholder='Days'
-            width={110}
-            icon='timer-sand'
-            trailingText='Days'
-          />
+            <AppFormField
+              name='discount'
+              maxLength={2}
+              keyboardType='numeric'
+              placeholder='Group Buy Discount '
+              width={230}
+              icon='percent'
+            />
+            <AppFormField
+              name='minOrder'
+              keyboardType='numeric'
+              placeholder='Minimum Order Requirement'
+              width={300}
+              icon='account-multiple-check'
+            />
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
 
-          <AppFormField
-            InputType={AppTextInput2}
-            name='hours'
-            maxLength={2}
-            keyboardType='numeric'
-            placeholder='Hours '
-            width={120}
-            icon='timer-sand'
-            trailingText='Hours'
-          />
-          <AppFormField
-            InputType={AppTextInput2}
-            name='minutes'
-            maxLength={2}
-            keyboardType='numeric'
-            placeholder='Minutes '
-            width={130}
-            icon='timer-sand'
-            trailingText='Minutes'
-          />
-          <View style={{ marginVertical: 10 }}>
-            <Error_Message error={error} visible={error} />
-            <SubmitButton title='Post' />
-          </View>
-        </AppForm>
-      </Screen>
-    </ScrollView>
+                  paddingVertical: 5,
+                  backgroundColor: colors.darkslategrey,
+                  marginVertical: 10,
+                }}
+              >
+                <AppText
+                  style={{
+                    fontWeight: "bold",
+                    color: colors.white,
+                    marginHorizontal: 15,
+                  }}
+                >
+                  Group Buy Time Limit
+                </AppText>
+              </View>
+            </View>
+            <ListItemSeperator />
+            <AppFormField
+              InputType={AppTextInput2}
+              name='days'
+              maxLength={2}
+              keyboardType='number-pad'
+              placeholder='Days'
+              width={110}
+              icon='timer-sand'
+              trailingText='Days'
+            />
+
+            <AppFormField
+              InputType={AppTextInput2}
+              name='hours'
+              maxLength={2}
+              keyboardType='numeric'
+              placeholder='Hours '
+              width={120}
+              icon='timer-sand'
+              trailingText='Hours'
+            />
+            <AppFormField
+              InputType={AppTextInput2}
+              name='minutes'
+              maxLength={2}
+              keyboardType='numeric'
+              placeholder='Minutes '
+              width={130}
+              icon='timer-sand'
+              trailingText='Minutes'
+            />
+            <View style={{ marginVertical: 10 }}>
+              <Error_Message error={error} visible={error} />
+              <SubmitButton title='Post' />
+            </View>
+          </AppForm>
+        </Screen>
+      </ScrollView>
+    </>
   );
 }
 
