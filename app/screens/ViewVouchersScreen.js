@@ -109,6 +109,12 @@ function ViewVouchersScreen({ navigation }) {
               if (currentUser.vouchers.includes(evoucher.data().voucher_id)) {
                 setError("Already own this voucher");
                 setLoading(false);
+              } else if (
+                currentUser.used_vouchers &&
+                currentUser.used_vouchers.includes(evoucher.data().voucher_id)
+              ) {
+                setError("Already own and used this voucher");
+                setLoading(false);
               } else {
                 if (evoucher.data().seller_id != currentUser.uid) {
                   db.collection("users")
@@ -159,7 +165,13 @@ function ViewVouchersScreen({ navigation }) {
           } else {
             setError(null);
             query.forEach((evoucher) => {
-              if (evoucher.data().seller_id != currentUser.uid) {
+              if (
+                currentUser.used_vouchers &&
+                currentUser.used_vouchers.includes(evoucher.data().voucher_id)
+              ) {
+                setError("Already redeemed this voucher");
+                setLoading(false);
+              } else if (evoucher.data().seller_id != currentUser.uid) {
                 db.collection("users")
                   .doc(currentUser.uid)
                   .update({

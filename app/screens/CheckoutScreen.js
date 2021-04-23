@@ -35,7 +35,7 @@ import * as firebase from "firebase";
 
 //Navigation
 import routes from "../navigation/routes";
-import VoucherListItem from "../components/VoucherListItem";
+import CheckoutVoucherListItem from "../components/CheckoutVoucherListItem";
 import { Button } from "react-native";
 
 const validationSchema = Yup.object().shape({
@@ -698,15 +698,72 @@ function CheckoutScreen({ navigation }) {
     });
     Promise.all(promises)
       .then(() => {
-        navigation.navigate(routes.ORDERCONFIRMED, {
-          currentShipping: currentShipping,
-          deliveryTime: currentTime.toDateString(),
-        });
+        if (voucher) {
+          removeVoucher(currentTime);
+        } else {
+          navigation.navigate(routes.ORDERCONFIRMED, {
+            currentShipping: currentShipping,
+            deliveryTime: currentTime.toDateString(),
+          });
+        }
       })
       .catch((error) => {
         console.log(error.message);
         setLoading(false);
       });
+  };
+
+  const removeVoucher = (currentTime) => {
+    if (currentUser.used_vouchers) {
+      var used_vouchers = currentUser.used_vouchers;
+      used_voucher.push(voucher.voucher_id);
+    } else {
+      var used_vouchers = [voucher.voucher_id];
+    }
+    if (currentUser.vouchers.length == 1) {
+      db.collection("users")
+        .doc(currentUser.uid)
+        .update({
+          vouchers: null,
+          used_vouchers: used_vouchers,
+        })
+        .then(() => {
+          navigation.navigate(routes.ORDERCONFIRMED, {
+            currentShipping: currentShipping,
+            deliveryTime: currentTime.toDateString(),
+          });
+        })
+        .catch((error) => {
+          console.log(error.message);
+          navigation.navigate(routes.ORDERCONFIRMED, {
+            currentShipping: currentShipping,
+            deliveryTime: currentTime.toDateString(),
+          });
+        });
+    } else {
+      var thisvouchers = currentUser.vouchers.filter(
+        (x) => x != voucher.voucher_id
+      );
+      db.collection("users")
+        .doc(currentUser.uid)
+        .update({
+          vouchers: thisvouchers,
+          used_vouchers: used_vouchers,
+        })
+        .then(() => {
+          navigation.navigate(routes.ORDERCONFIRMED, {
+            currentShipping: currentShipping,
+            deliveryTime: currentTime.toDateString(),
+          });
+        })
+        .catch((error) => {
+          console.log(error.message);
+          navigation.navigate(routes.ORDERCONFIRMED, {
+            currentShipping: currentShipping,
+            deliveryTime: currentTime.toDateString(),
+          });
+        });
+    }
   };
 
   useEffect(() => {
@@ -1222,7 +1279,7 @@ function CheckoutScreen({ navigation }) {
             data={vouchers}
             keyExtractor={(item) => item.voucher_id}
             renderItem={({ item }) => (
-              <VoucherListItem
+              <CheckoutVoucherListItem
                 item={item}
                 onPress={() => item.apply && selectVoucher(item)}
               />

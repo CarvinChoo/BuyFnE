@@ -2,17 +2,17 @@ import React from "react";
 import { Image } from "react-native";
 import { TouchableWithoutFeedback } from "react-native";
 import { StyleSheet, View } from "react-native";
-import AppText from "../components/AppText";
-import ListItemSeperator from "../components/lists/ListItemSeperator";
+import AppText from "./AppText";
+import ListItemSeperator from "./lists/ListItemSeperator";
 import colors from "../config/colors";
-function VoucherListItem({ item, onPress }) {
+function CheckoutVoucherListItem({ item, onPress }) {
   return (
     <>
       <TouchableWithoutFeedback style={styles.container} onPress={onPress}>
         <View
           style={{
             flexDirection: "row",
-            backgroundColor: colors.white,
+            backgroundColor: item.apply ? colors.white : colors.whitegrey,
           }}
         >
           <Image style={styles.image} source={{ uri: item.store_logo }} />
@@ -28,7 +28,7 @@ function VoucherListItem({ item, onPress }) {
               numberOfLines={1}
               style={{
                 fontSize: 17,
-                color: colors.black,
+                color: item.apply ? colors.black : colors.muted,
               }}
             >
               {item.percentage_discount <= 0
@@ -47,6 +47,17 @@ function VoucherListItem({ item, onPress }) {
               <AppText style={{ color: colors.muted, fontSize: 15 }}>
                 {"Valid till: " + item.expiry_date_string}
               </AppText>
+              {item.apply && (
+                <AppText
+                  style={{
+                    color: colors.muted,
+                    fontSize: 15,
+                    fontWeight: "bold",
+                  }}
+                >
+                  Applicable
+                </AppText>
+              )}
             </View>
             <AppText
               numberOfLines={1}
@@ -76,4 +87,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VoucherListItem;
+export default CheckoutVoucherListItem;
