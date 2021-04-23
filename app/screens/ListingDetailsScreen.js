@@ -37,19 +37,20 @@ function ListingDetailsScreen({ route, navigation }) {
     AuthApi.AuthContext
   );
 
-  const month = new Array();
-  month[0] = "Jan";
-  month[1] = "Feb";
-  month[2] = "Mar";
-  month[3] = "Apr";
-  month[4] = "May";
-  month[5] = "Jun";
-  month[6] = "Jul";
-  month[7] = "Aug";
-  month[8] = "Sep";
-  month[9] = "Oct";
-  month[10] = "Nov";
-  month[11] = "Dec";
+  const month = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   useEffect(() => {
     console.log("Product Mounted");
@@ -224,8 +225,8 @@ function ListingDetailsScreen({ route, navigation }) {
       else {
         var addedListing = { ...listing, count: 1 };
         setCart((cart) => [...cart, addedListing]);
+        Alert.alert("Added", "Item added to cart.");
       }
-      Alert.alert("Added", "Item added to cart.");
     } else {
       var addedListing = { ...listing, count: 1 };
       setCart((cart) => [...cart, addedListing]);
@@ -406,7 +407,12 @@ function ListingDetailsScreen({ route, navigation }) {
                   onPress={() =>
                     userType == 1
                       ? listing.quantity != 0
-                        ? addToCart(listing)
+                        ? currentUser.uid == listing.seller
+                          ? Alert.alert(
+                              "Listing owner",
+                              "You are the owner of this listing and cannot add it to your cart."
+                            )
+                          : addToCart(listing)
                         : Alert.alert(
                             "No enough stock",
                             "There is no current stock for this product."
@@ -685,10 +691,14 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: 250,
+    resizeMode: "center",
+    backgroundColor: colors.white,
   },
   images: {
     width: 70,
     height: 70,
+    resizeMode: "center",
+    backgroundColor: colors.white,
   },
   title: {
     fontSize: 24,

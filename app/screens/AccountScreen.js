@@ -50,7 +50,7 @@ const menuItemsSeller = [
       name: "ticket-percent",
       backgroundColor: colors.green,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.VIEWMERVOUCHER,
   },
   {
     title: "Support Tickets",
@@ -101,7 +101,7 @@ const menuItemsBuyer = [
       name: "ticket-percent",
       backgroundColor: colors.green,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.VIEWVOUCHER,
   },
   {
     title: "Group Buy Loyalty Progress",
@@ -233,15 +233,34 @@ function AccountScreen({ navigation }) {
       <View style={styles.container}>
         <View>
           <ListItem
-            title={currentUser ? currentUser.displayName : "Guest"}
-            subTitle={currentUser ? currentUser.email : "No Email"}
+            title={
+              currentUser
+                ? userType == 2
+                  ? currentUser.store_name
+                  : currentUser.displayName
+                : "Guest"
+            }
+            subTitle={
+              currentUser
+                ? currentUser.email
+                : "Login to access full BuyFnE Features"
+            }
             image={
-              currentUser && currentUser.profilePic
-                ? currentUser.profilePic // user's profile picture
+              currentUser
+                ? userType == 2 && currentUser.store_logo
+                  ? currentUser.store_logo
+                  : currentUser.profilePic
+                  ? currentUser.profilePic // user's profile picture
+                  : require("../assets/default-profile-pic.jpg") // default profile picture
                 : require("../assets/default-profile-pic.jpg") // default profile picture
             }
             border={true}
-            defaultimage={currentUser && currentUser.profilePic ? false : true}
+            defaultimage={
+              (currentUser && userType == 1 && currentUser.profilePic) ||
+              (userType == 2 && currentUser.store_logo)
+                ? false
+                : true
+            }
             onPress={() =>
               userType != 0 && navigation.navigate(routes.ACCOUNTMANAGEMENT)
             }

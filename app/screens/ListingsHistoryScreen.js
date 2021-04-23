@@ -97,7 +97,6 @@ function ListingsHistoryScreen({ navigation }) {
   const handleYes = () => {
     console.log("Closing Listing");
     setModalVisible(false);
-    console.log(currentItem.listingId);
     db.collection("all_listings")
       .doc(currentItem.listingId)
       .update({
@@ -619,6 +618,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     overflow: "hidden",
+    resizeMode: "center",
   },
 });
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: 200,
+    resizeMode: "center",
   },
   subTitle: {
     color: "#ff3300",

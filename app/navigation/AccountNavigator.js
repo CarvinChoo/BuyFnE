@@ -3,6 +3,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import AccountScreen from "../screens/AccountScreen";
 import MessagesScreen from "../screens/MessagesScreen";
+import ViewVouchersScreen from "../screens/ViewVouchersScreen";
+import ViewMerchantVouchersScreen from "../screens/ViewMerchantVouchersScreen";
+import CreateMerchantVoucherScreen from "../screens/CreateMerchantVoucherScreen";
 import ListingsHistoryScreen from "../screens/ListingsHistoryScreen";
 import AccountManagementScreen from "../screens/AccountManagementScreen";
 import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
@@ -47,6 +50,15 @@ const AccountNavigator = () => (
     <Stack.Screen
       name={routes.ORDERHISTORY}
       component={OrderHistoryNavigator}
+    />
+    <Stack.Screen
+      name={routes.VIEWMERVOUCHER}
+      component={ViewMerchantVouchersScreen}
+    />
+    <Stack.Screen name={routes.VIEWVOUCHER} component={ViewVouchersScreen} />
+    <Stack.Screen
+      name={routes.CREATEMERVOUCHER}
+      component={CreateMerchantVoucherScreen}
     />
     <Stack.Screen
       name={routes.LISTINGSHISTORY}

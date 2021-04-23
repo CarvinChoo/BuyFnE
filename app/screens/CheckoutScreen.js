@@ -35,39 +35,8 @@ import * as firebase from "firebase";
 
 //Navigation
 import routes from "../navigation/routes";
-
-// const cart = [
-//   {
-//     images: [
-//       "https://firebasestorage.googleapis.com/v0/b/buyfne-63905.appspot.com/o/gKr5aTSwqiRCEo8YVfhCqd51DcO2%2Flistings%2FSocks%2Fimage1.jpeg?alt=media&token=b71e6bab-d6d7-4694-93e4-dceb34169060",
-//     ],
-//     price: 10,
-//     discount: 50,
-//     discountedPrice: "5.00",
-//     title: "Socks",
-//     quantity: 100,
-//     soldCount: 0,
-//     store_name: "Best store",
-//     seller: "gKr5aTSwqiRCEo8YVfhCqd51DcO2",
-//     count: 3,
-//     listingId: "DJLwbSryTciKfBYQDx6N",
-//   },
-//   {
-//     images: [
-//       "https://firebasestorage.googleapis.com/v0/b/buyfne-63905.appspot.com/o/gKr5aTSwqiRCEo8YVfhCqd51DcO2%2Flistings%2FShoes%2Fimage1.jpeg?alt=media&token=276fee9c-62e9-4140-b102-1117820e2eec",
-//     ],
-//     price: 100,
-//     discount: 2,
-//     discountedPrice: "98.00",
-//     title: "Shoes",
-//     quantity: 200,
-//     soldCount: 0,
-//     store_name: "Best store",
-//     seller: "gKr5aTSwqiRCEo8YVfhCqd51DcO2",
-//     count: 1,
-//     listingId: "qKvT5UupDk11wAovDXGi",
-//   },
-// ];
+import VoucherListItem from "../components/VoucherListItem";
+import { Button } from "react-native";
 
 const validationSchema = Yup.object().shape({
   address: Yup.string().required("Address is required"),
@@ -93,6 +62,7 @@ function CheckoutScreen({ navigation }) {
   });
   const [loading, setLoading] = useState(true);
   const [voucher, setVoucher] = useState(null);
+  const [vouchers, setVouchers] = useState([]);
   const [sourceList, setSourceList] = useState([]);
   const [shippings, setShippings] = useState([]);
   const [currentShipping, setCurrentShipping] = useState(null);
@@ -102,6 +72,8 @@ function CheckoutScreen({ navigation }) {
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [addressModalVisible, setAddressModalVisible] = useState(false);
   const [addAddressModalVisible, setAddAddressModalVisible] = useState(false);
+  const [voucherModalVisible, setVoucherModalVisible] = useState(false);
+  const [discountTotal, setDiscountTotal] = useState(0);
   const [error, setError] = useState(null);
   const mounted = useRef(true);
 
@@ -120,7 +92,7 @@ function CheckoutScreen({ navigation }) {
         }
       }
       if (mounted.current) {
-        getShippingAddress();
+        getVouchers();
       }
 
       return () => {
@@ -129,7 +101,115 @@ function CheckoutScreen({ navigation }) {
       };
     }, [])
   );
+  const getVouchers = () => {
+    if (currentUser.vouchers) {
+      const promises = [];
+      const voucherlist = [];
+      currentUser.vouchers.forEach((voucher_id) => {
+        //individually retrieve each voucher info
+        promises.push(
+          db
+            .collection("vouchers")
+            .doc(voucher_id)
+            .get()
+            .then((e) => {
+              if (e.exists) {
+                if (e.data().category) {
+                  // if admin issued voucher or store issued voucer
+                  if (e.data().category == 0) {
+                    // storewide voucher
+                    voucherlist.push({
+                      ...e.data(),
+                      apply: true,
+                    });
+                  } else {
+                    let category = cart.filter(
+                      (x) => x.category == e.data().category
+                    );
+                    if (category.length > 0) {
+                      // any category
+                      let priceTotal = 0;
+                      category.forEach((x) => {
+                        priceTotal = priceTotal + x.price * x.count;
+                      });
 
+                      if (priceTotal > e.data().minimum_spending) {
+                        voucherlist.push({
+                          ...e.data(),
+                          apply: true,
+                        });
+                      } else {
+                        voucherlist.push({
+                          ...e.data(),
+                          apply: false,
+                        });
+                      }
+                    } else {
+                      voucherlist.push({
+                        ...e.data(),
+                        apply: false,
+                      });
+                    }
+                  }
+                } // store issued voucher
+                else {
+                  let seller = cart.filter(
+                    (x) => x.seller == e.data().seller_id
+                  );
+
+                  if (seller) {
+                    // any category
+
+                    let sellerTotal = 0;
+                    seller.forEach(
+                      (x) => (sellerTotal = sellerTotal + x.price * x.count)
+                    );
+                    if (sellerTotal > e.data().minimum_spending) {
+                      voucherlist.push({
+                        ...e.data(),
+                        apply: true,
+                      });
+                    } else {
+                      voucherlist.push({
+                        ...e.data(),
+                        apply: false,
+                      });
+                    }
+                  } else {
+                    voucherlist.push({
+                      ...e.data(),
+                      apply: false,
+                    });
+                  }
+                }
+              }
+            })
+            .catch((error) => {
+              console.log(error.message);
+            })
+        );
+      });
+      //Make sure each voucher is retreived
+      Promise.all(promises)
+        .then(() => {
+          if (mounted.current) {
+            setVouchers(voucherlist);
+            getShippingAddress();
+          }
+        })
+        .catch((err) => {
+          if (mounted.current) {
+            setVouchers([]);
+            Alert.alert("Error", "Fail to retreive vouchers");
+            console.log(err.message);
+            setLoading(false);
+          }
+        });
+    } else {
+      setVouchers([]);
+      setLoading(false);
+    }
+  };
   const getShippingAddress = () => {
     if (currentUser.shippingAddress) {
       var i = 0;
@@ -216,7 +296,6 @@ function CheckoutScreen({ navigation }) {
               (item) => item.id === customer.default_source
             );
             setPaymentOption(defaultpayment[0]);
-            console.log(defaultpayment);
             setSourceList(sourcelist);
             setLoading(false);
           }
@@ -400,22 +479,37 @@ function CheckoutScreen({ navigation }) {
   };
 
   const updateQuantity = (charge_id) => {
-    const quantity = listing.quantity - count;
-    if (quantity < 0) {
-      quantity = 0;
-    }
-    db.collection("all_listing")
-      .doc(listing.listingId)
-      .update({
-        quantity: quantity,
-      })
+    let promises = [];
+
+    cart.forEach((listing) => {
+      const quantity = listing.quantity - listing.count;
+      if (quantity < 0) {
+        quantity = 0;
+      }
+      promises.push(
+        db
+          .collection("all_listings")
+          .doc(listing.listingId)
+          .update({
+            quantity: quantity,
+          })
+          .then(() => {
+            console.log("listing quantity updated");
+          })
+          .catch((error) => {
+            console.log("Fail to update Quantity : ", error.message);
+            Alert.alert("Fail to update Quantity", error.message);
+            setLoading(false);
+          })
+      );
+    });
+
+    Promise.all(promises)
       .then(() => {
         createTransactionStatement(charge_id);
       })
       .catch((error) => {
-        console.log("Fail to update Quantity : ", error.message);
-        Alert.alert("Fail to update Quantity", error.message);
-        setLoading(false);
+        console.log(error.message);
       });
   };
 
@@ -431,38 +525,176 @@ function CheckoutScreen({ navigation }) {
 
     cart.forEach((item) => {
       var ref = db.collection("transactions").doc();
+      if (voucher) {
+        if (item.seller == voucher.seller_id) {
+          // when item is the applied discount item
+          if (voucher.percent) {
+            //percentage discount
+            var thisdiscount =
+              (item.price * item.count * voucher.percentage_discount) / 100;
+          } else {
+            var thisdiscount = voucher.amount_discount;
+          }
+          console.log(thisdiscount);
+          promises.push(
+            ref
+              .set({
+                product_title: item.title,
+                product_id: item.listingId,
+                transaction_id: ref.id,
+                seller_id: item.seller,
+                charge_id: charge_id,
+                buyer_id: currentUser.uid,
+                image: item.images[0],
+                count: item.count,
+                original_price: item.price,
+                discount: Number(thisdiscount),
+                paid: Number(item.price * item.count - thisdiscount),
+                orderDate: timeNow,
+                estimatedDeliveryTime: estimatedDeliveryTime,
+                sellerConfirmedDeliveryTime: null,
+                status: "To be Delivered",
+                refunded: false,
+                groupbuy: false,
+                voucher: voucher,
+              })
+              .then(() => {
+                console.log(
+                  "Successfully created " + item.title + " transaction"
+                );
+              })
+              .catch((error) => {
+                console.log(
+                  "Failed to update " +
+                    item.title +
+                    " transaction in database : ",
+                  error.message
+                );
+              })
+          );
+        } else {
+          if (item.category == voucher.category || voucher.category == 0) {
+            if (voucher.percent) {
+              //percentage discount
+              var thisdiscount =
+                (item.price * item.count * voucher.percentage_discount) / 100;
+            } else {
+              var thisdiscount = voucher.amount_discount;
+            }
 
-      promises.push(
-        ref
-          .set({
-            product_title: item.title,
-            product_id: item.listingId,
-            transaction_id: ref.id,
-            seller_id: item.seller,
-            charge_id: charge_id,
-            buyer_id: currentUser.uid,
-            image: item.images[0],
-            count: item.count,
-            original_price: item.price,
-            discount: 0,
-            paid: Number(item.price * item.count), //!!!!!!!!!! NEED TO CHANGE TO INCLUDE INDIVIDUAL VOUCHER PRICES LATER
-            orderDate: timeNow,
-            estimatedDeliveryTime: estimatedDeliveryTime,
-            sellerConfirmedDeliveryTime: null,
-            status: "To be Delivered",
-            refunded: false,
-            groupbuy: false,
-          })
-          .then(() => {
-            console.log("Successfully created " + item.title + " transaction");
-          })
-          .catch((error) => {
-            console.log(
-              "Failed to update " + item.title + " transaction in database : ",
-              error.message
+            promises.push(
+              ref
+                .set({
+                  product_title: item.title,
+                  product_id: item.listingId,
+                  transaction_id: ref.id,
+                  seller_id: item.seller,
+                  charge_id: charge_id,
+                  buyer_id: currentUser.uid,
+                  image: item.images[0],
+                  count: item.count,
+                  original_price: item.price,
+                  discount: Number(thisdiscount),
+                  paid: Number(item.price * item.count),
+                  orderDate: timeNow,
+                  estimatedDeliveryTime: estimatedDeliveryTime,
+                  sellerConfirmedDeliveryTime: null,
+                  status: "To be Delivered",
+                  refunded: false,
+                  groupbuy: false,
+                  voucher: voucher,
+                })
+                .then(() => {
+                  console.log(
+                    "Successfully created " + item.title + " transaction"
+                  );
+                })
+                .catch((error) => {
+                  console.log(
+                    "Failed to update " +
+                      item.title +
+                      " transaction in database : ",
+                    error.message
+                  );
+                })
             );
-          })
-      );
+          } else {
+            promises.push(
+              ref
+                .set({
+                  product_title: item.title,
+                  product_id: item.listingId,
+                  transaction_id: ref.id,
+                  seller_id: item.seller,
+                  charge_id: charge_id,
+                  buyer_id: currentUser.uid,
+                  image: item.images[0],
+                  count: item.count,
+                  original_price: item.price,
+                  discount: Number(0),
+                  paid: Number(item.price * item.count),
+                  orderDate: timeNow,
+                  estimatedDeliveryTime: estimatedDeliveryTime,
+                  sellerConfirmedDeliveryTime: null,
+                  status: "To be Delivered",
+                  refunded: false,
+                  groupbuy: false,
+                  voucher: null,
+                })
+                .then(() => {
+                  console.log(
+                    "Successfully created " + item.title + " transaction"
+                  );
+                })
+                .catch((error) => {
+                  console.log(
+                    "Failed to update " +
+                      item.title +
+                      " transaction in database : ",
+                    error.message
+                  );
+                })
+            );
+          }
+        }
+      } else {
+        promises.push(
+          ref
+            .set({
+              product_title: item.title,
+              product_id: item.listingId,
+              transaction_id: ref.id,
+              seller_id: item.seller,
+              charge_id: charge_id,
+              buyer_id: currentUser.uid,
+              image: item.images[0],
+              count: item.count,
+              original_price: item.price,
+              discount: Number(0),
+              paid: Number(item.price * item.count),
+              orderDate: timeNow,
+              estimatedDeliveryTime: estimatedDeliveryTime,
+              sellerConfirmedDeliveryTime: null,
+              status: "To be Delivered",
+              refunded: false,
+              groupbuy: false,
+              voucher: null,
+            })
+            .then(() => {
+              console.log(
+                "Successfully created " + item.title + " transaction"
+              );
+            })
+            .catch((error) => {
+              console.log(
+                "Failed to update " +
+                  item.title +
+                  " transaction in database : ",
+                error.message
+              );
+            })
+        );
+      }
     });
     Promise.all(promises)
       .then(() => {
@@ -477,6 +709,48 @@ function CheckoutScreen({ navigation }) {
       });
   };
 
+  useEffect(() => {
+    let totalDiscount = 0;
+    setPayableTotal(orderTotal + 1.99);
+    if (voucher) {
+      cart.forEach((item) => {
+        if (voucher.category) {
+          if (item.category == voucher.category) {
+            if (voucher.percent) {
+              totalDiscount =
+                totalDiscount +
+                item.price * item.count * (voucher.percentage_discount / 100);
+            } else {
+              totalDiscount = totalDiscount + amount_discount;
+            }
+          }
+        } else {
+          if (item.seller == voucher.seller_id) {
+            if (voucher.percent) {
+              totalDiscount =
+                totalDiscount +
+                item.price * item.count * (voucher.percentage_discount / 100);
+            } else {
+              (totalDiscount) => totalDiscount + amount_discount;
+            }
+          }
+        }
+      });
+      if (mounted.current) {
+        setDiscountTotal(totalDiscount);
+        setPayableTotal((payableTotal) => payableTotal - totalDiscount);
+      }
+    } else {
+      if (mounted.current) {
+        setDiscountTotal(totalDiscount);
+      }
+    }
+  }, [voucher]);
+
+  const selectVoucher = (voucher) => {
+    setVoucher(voucher);
+    setVoucherModalVisible(false);
+  };
   const renderHeader = () => {
     return (
       <View style={{ marginBottom: 10 }}>
@@ -531,7 +805,13 @@ function CheckoutScreen({ navigation }) {
         >
           <AddressListItem
             title='BuyFnE Vouchers'
-            subTitle='Select'
+            subTitle={
+              voucher
+                ? voucher.percent
+                  ? voucher.percentage_discount + "% OFF"
+                  : "$" + voucher.amount_discount + " OFF"
+                : "Select"
+            }
             IconComponent={
               <Icon
                 name='ticket-percent'
@@ -540,6 +820,14 @@ function CheckoutScreen({ navigation }) {
                 size={30}
               />
             }
+            onPress={() => {
+              currentUser.vouchers == null
+                ? Alert.alert(
+                    "No Vouchers available",
+                    "You do not have any vouchers. Add more in the Voucher section in your account page"
+                  )
+                : setVoucherModalVisible(true);
+            }}
           />
         </View>
         {/* Payment Option Section */}
@@ -607,7 +895,7 @@ function CheckoutScreen({ navigation }) {
             }}
           >
             <AppText style={{ color: colors.muted, fontSize: 15 }}>
-              Shipping Subtotal (*fixed for all orders)
+              Shipping Subtotal
             </AppText>
             <AppText style={{ color: colors.muted, fontSize: 15 }}>
               $1.99
@@ -625,7 +913,7 @@ function CheckoutScreen({ navigation }) {
               Voucher Discount
             </AppText>
             <AppText style={{ color: colors.muted, fontSize: 15 }}>
-              -$0.00
+              {voucher ? "-$" + discountTotal.toFixed(2) : "-$0.00"}
             </AppText>
           </View>
           {/* Total Payable */}
@@ -925,6 +1213,22 @@ function CheckoutScreen({ navigation }) {
             </AppForm>
           </View>
         </View>
+      </Modal>
+      {/* Modal for Voucher selection */}
+      <Modal visible={voucherModalVisible} animationType='slide'>
+        <Screen style={{ paddingTop: 0 }}>
+          <Button title='Close' onPress={() => setVoucherModalVisible(false)} />
+          <FlatList
+            data={vouchers}
+            keyExtractor={(item) => item.voucher_id}
+            renderItem={({ item }) => (
+              <VoucherListItem
+                item={item}
+                onPress={() => item.apply && selectVoucher(item)}
+              />
+            )}
+          />
+        </Screen>
       </Modal>
     </Screen>
   );

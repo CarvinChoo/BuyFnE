@@ -209,6 +209,7 @@ function ListingEditScreen() {
             const timeNow = firebase.firestore.Timestamp.now();
             ref
               .set({
+                seller_logo: currentUser.store_logo,
                 seller: currentUser.uid,
                 store_name: currentUser.store_name,
                 title: listing.title,

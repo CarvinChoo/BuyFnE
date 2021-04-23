@@ -53,7 +53,6 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
   const [listing, setListing] = useState(null);
   const [orderTotal, setOrderTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [voucher, setVoucher] = useState(null);
   const [sourceList, setSourceList] = useState([]);
   const [shippings, setShippings] = useState([]);
   const [currentShipping, setCurrentShipping] = useState(null);
@@ -85,18 +84,15 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
                     { ...doc.data(), count: count, key: doc.data().listingId },
                   ]);
                   setListing({ ...doc.data(), count: count });
-                  if (voucher) {
-                    // Calculate Voucher discount and deduct from payable total
-                  } else {
-                    if (mounted.current) {
-                      setOrderTotal(
-                        parseFloat(doc.data().discountedPrice) * count
-                      );
-                      setPayableTotal(
-                        parseFloat(doc.data().discountedPrice) * count + 1.99
-                      );
-                      getShippingAddress();
-                    }
+
+                  if (mounted.current) {
+                    setOrderTotal(
+                      parseFloat(doc.data().discountedPrice) * count
+                    );
+                    setPayableTotal(
+                      parseFloat(doc.data().discountedPrice) * count + 1.99
+                    );
+                    getShippingAddress();
                   }
                 }
               } else {
@@ -407,14 +403,15 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
         image: listing.images[0],
         count: listing.count,
         original_price: listing.price,
-        discount: listing.discount,
-        paid: orderTotal, //!!!!!!!!!! NEED TO CHANGE TO INCLUDE INDIVIDUAL VOUCHER PRICES LATER
+        discount: Number(listing.discount),
+        paid: Number(orderTotal),
         orderDate: timeNow,
         estimatedDeliveryTime: null,
         sellerConfirmedDeliveryTime: null,
         status: "Awaiting group buy to end",
         refunded: false,
         groupbuy: true,
+        voucher: null,
       })
       .then(() => {
         console.log("Successfully created " + listing.title + " transaction");
@@ -653,25 +650,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
             {"$" + orderTotal.toFixed(2)}
           </AppText>
         </View>
-        {/* Voucher Section */}
-        <View
-          style={{
-            marginBottom: 10,
-          }}
-        >
-          <AddressListItem
-            title='BuyFnE Vouchers'
-            subTitle='Select'
-            IconComponent={
-              <Icon
-                name='ticket-percent'
-                backgroundColor={colors.white}
-                iconColor='black'
-                size={30}
-              />
-            }
-          />
-        </View>
+
         {/* Payment Option Section */}
         <View>
           <AppText
@@ -743,21 +722,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
               $1.99
             </AppText>
           </View>
-          {/* Voucher Discount total */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 5,
-            }}
-          >
-            <AppText style={{ color: colors.muted, fontSize: 15 }}>
-              Voucher Discount
-            </AppText>
-            <AppText style={{ color: colors.muted, fontSize: 15 }}>
-              -$0.00
-            </AppText>
-          </View>
+
           {/* Total Payable */}
           <View
             style={{

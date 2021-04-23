@@ -1,14 +1,14 @@
 import * as React from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import colors from "../config/colors";
-import CompleteScreen from "../screens/CompleteScreen";
-import ToShipScreen from "../screens/ToShipScreen";
-import RefundScreen from "../screens/RefundScreen";
+// import CompleteScreen from "../screens/CompleteScreen";
+// import ToShipScreen from "../screens/ToShipScreen";
+// import RefundScreen from "../screens/RefundScreen";
 import routes from "./routes";
 const Tab = createMaterialTopTabNavigator();
 
 //tab properties(title,style properties)
-function OrderHistoryNavigator() {
+function AdminVoucherNavigator() {
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -19,22 +19,17 @@ function OrderHistoryNavigator() {
       }}
     >
       <Tab.Screen
-        name={routes.COMPLETE}
-        component={CompleteScreen}
-        options={{ tabBarLabel: "Completed" }}
-      />
-      <Tab.Screen
-        name={routes.TOSHIP}
+        name={routes.CATEGORIESVOUCHERS}
         component={ToShipScreen}
-        options={{ tabBarLabel: "To Ship" }}
+        options={{ tabBarLabel: "Categories Vouchers" }}
       />
       <Tab.Screen
-        name={routes.REFUND}
+        name={routes.STOREWIDEVOUCHERS}
         component={RefundScreen}
-        options={{ tabBarLabel: "Refund" }}
+        options={{ tabBarLabel: "Storewide Vouchers" }}
       />
     </Tab.Navigator>
   );
 }
 
-export default OrderHistoryNavigator;
+export default AdminVoucherNavigator;

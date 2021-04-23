@@ -152,15 +152,14 @@ function ListingsScreen({ navigation }) {
     // setListings(() => {
 
     // });
-    var tet = allListings.filter((product) => {
+    var found = allListings.filter((product) => {
       return (
         product.description.toUpperCase().includes(search.toUpperCase()) ||
         product.title.toUpperCase().includes(search.toUpperCase()) ||
         product.store_name.toUpperCase().includes(search.toUpperCase())
       );
     });
-    console.log(tet);
-    setListings(tet);
+    setListings(found);
   };
 
   return (

@@ -199,7 +199,13 @@ function OrderConfirmedScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: { backgroundColor: colors.whitegrey, paddingTop: 0 },
-  image: { width: 80, height: 80, marginHorizontal: 10, marginVertical: 5 },
+  image: {
+    width: 80,
+    height: 80,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    resizeMode: "center",
+  },
 
   background: {
     backgroundColor: colors.whitegrey,

@@ -12,7 +12,7 @@ import app from "../auth/base.js";
 import db from "../api/db";
 import AuthApi from "../api/auth";
 import axios from "axios";
-
+import filestorage from "../api/filestorage";
 //Front End
 import Screen from "../components/Screen";
 import {
@@ -21,8 +21,11 @@ import {
   Error_Message,
   SubmitButton,
   LoadingSubmitButton,
+  AppFormSingleImagePicker,
 } from "../components/forms";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import AppText from "../components/AppText.js";
+import colors from "../config/colors.js";
 
 const merchantValidationSchema = Yup.object().shape({
   store_name: Yup.string().required("Store Name is required").label("Name"),
@@ -38,6 +41,7 @@ const merchantValidationSchema = Yup.object().shape({
     .matches(/^[0-9]+$/, "Must be only digits")
     .min(7, "Must be within 7 to 11 digits")
     .max(11, "Must be within 7 to 11 digits"),
+  image: Yup.string().min(1, "Please select an image."),
 });
 
 function MerchantRegisterScreen({ navigation }) {
@@ -49,6 +53,7 @@ function MerchantRegisterScreen({ navigation }) {
       navigation.goBack();
     }
   }, [currentUser]);
+
   const createExternalAccount = (merchantDetails) => {
     axios({
       method: "POST",
@@ -66,7 +71,7 @@ function MerchantRegisterScreen({ navigation }) {
     })
       .then(({ _, data }) => {
         console.log("Succesfully created stripe external account");
-        updateUser(data.id, merchantDetails);
+        uploadImage(data.id, merchantDetails);
       })
       .catch((error) => {
         console.log("Error message: ", error.message);
@@ -76,12 +81,39 @@ function MerchantRegisterScreen({ navigation }) {
         setLoading(false);
       });
   };
-  const updateUser = (stripe_bank_id, merchantDetails) => {
+
+  const uploadImage = async (stripe_bank_id, merchantDetails) => {
+    const uri = merchantDetails.image;
+    const response = await fetch(uri);
+
+    const blob = await response.blob();
+
+    const ref = filestorage.ref().child(currentUser.uid + "/store_image.jpeg");
+    const snapshot = await ref.put(blob);
+    // We're done with the blob, close and release it
+    blob.close();
+
+    snapshot.ref
+      .getDownloadURL()
+      .then((url) => {
+        console.log("Successfully Uploaded Image.");
+        updateUser(stripe_bank_id, merchantDetails, url);
+      })
+      .catch((error) => {
+        updateUser(user, merchantDetails);
+        console.log("uploadImage:", error.message);
+        console.log("Failed to Uploaded Image.");
+        setLoading(false);
+      });
+  };
+
+  const updateUser = (stripe_bank_id, merchantDetails, url = null) => {
     db.collection("users")
       .doc(currentUser.uid)
       .update({
         stripe_bank_id: stripe_bank_id,
         store_name: merchantDetails.store_name,
+        store_logo: url,
         isMerchant: true,
         type: 2,
       })
@@ -126,10 +158,23 @@ function MerchantRegisterScreen({ navigation }) {
               store_unitno: "",
               postal_code: "",
               bank_account: "",
+              image: null,
             }}
             onSubmit={handleSubmit}
             validationSchema={merchantValidationSchema}
           >
+            <View style={{ marginLeft: 5, marginBottom: 10 }}>
+              <AppText
+                style={{
+                  color: colors.muted,
+                  fontWeight: "bold",
+                  fontFamily: "Roboto",
+                }}
+              >
+                Store Logo
+              </AppText>
+            </View>
+            <AppFormSingleImagePicker name='image' />
             <AppFormField
               autoCorrect={false}
               maxLength={30}

@@ -63,7 +63,6 @@ function CategoryListingsScreen({ route, navigation }) {
   return (
     <Screen style={styles.screen}>
       {/* Actual Search Bar  END*/}
-
       <FlatList
         data={catlistings}
         // Normally needed but we already added a "key" property to each listing (above)

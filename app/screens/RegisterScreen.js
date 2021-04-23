@@ -86,7 +86,7 @@ function RegisterScreen({ navigation }) {
           setError(null);
           if (registrationDetails.image)
             uploadImage(result.user, registrationDetails);
-          else updateUser(result.user, registrationDetails);
+          else createStripeAccount(result.user, registrationDetails);
         })
         .catch((error) => {
           console.log("createUser error:", error.message);
@@ -114,32 +114,17 @@ function RegisterScreen({ navigation }) {
       .getDownloadURL()
       .then((url) => {
         console.log("Successfully Uploaded Image.");
-        updateUser(user, registrationDetails, url);
+        createStripeAccount(user, registrationDetails, url);
       })
       .catch((error) => {
-        updateUser(user, registrationDetails);
+        createStripeAccount(user, registrationDetails);
         console.log("uploadImage:", error.message);
         console.log("Failed to Uploaded Image.");
         setLoading(false);
       });
   };
-  // Function to Update User properties in Firebase Authentication
-  const updateUser = (user, registrationDetails, url = null) => {
-    user
-      .updateProfile({
-        displayName: registrationDetails.name,
-        photoURL: url,
-      })
-      .then(() => {
-        createStripeAccount(user, registrationDetails, url);
-      })
-      .catch((error) => {
-        console.log("updateUser error:", error.message);
-        deleteUser(user);
-      });
-  };
   // Function to create Stripe account
-  const createStripeAccount = (user, registrationDetails, url) => {
+  const createStripeAccount = (user, registrationDetails, url = null) => {
     console.log("Creating Stripe Account.");
     const dob = new Date(JSON.parse(registrationDetails.dob));
 
@@ -220,6 +205,8 @@ function RegisterScreen({ navigation }) {
         profilePic: url,
         inGroupBuys: null,
         isMerchant: false,
+        store_image: null,
+        vouchers: null,
       })
       .then(() => {
         // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller
@@ -299,7 +286,7 @@ function RegisterScreen({ navigation }) {
               name: "",
               email: "",
               password: "",
-              images: null,
+              image: null,
             }}
             onSubmit={handleSubmit}
             validationSchema={
