@@ -105,6 +105,38 @@ const stripe = require("stripe")(functions.config().stripe.secret_key);
 //     };
 // });
 
+exports.scheduledVoucherCheck = functions
+  .region("asia-southeast2")
+  .pubsub.schedule("0 0 * * *")
+  .timeZone("Asia/Singapore")
+  .onRun(async (context) => {
+    const timeNow = admin.firestore.Timestamp.now();
+    return db
+      .collection("vouchers")
+      .where("expiry_date", "<=", timeNow)
+      .get()
+      .then((vouchers) => {
+        if (!vouchers.empty) {
+          console.log("Not Empty");
+          vouchers.forEach((voucher) => {
+            voucher.ref
+              .delete()
+              .then(() => {
+                console.log("Successfully deleted expired voucher");
+              })
+              .catch((error) => {
+                console.log(
+                  "Error when deleting expired voucher: ",
+                  error.message
+                );
+              });
+          });
+        } else {
+          console.log("No expired vouchers");
+        }
+      });
+  });
+
 exports.scheduledGroupBuyCheck = functions
   .region("asia-southeast2")
   .pubsub.schedule("* * * * *")
