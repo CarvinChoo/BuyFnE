@@ -146,6 +146,16 @@ function ViewMerchantVouchersScreen({ navigation }) {
                       >
                         {"Store: " + item.store_name}
                       </AppText>
+                      <AppText
+                        numberOfLines={1}
+                        style={{
+                          color: colors.muted,
+                          fontSize: 15,
+                          width: 250,
+                        }}
+                      >
+                        {"Code: " + item.voucher_code}
+                      </AppText>
                     </View>
                   </View>
                 </View>

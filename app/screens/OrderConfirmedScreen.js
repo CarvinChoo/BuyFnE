@@ -180,6 +180,7 @@ function OrderConfirmedScreen({ route, navigation }) {
                         color: colors.muted,
                         fontSize: 15,
                         marginBottom: 5,
+                        marginRight: 30,
                       }}
                       numberOfLines={1}
                     >

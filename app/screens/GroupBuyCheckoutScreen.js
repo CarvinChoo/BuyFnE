@@ -360,13 +360,13 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
       description =
         description + cart[i].title + "            x" + cart[i].count + "\n";
     }
-    console.log(description);
+
     axios({
       method: "POST",
       url:
         "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
       data: {
-        amount: (Math.round(payableTotal * 100) / 100) * 100, // amount = 1000 = SG$10
+        amount: Math.round(((payableTotal * 100) / 100) * 100), // amount = 1000 = SG$10
         currency: "sgd",
         // token: "tok_bypassPending",
         customer: customer.id,
@@ -379,6 +379,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
     })
       .then(({ _, data }) => {
         console.log("Successfully charged customer");
+        console.log(data);
         createTransactionStatement(data.id);
       })
       .catch((error) => {
@@ -389,6 +390,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
   };
 
   const createTransactionStatement = (charge_id) => {
+    console.log(charge_id);
     var currentTime = new Date();
     const timeNow = firebase.firestore.Timestamp.fromDate(currentTime);
     var ref = db.collection("transactions").doc();
@@ -450,6 +452,8 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
         timeStart: timeNow,
         timeEnd: timeExpireAt,
         currentOrderCount: 1,
+        groupbuyPayout: listing.discountedPrice * count,
+        groupbuyTotalPurchases: count,
         groupbuyStatus: "Ongoing",
         shoppers: [currentUser.uid],
         quantity: listing.quantity - count,
@@ -474,6 +478,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
                     currentShipping: currentShipping,
                     cart: [
                       {
+                        listingId: listing.listingId,
                         title: listing.title,
                         images: listing.images,
                         count: count,
@@ -541,6 +546,9 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
         .update({
           shoppers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
           currentOrderCount: firebase.firestore.FieldValue.increment(1),
+          groupbuyPayout:
+            listing.groupbuyPayout + listing.discountedPrice * count,
+          groupbuyTotalPurchases: listing.groupbuyTotalPurchases + count,
           quantity: listing.quantity - count,
         })
         .then(() => {
@@ -561,7 +569,16 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
                     console.log("Successfully updated inGroupBuys using union");
                     navigation.navigate(routes.GBORDERCONFIRMED, {
                       currentShipping: currentShipping,
-                      cart: cart,
+                      cart: [
+                        {
+                          listingId: cart.listingId,
+                          title: listing.title,
+                          images: listing.images,
+                          count: count,
+                          discountedPrice: listing.discountedPrice,
+                          store_name: listing.store_name,
+                        },
+                      ],
                     });
                   })
                   .catch((error) => {
@@ -580,7 +597,16 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
                     );
                     navigation.navigate(routes.GBORDERCONFIRMED, {
                       currentShipping: currentShipping,
-                      cart: cart,
+                      cart: [
+                        {
+                          listingId: cart.listingId,
+                          title: listing.title,
+                          images: listing.images,
+                          count: count,
+                          discountedPrice: listing.discountedPrice,
+                          store_name: listing.store_name,
+                        },
+                      ],
                     });
                   })
                   .catch((error) => {
@@ -745,6 +771,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
   const onChange = (number, item) => {
     setOrderTotal(parseFloat(item.discountedPrice) * number);
     item.count = number;
+    listing.count = number;
     setPayableTotal(parseFloat(item.discountedPrice) * number + 1.99);
     setCount(number);
     //item.count = number
@@ -831,9 +858,15 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
                     countTextStyle={{
                       color: "#333",
                     }}
-                    start={item.quantity == 0 ? 0 : 1}
-                    min={item.quantity == 0 ? 0 : 1}
-                    max={item.quantity}
+                    start={item.quantity <= 0 ? 0 : 1}
+                    min={item.quantity <= 0 ? 0 : 1}
+                    max={
+                      item.quantity <= 0
+                        ? 0
+                        : item.quantity < item.buylimit
+                        ? item.quantity
+                        : item.buylimit
+                    }
                     //Change order to item.count
                     onChange={(number) => onChange(number, item)}
                   />
@@ -1042,7 +1075,13 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: { backgroundColor: colors.whitegrey, paddingTop: 0 },
-  image: { width: 80, height: 80, marginHorizontal: 10, marginVertical: 5 },
+  image: {
+    width: 80,
+    height: 80,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    resizeMode: "center",
+  },
   modal: {
     backgroundColor: "#000000aa",
     flex: 1,

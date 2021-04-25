@@ -144,7 +144,7 @@ function OrderConfirmedScreen({ route, navigation }) {
                       }}
                       numberOfLines={1}
                     >
-                      {"$" + item.discountedPrice}
+                      {"$" + item.discountedPrice.toFixed(2)}
                     </AppText>
                   </View>
                   <View>
@@ -153,6 +153,7 @@ function OrderConfirmedScreen({ route, navigation }) {
                         color: colors.muted,
                         fontSize: 15,
                         marginBottom: 5,
+                        marginRight: 30,
                       }}
                       numberOfLines={1}
                     >

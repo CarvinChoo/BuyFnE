@@ -20,6 +20,7 @@ export default Object.freeze({
   LoginNav: "LoginNavigator",
   LISTINGSHISTORY: "My Listings",
   EDITLISTING: "Edit Listing",
+  EDITMILESTONE: "Group Buy Milestone Settings",
   FORGETPASSWORD: "Forget Password",
   ACCOUNTMANAGEMENT: "Edit Account Details",
   PAYMENTDETAILS: "Payment Details",

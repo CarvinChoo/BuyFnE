@@ -220,7 +220,7 @@ function RegisterScreen({ navigation }) {
       });
   };
 
-  const emailVerification = (user, registrationDetails) => {
+  const emailVerification = (user) => {
     user
       .sendEmailVerification()
       .then(() => {

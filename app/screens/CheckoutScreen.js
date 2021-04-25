@@ -73,8 +73,17 @@ function CheckoutScreen({ navigation }) {
   const [addressModalVisible, setAddressModalVisible] = useState(false);
   const [addAddressModalVisible, setAddAddressModalVisible] = useState(false);
   const [voucherModalVisible, setVoucherModalVisible] = useState(false);
-  const [discountTotal, setDiscountTotal] = useState(0);
+  const [discountTotal, setDiscountTotal] = useState();
   const [error, setError] = useState(null);
+  const [countTotal, setCountTotal] = useState(() => {
+    var i = 0;
+    var len = cart.length;
+    var total = 0;
+    for (; i < len; i++) {
+      total = total + cart[i].count;
+    }
+    return total;
+  });
   const mounted = useRef(true);
 
   useFocusEffect(
@@ -456,7 +465,7 @@ function CheckoutScreen({ navigation }) {
       url:
         "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
       data: {
-        amount: (Math.round(payableTotal * 100) / 100) * 100, // amount = 1000 = SG$10
+        amount: Math.round(((payableTotal * 100) / 100) * 100), // amount = 1000 = SG$10
         currency: "sgd",
         // token: "tok_bypassPending",
         customer: customer.id,
@@ -486,12 +495,56 @@ function CheckoutScreen({ navigation }) {
       if (quantity < 0) {
         quantity = 0;
       }
+      var payout = listing.price * listing.count;
+      if (voucher) {
+        if (voucher.seller_id == listing.seller) {
+          // same seller
+          if (voucher.percent) {
+            payout = payout - (payout * voucher.percentage_discount) / 100;
+            payout = Math.round(payout * 100) / 100;
+          } else {
+            let count = 0;
+            cart.forEach((item) => {
+              if (item.seller == voucher.seller_id) {
+                count = count + item.count;
+              }
+            });
+            payout = payout - (voucher.amount_discount / count) * listing.count;
+            payout = Math.round(payout * 100) / 100;
+          }
+        } else if (
+          voucher.category == listing.category ||
+          voucher.category == 0
+        ) {
+          if (voucher.percent) {
+            payout = payout - (payout * voucher.percentage_discount) / 100;
+            payout = Math.round(payout * 100) / 100;
+          } else {
+            let count = 0;
+            if (voucher.category == 0) {
+              count = countTotal;
+            } else {
+              cart.forEach((item) => {
+                if (item.category == voucher.category) {
+                  count = count + item.count;
+                }
+              });
+            }
+
+            payout = payout - (voucher.amount_discount / count) * listing.count;
+            payout = Math.round(payout * 100) / 100;
+          }
+        }
+      }
+
       promises.push(
         db
           .collection("all_listings")
           .doc(listing.listingId)
           .update({
+            soldCount: listing.soldCount + 1,
             quantity: quantity,
+            salesTotal: listing.salesTotal + payout,
           })
           .then(() => {
             console.log("listing quantity updated");
@@ -533,7 +586,13 @@ function CheckoutScreen({ navigation }) {
             var thisdiscount =
               (item.price * item.count * voucher.percentage_discount) / 100;
           } else {
-            var thisdiscount = voucher.amount_discount;
+            let count = 0;
+            cart.forEach((item) => {
+              if (item.seller == voucher.seller_id) {
+                count = count + item.count;
+              }
+            });
+            var thisdiscount = (voucher.amount_discount / count) * item.count;
           }
           console.log(thisdiscount);
           promises.push(
@@ -579,7 +638,18 @@ function CheckoutScreen({ navigation }) {
               var thisdiscount =
                 (item.price * item.count * voucher.percentage_discount) / 100;
             } else {
-              var thisdiscount = voucher.amount_discount;
+              let count = 0;
+              if (voucher.category == 0) {
+                count = countTotal;
+              } else {
+                cart.forEach((item) => {
+                  if (item.category == voucher.category) {
+                    count = count + item.count;
+                  }
+                });
+              }
+
+              var thisdiscount = (voucher.amount_discount / count) * item.count;
             }
 
             promises.push(

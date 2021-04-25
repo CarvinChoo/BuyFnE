@@ -12,6 +12,7 @@ import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
 import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import EditListingParameterScreen from "../screens/EditListingParameterScreen";
+import EditMilestoneParameterScreen from "../screens/EditMilestoneParameterScreen";
 import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
 import CardDetailsScreen from "../screens/CardDetailsScreen";
 import ShippingAddressesScreen from "../screens/ShippingAddressesScreen";
@@ -67,6 +68,10 @@ const AccountNavigator = () => (
     <Stack.Screen
       name={routes.EDITLISTING}
       component={EditListingParameterScreen}
+    />
+    <Stack.Screen
+      name={routes.EDITMILESTONE}
+      component={EditMilestoneParameterScreen}
     />
     <Stack.Screen name={routes.MESSAGES} component={MessagesScreen} />
     {/* Account Management Section */}

@@ -63,22 +63,35 @@ function LoginScreen({ navigation }) {
   };
   const authVerification = (user) => {
     if (user.emailVerified == false) {
-      app
-        .auth()
-        .signOut()
+      user
+        .sendEmailVerification()
         .then(() => {
-          Alert.alert(
-            "Unverified Account",
-            "Please verify your account via email first."
-          );
-          setLoading(false);
+          app
+            .auth()
+            .signOut()
+            .then(() => {
+              Alert.alert(
+                "Unverified Account",
+                "Please verify your account via email first. A verification email has been resend."
+              );
+              setLoading(false);
+            })
+            .catch((error) => {
+              console.log("login signout error:", error.message);
+              setLoading(false);
+            });
         })
         .catch((error) => {
-          console.log("login signout error:", error.message);
+          console.log("emailVerification error", error.message);
+          Alert.alert(
+            "Unverified Account",
+            "Failed to resend verification email. Please try again in 5 mins"
+          );
           setLoading(false);
         });
+    } else {
+      console.log("Login Successful");
     }
-    console.log("Login Successful");
   };
   //////////////////////////////////////////////////////////////////////
   return (

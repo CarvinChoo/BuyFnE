@@ -1,18 +1,10 @@
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  Image,
-  Text,
-  TouchableOpacity,
-  TouchableHighlight,
-} from "react-native";
+import { View, StyleSheet, Image, TouchableHighlight } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 
 import colors from "../../config/colors";
 import AppText from "../AppText";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 
 function ListItem({
   title,
@@ -22,7 +14,6 @@ function ListItem({
   onPress,
   renderRightActions,
   border = false, // default turns off border if not stated
-  defaultimage = true,
   style,
 }) {
   return (
@@ -33,28 +24,17 @@ function ListItem({
       >
         <View style={[styles.container, style]}>
           {IconComponent}
-          {image &&
-            (defaultimage ? (
-              <Image // Default Image using assets folder set in parent component calling this component
-                style={[
-                  styles.image,
-                  border // boolean conditional styling
-                    ? { borderWidth: 2, borderColor: colors.black }
-                    : {},
-                ]}
-                source={image}
-              />
-            ) : (
-              <Image // Image retrieved from firebase storage
-                style={[
-                  styles.image,
-                  border // boolean conditional styling
-                    ? { borderWidth: 2, borderColor: colors.black }
-                    : {},
-                ]}
-                source={{ uri: image }}
-              />
-            ))}
+          {image && (
+            <Image // Image retrieved from firebase storage
+              style={[
+                styles.image,
+                border // boolean conditional styling
+                  ? { borderWidth: 2, borderColor: colors.black }
+                  : {},
+              ]}
+              source={{ uri: image }}
+            />
+          )}
           <View style={styles.detailsContainer}>
             <AppText style={styles.title} numberOfLines={1}>
               {title}

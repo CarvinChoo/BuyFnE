@@ -121,7 +121,7 @@ function ListingsCard({ item, onPress }) {
                 }}
               >
                 <MaterialCommunityIcons
-                  name='cart-outline'
+                  name='account-group'
                   size={20}
                   color={colors.chocolate}
                   style={{}}
@@ -134,6 +134,7 @@ function ListingsCard({ item, onPress }) {
                     fontFamily: "sans-serif-medium",
                   }}
                 >
+                  {" "}
                   {item.currentOrderCount +
                     (item.currentOrderCount < item.minimumOrderCount &&
                       "/" + item.minimumOrderCount)}

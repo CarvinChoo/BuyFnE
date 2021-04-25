@@ -350,9 +350,10 @@ function ListingsHistoryScreen({ navigation }) {
                         fontFamily: "sans-serif-condensed",
                         fontSize: 15,
                         color: colors.grey,
+                        marginLeft: 2,
                       }}
                     >
-                      {"  " + item.soldCount}
+                      {" " + "20"}
                     </AppText>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -376,7 +377,7 @@ function ListingsHistoryScreen({ navigation }) {
                         marginLeft: 2,
                       }}
                     >
-                      {"  $" + item.salesTotal.toFixed(2)}
+                      {" " + "$20000.00"}
                     </AppText>
                   </View>
                 </View>

@@ -19,13 +19,20 @@ import AuthApi from "../api/auth";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import * as firebase from "firebase";
 import db from "../api/db";
+import VoucherListItem from "../components/VoucherListItem";
 
 function ListingDetailsScreen({ route, navigation }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
   const all_listingId = route.params;
   const scrollView = useRef();
   const isMounted = useRef(true);
-  const [progress, setProgress] = useState(0);
+  const [progress1, setProgress1] = useState(0);
+  const [progress2, setProgress2] = useState(0);
+  const [progress3, setProgress3] = useState(0);
+  const [currentMilestone, setCurrentMilestone] = useState(null);
+  const [complete1, setComplete1] = useState("");
+  const [complete2, setComplete2] = useState("");
+  const [complete3, setComplete3] = useState("");
   const [imageOnFocus, setImageOnFocus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [listing, setListing] = useState(null);
@@ -85,12 +92,118 @@ function ListingDetailsScreen({ route, navigation }) {
                   firebase.firestore.Timestamp.now().toDate();
                 // removes trailing milliseconds
                 timeleft = Math.round(timeleft / 1000) * 1000; // in milliseconds
-                const timelimit =
-                  doc.data().timelimitDays * 86400 +
-                  doc.data().timelimitHours * 3600 +
-                  doc.data().timelimitMinutes * 60; // in seconds
+
+                if (doc.data().milestone1) {
+                  //if milestone is activated
+                  if (
+                    doc.data().currentOrderCount <
+                    doc.data().milestone1_settings.orders_quota
+                  ) {
+                    // if milestone 1 quota not met
+                    setCurrentMilestone({
+                      ...doc.data().milestone1_settings,
+                      milestone: 1,
+                    });
+                    setProgress1(
+                      doc.data().currentOrderCount /
+                        doc.data().milestone1_settings.orders_quota
+                    );
+                    if (doc.data().milestone2) {
+                      setProgress2(
+                        doc.data().currentOrderCount /
+                          doc.data().milestone2_settings.orders_quota
+                      );
+                      if (doc.data().milestone3) {
+                        setProgress3(
+                          doc.data().currentOrderCount /
+                            doc.data().milestone2_settings.orders_quota
+                        );
+                      }
+                    }
+                  } else {
+                    //if milestone 1 quota is met
+                    if (doc.data().milestone2) {
+                      // if there is milestone 2
+                      if (
+                        doc.data().currentOrderCount <
+                        doc.data().milestone2_settings.orders_quota
+                      ) {
+                        // if milestone 2 quota is not met
+                        setCurrentMilestone({
+                          ...doc.data().milestone2_settings,
+                          milestone: 2,
+                        });
+                        setProgress1(1);
+                        setProgress2(
+                          doc.data().currentOrderCount /
+                            doc.data().milestone2_settings.orders_quota
+                        );
+                        if (doc.data().milestone3) {
+                          setProgress3(
+                            doc.data().currentOrderCount /
+                              doc.data().milestone3_settings.orders_quota
+                          );
+                        }
+                        setComplete1("Milestone reached");
+                      } else {
+                        //if milestone 2 quota is met
+                        if (doc.data().milestone3) {
+                          // if there is milestone 3
+                          if (
+                            doc.data().currentOrderCount <
+                            doc.data().milestone3_settings.orders_quota
+                          ) {
+                            // if milestone 3 quota is not met
+                            setCurrentMilestone({
+                              ...doc.data().milestone3_settings,
+                              milestone: 3,
+                            });
+                            setProgress1(1);
+                            setProgress2(1);
+                            setProgress3(
+                              doc.data().currentOrderCount /
+                                doc.data().milestone3_settings.orders_quota
+                            );
+                            setComplete1("Milestone reached");
+                            setComplete2("Milestone reached");
+                          } else {
+                            // if milestone 3 quota is met
+                            setCurrentMilestone({
+                              ...doc.data().milestone3_settings,
+                              milestone: 3,
+                            });
+                            setProgress1(1);
+                            setProgress2(1);
+                            setProgress3(1);
+                            setComplete1("Milestone reached");
+                            setComplete2("Milestone reached");
+                            setComplete3("Milestone reached");
+                          }
+                        } else {
+                          //if there is no milestone 3 and milestone 2 quota is met
+                          setCurrentMilestone({
+                            ...doc.data().milestone2_settings,
+                            milestone: 2,
+                          });
+                          setProgress1(1);
+                          setProgress2(1);
+                          setComplete1("Milestone reached");
+                          setComplete2("Milestone reached");
+                        }
+                      }
+                    } else {
+                      setCurrentMilestone({
+                        ...doc.data().milestone1_settings,
+                        milestone: 1,
+                      });
+                      setProgress(1);
+                      setComplete1("Milestone reached");
+                    }
+                  }
+                }
+
                 // Calls interval that subtract 1 sec to the remaining time
-                myIntervalRef = setMyInterval(timeleft, doc.data(), timelimit);
+                myIntervalRef = setMyInterval(timeleft, doc.data());
               } else {
                 console.log("No ongoing groupbuy");
                 setLoading(false);
@@ -119,12 +232,9 @@ function ListingDetailsScreen({ route, navigation }) {
   }, []);
 
   // Group buy Countdown Timer
-  const setMyInterval = (timeleft, groupbuydata, timelimit) => {
+  const setMyInterval = (timeleft, groupbuydata) => {
     var timer = setInterval(function () {
       timeleft = timeleft - 1000;
-      let ratio = (timelimit - timeleft / 1000) / timelimit;
-
-      setProgress(ratio);
       var date = new Date(timeleft);
       if (isMounted.current) {
         if (timeleft < 0) {
@@ -337,16 +447,16 @@ function ListingDetailsScreen({ route, navigation }) {
                     fontWeight: "bold",
                   }}
                 >
-                  10 Reviews | 20 Sold
+                  {"10 Reviews | " + listing.soldCount + " Sold"}
                 </AppText>
               </View>
               <ListItemSeperator />
               {/*!!!!!!!!!!!!!!!!!! Hard coded Seller Info */}
               <ListItem
                 style={{ paddingHorizontal: 10, paddingVertical: 5 }}
-                image={require("../assets/HermenLogo.png")}
-                title='Hermen Miller Inc.'
-                subTitle='Products: 15'
+                image={listing.seller_logo}
+                title='Sold by:'
+                subTitle={listing.store_name}
                 border={true}
               />
               <ListItemSeperator />
@@ -570,18 +680,38 @@ function ListingDetailsScreen({ route, navigation }) {
                     </AppText>
                   </View>
                   {listing.groupbuyId ? (
-                    <AppText
-                      style={{
-                        fontSize: 18,
-                        fontFamily: "sans-serif-condensed",
-                        marginLeft: 10,
-                      }}
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
                     >
-                      {listing.currentOrderCount}/{listing.minimumOrderCount}{" "}
-                      purchased
-                    </AppText>
+                      <AppText
+                        style={{
+                          fontSize: 18,
+                          fontFamily: "sans-serif-condensed",
+                          marginLeft: 10,
+                        }}
+                      >
+                        {listing.currentOrderCount}/{listing.minimumOrderCount}
+                        {"  "}
+                      </AppText>
+                      <MaterialCommunityIcons
+                        name='account-group'
+                        size={18}
+                        color={colors.black}
+                        style={{ marginRight: 5 }}
+                      />
+                    </View>
                   ) : (
-                    <AppText a>0/{listing.minimumOrderCount} purchased</AppText>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <AppText a>0/{listing.minimumOrderCount} </AppText>
+                      <MaterialCommunityIcons
+                        name='account-group'
+                        size={18}
+                        color={colors.black}
+                        style={{ marginRight: 5 }}
+                      />
+                    </View>
                   )}
                 </View>
                 {
@@ -627,46 +757,226 @@ function ListingDetailsScreen({ route, navigation }) {
                     ))
                 }
               </View>
-              <ListItemSeperator />
-              {/* Timed Based Milestones for Group Buy */}
-              <View
-                style={{
-                  backgroundColor: "white",
-                  marginBottom: 20,
-                  paddingVertical: 50,
-                  paddingHorizontal: 20,
-                  justifyContent: "center",
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    flex: 1,
-                  }}
-                >
-                  <View>
-                    <AppText>Milestone 1</AppText>
-                  </View>
-                  {/* <View>
-                    <AppText>
-                      Ends:{" "}
-                      {listing.timeEnd.toDate().getDate() +
-                        " " +
-                        month[listing.timeEnd.toDate().getMonth()] +
-                        " " +
-                        listing.timeEnd.toDate().getFullYear()}
+
+              {/* Order Milestones for Group Buy */}
+              {listing.milestone1 && (
+                <>
+                  <ListItemSeperator style={{ backgroundColor: colors.gray }} />
+                  <View style={{ paddingHorizontal: 20, marginVertical: 10 }}>
+                    <AppText style={{ fontWeight: "bold" }}>
+                      Group Buy Rewards
                     </AppText>
-                  </View> */}
-                </View>
-                <Progress.Bar
-                  progress={progress}
-                  height={20}
-                  color={colors.brightred}
-                  trackColor={colors.muted}
-                  isAnimated={true}
-                />
-              </View>
+                  </View>
+                  <View
+                    style={{
+                      backgroundColor: "white",
+                      marginBottom: listing.milestone2 ? 0 : 20,
+                      paddingVertical: 20,
+
+                      justifyContent: "center",
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        flex: 1,
+                      }}
+                    >
+                      <View>
+                        <View style={{ paddingHorizontal: 20 }}>
+                          <AppText style={{ color: colors.muted }}>
+                            Milestone Reward 1 :
+                          </AppText>
+                        </View>
+                        <ListItemSeperator />
+                        <VoucherListItem
+                          item={listing.milestone1_settings.reward}
+                        />
+                      </View>
+                    </View>
+                    <View style={{ paddingHorizontal: 20 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginBottom: 10,
+                          marginTop: 5,
+                        }}
+                      >
+                        <AppText style={{ color: colors.muted }}>
+                          {"Target: " + listing.groupbuyId
+                            ? listing.currentOrderCount +
+                              "/" +
+                              listing.milestone1_settings.orders_quota +
+                              " "
+                            : listing.currentOrderCount +
+                              "/" +
+                              listing.milestone1_settings.orders_quota +
+                              " "}
+                        </AppText>
+
+                        <MaterialCommunityIcons
+                          name='account-group'
+                          size={18}
+                          color={colors.black}
+                          style={{ marginRight: 5 }}
+                        />
+                      </View>
+
+                      <Progress.Bar
+                        progress={progress1}
+                        height={20}
+                        color={colors.brightred}
+                        trackColor={colors.muted}
+                        isAnimated={true}
+                      />
+                    </View>
+                  </View>
+                </>
+              )}
+              {listing.milestone2 && (
+                <>
+                  <ListItemSeperator style={{ backgroundColor: colors.gray }} />
+                  <View
+                    style={{
+                      backgroundColor: "white",
+                      marginBottom: listing.milestone2 ? 0 : 20,
+                      paddingVertical: 20,
+
+                      justifyContent: "center",
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        flex: 1,
+                      }}
+                    >
+                      <View>
+                        <View style={{ paddingHorizontal: 20 }}>
+                          <AppText style={{ color: colors.muted }}>
+                            Milestone Reward 2 :
+                          </AppText>
+                        </View>
+                        <ListItemSeperator />
+                        <VoucherListItem
+                          item={listing.milestone2_settings.reward}
+                        />
+                      </View>
+                    </View>
+                    <View style={{ paddingHorizontal: 20 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginBottom: 10,
+                          marginTop: 5,
+                        }}
+                      >
+                        <AppText style={{ color: colors.muted }}>
+                          {"Target: " + listing.groupbuyId
+                            ? listing.currentOrderCount +
+                              "/" +
+                              listing.milestone2_settings.orders_quota +
+                              " "
+                            : listing.currentOrderCount +
+                              "/" +
+                              listing.milestone2_settings.orders_quota +
+                              " "}
+                        </AppText>
+
+                        <MaterialCommunityIcons
+                          name='account-group'
+                          size={18}
+                          color={colors.black}
+                          style={{ marginRight: 5 }}
+                        />
+                      </View>
+
+                      <Progress.Bar
+                        progress={progress2}
+                        height={20}
+                        color={colors.brightred}
+                        trackColor={colors.muted}
+                        isAnimated={true}
+                      />
+                    </View>
+                  </View>
+                </>
+              )}
+              {listing.milestone3 && (
+                <>
+                  <ListItemSeperator style={{ backgroundColor: colors.gray }} />
+                  <View
+                    style={{
+                      backgroundColor: "white",
+                      marginBottom: listing.milestone2 ? 0 : 20,
+                      paddingVertical: 20,
+
+                      justifyContent: "center",
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        flex: 1,
+                      }}
+                    >
+                      <View>
+                        <View style={{ paddingHorizontal: 20 }}>
+                          <AppText style={{ color: colors.muted }}>
+                            Milestone Reward 3 :
+                          </AppText>
+                        </View>
+                        <ListItemSeperator />
+                        <VoucherListItem
+                          item={listing.milestone3_settings.reward}
+                        />
+                      </View>
+                    </View>
+                    <View style={{ paddingHorizontal: 20 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginBottom: 10,
+                          marginTop: 5,
+                        }}
+                      >
+                        <AppText style={{ color: colors.muted }}>
+                          {"Target: " + listing.groupbuyId
+                            ? listing.currentOrderCount +
+                              "/" +
+                              listing.milestone3_settings.orders_quota +
+                              " "
+                            : listing.currentOrderCount +
+                              "/" +
+                              listing.milestone3_settings.orders_quota +
+                              " "}
+                        </AppText>
+
+                        <MaterialCommunityIcons
+                          name='account-group'
+                          size={18}
+                          color={colors.black}
+                          style={{ marginRight: 5 }}
+                        />
+                      </View>
+
+                      <Progress.Bar
+                        progress={progress3}
+                        height={20}
+                        color={colors.brightred}
+                        trackColor={colors.muted}
+                        isAnimated={true}
+                      />
+                    </View>
+                  </View>
+                </>
+              )}
             </View>
           ) : (
             <AppText>Listing has been deleted.</AppText>

@@ -163,7 +163,8 @@ const menuItemsAdmin = [
     targetScreen: routes.MESSAGES,
   },
 ];
-
+const defaultImage =
+  "https://firebasestorage.googleapis.com/v0/b/buyfne-63905.appspot.com/o/D9cp9EwNrmT4A0GcOATzQnWPZ9p2%2FprofilePicture.jpeg?alt=media&token=938d2095-5ac2-4836-8421-092a1b3e8545";
 function AccountScreen({ navigation }) {
   // since this is a Stack.Screen, it has access to {navigation} prop
 
@@ -246,21 +247,19 @@ function AccountScreen({ navigation }) {
                 : "Login to access full BuyFnE Features"
             }
             image={
-              currentUser
-                ? userType == 2 && currentUser.store_logo
+              currentUser == null
+                ? defaultImage
+                : currentUser.type == 1 || currentUser.type == 3
+                ? currentUser.profilePic
+                  ? currentUser.profilePic
+                  : defaultImage
+                : currentUser.type == 2
+                ? currentUser.store_logo
                   ? currentUser.store_logo
-                  : currentUser.profilePic
-                  ? currentUser.profilePic // user's profile picture
-                  : require("../assets/default-profile-pic.jpg") // default profile picture
-                : require("../assets/default-profile-pic.jpg") // default profile picture
+                  : defaultImage
+                : defaultImage
             }
             border={true}
-            defaultimage={
-              (currentUser && userType == 1 && currentUser.profilePic) ||
-              (userType == 2 && currentUser.store_logo)
-                ? false
-                : true
-            }
             onPress={() =>
               userType != 0 && navigation.navigate(routes.ACCOUNTMANAGEMENT)
             }

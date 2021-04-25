@@ -21,7 +21,8 @@ import ListItemSeperator from "../components/lists/ListItemSeperator";
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import AppActivityIndicator from "../components/AppActivityIndicator";
-
+//Navigation
+import routes from "../navigation/routes";
 const validationSchema = Yup.object().shape(
   {
     title: Yup.string().required().min(1).label("Title"), //label is just to set the name for the field when displaying generic error message
@@ -153,7 +154,7 @@ const categories = [
   },
 ];
 
-function EditListingParameterScreen({ route }) {
+function EditListingParameterScreen({ route, navigation }) {
   // const [uploadVisible, setUploadVisible] = useState(false);
   // const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
@@ -441,6 +442,7 @@ function EditListingParameterScreen({ route }) {
             <AppButton
               color='darkslateblue'
               title='Group Buy Milestone Settings'
+              onPress={() => navigation.navigate(routes.EDITMILESTONE, product)}
             />
           </View>
         </Screen>
