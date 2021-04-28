@@ -19,14 +19,14 @@ function OrderHistoryNavigator() {
       }}
     >
       <Tab.Screen
-        name={routes.COMPLETE}
-        component={CompleteScreen}
-        options={{ tabBarLabel: "Completed" }}
-      />
-      <Tab.Screen
         name={routes.TOSHIP}
         component={ToShipScreen}
         options={{ tabBarLabel: "To Ship" }}
+      />
+      <Tab.Screen
+        name={routes.COMPLETE}
+        component={CompleteScreen}
+        options={{ tabBarLabel: "Completed" }}
       />
       <Tab.Screen
         name={routes.REFUND}

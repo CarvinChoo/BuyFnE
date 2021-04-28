@@ -5,6 +5,8 @@ import {
   StyleSheet,
   TouchableHighlight,
   View,
+  Modal,
+  Alert,
 } from "react-native";
 import AppText from "../components/AppText";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
@@ -18,11 +20,9 @@ import db from "../api/db";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import PromptModal from "../components/PromptModal";
 import routes from "../navigation/routes";
-import { Alert } from "react-native";
-import { Modal } from "react-native";
 
 function ListingsHistoryScreen({ navigation }) {
-  const { currentUser } = useContext(AuthApi.AuthContext);
+  const { currentUser, setListingId } = useContext(AuthApi.AuthContext);
 
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -466,7 +466,12 @@ function ListingsHistoryScreen({ navigation }) {
                         borderRadius: 10,
                       }}
                       onPress={() => {
-                        item.listingStatus == "Active"
+                        item.groupbuyId
+                          ? Alert.alert(
+                              "Ongoing Group Buy is active",
+                              "Please wait for active group buy to be over before pausing"
+                            )
+                          : item.listingStatus == "Active"
                           ? onPause(item)
                           : onResume(item);
                       }}
@@ -563,7 +568,10 @@ function ListingsHistoryScreen({ navigation }) {
                         backgroundColor: colors.teal,
                         borderRadius: 10,
                       }}
-                      //onPress={() => onDelete(item)}
+                      onPress={() => {
+                        setListingId(item.listingId);
+                        navigation.navigate(routes.MerchantOrdersNav);
+                      }}
                     >
                       <View
                         style={{

@@ -7,16 +7,20 @@ import ViewVouchersScreen from "../screens/ViewVouchersScreen";
 import ViewMerchantVouchersScreen from "../screens/ViewMerchantVouchersScreen";
 import CreateMerchantVoucherScreen from "../screens/CreateMerchantVoucherScreen";
 import ListingsHistoryScreen from "../screens/ListingsHistoryScreen";
-import AccountManagementScreen from "../screens/AccountManagementScreen";
-import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
-import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
-import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import EditListingParameterScreen from "../screens/EditListingParameterScreen";
 import EditMilestoneParameterScreen from "../screens/EditMilestoneParameterScreen";
+import AccountManagementScreen from "../screens/AccountManagementScreen";
+import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
+import MerchantOrdersNavigator from "../navigation/MerchantOrdersNavigator";
+import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
+import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
 import CardDetailsScreen from "../screens/CardDetailsScreen";
 import ShippingAddressesScreen from "../screens/ShippingAddressesScreen";
 import routes from "./routes";
+import ReceiptScreen from "../screens/ReceiptScreen";
+import GroupBuyCheckoutScreen from "../screens/GroupBuyCheckoutScreen";
+import GroupBuyOrderConfirmedScreen from "../screens/GroupBuyOrderConfirmedScreen";
 const Stack = createStackNavigator();
 
 // Stack navigator between AccountScreen and MessagesScreen
@@ -48,10 +52,23 @@ const AccountNavigator = () => (
       options={{ headerTitle: false }}
     />
     {/* GroupBuys Section End*/}
+    {/* Buyer Order section */}
     <Stack.Screen
       name={routes.ORDERHISTORY}
       component={OrderHistoryNavigator}
     />
+    <Stack.Screen name={routes.RECEIPT} component={ReceiptScreen} />
+    <Stack.Screen
+      name={routes.GBCHECKOUT}
+      component={GroupBuyCheckoutScreen}
+      options={{ headerBackTitleVisible: false }}
+    />
+    <Stack.Screen
+      name={routes.GBORDERCONFIRMED}
+      component={GroupBuyOrderConfirmedScreen}
+      options={{ headerShown: false }}
+    />
+    {/* Voucher Section */}
     <Stack.Screen
       name={routes.VIEWMERVOUCHER}
       component={ViewMerchantVouchersScreen}
@@ -61,9 +78,19 @@ const AccountNavigator = () => (
       name={routes.CREATEMERVOUCHER}
       component={CreateMerchantVoucherScreen}
     />
+    {/* Listing History and Merchant Orders section */}
     <Stack.Screen
       name={routes.LISTINGSHISTORY}
       component={ListingsHistoryScreen}
+    />
+    <Stack.Screen
+      name={routes.MerchantOrdersNav}
+      component={MerchantOrdersNavigator}
+      options={{
+        headerStyle: {
+          height: 50,
+        },
+      }}
     />
     <Stack.Screen
       name={routes.EDITLISTING}
@@ -73,7 +100,6 @@ const AccountNavigator = () => (
       name={routes.EDITMILESTONE}
       component={EditMilestoneParameterScreen}
     />
-    <Stack.Screen name={routes.MESSAGES} component={MessagesScreen} />
     {/* Account Management Section */}
     <Stack.Screen
       name={routes.ACCOUNTMANAGEMENT}
@@ -88,6 +114,7 @@ const AccountNavigator = () => (
     {/* Account Management Section End */}
 
     {/* Add Stack Screen for FAQ */}
+    <Stack.Screen name={routes.MESSAGES} component={MessagesScreen} />
   </Stack.Navigator>
 );
 

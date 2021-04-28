@@ -249,25 +249,13 @@ function ListingDetailsScreen({ route, navigation }) {
             if (
               groupbuydata.currentOrderCount < groupbuydata.minimumOrderCount
             ) {
-              db.collection("all_listings")
-                .doc(groupbuydata.groupbuyId)
-                .update({ groupbuyStatus: "Unsuccessful" })
-                .then(() => {
-                  console.log("Group buy failed");
-                })
-                .catch((error) => {
-                  console.log(error.message);
-                });
+              if (listing) {
+                listing.groupbuyStatus = "Unsuccessful";
+              }
             } else {
-              db.collection("all_listings")
-                .doc(groupbuydata.groupbuyId)
-                .update({ groupbuyStatus: "Awaiting seller confirmation" })
-                .then(() => {
-                  console.log("Awaiting seller confirmation");
-                })
-                .catch((error) => {
-                  console.log(error.message);
-                });
+              if (listing) {
+                listing.groupbuyStatus = "Awaiting seller confirmation";
+              }
             }
           }
           setLoading(false);
@@ -277,12 +265,11 @@ function ListingDetailsScreen({ route, navigation }) {
           if (isMounted.current) {
             var Difference_In_Days = Math.trunc(timeleft / (1000 * 3600 * 24));
             setDay(Difference_In_Days);
-            if (date.getSeconds() < 10) setSecond("0" + date.getSeconds());
+            if (date.getSeconds() < 10) setSecond("0" + date.getUTCSeconds());
             else setSecond(date.getSeconds());
-            if (date.getMinutes() < 10) setMinute("0" + date.getMinutes());
+            if (date.getMinutes() < 10) setMinute("0" + date.getUTCMinutes());
             else setMinute(date.getMinutes());
-
-            if (date.getHours() < 10) setHour("0" + date.getHours());
+            if (date.getHours() < 10) setHour("0" + date.getUTCHours());
             else setHour(date.getHours());
             setLoading(false);
           }
@@ -798,30 +785,29 @@ function ListingDetailsScreen({ route, navigation }) {
                     <View style={{ paddingHorizontal: 20 }}>
                       <View
                         style={{
-                          flexDirection: "row",
+                          flexDirection: "row-reverse",
                           alignItems: "center",
                           marginBottom: 10,
                           marginTop: 5,
                         }}
                       >
-                        <AppText style={{ color: colors.muted }}>
-                          {"Target: " + listing.groupbuyId
-                            ? listing.currentOrderCount +
-                              "/" +
-                              listing.milestone1_settings.orders_quota +
-                              " "
-                            : listing.currentOrderCount +
-                              "/" +
-                              listing.milestone1_settings.orders_quota +
-                              " "}
-                        </AppText>
-
                         <MaterialCommunityIcons
                           name='account-group'
                           size={18}
                           color={colors.black}
                           style={{ marginRight: 5 }}
                         />
+                        <AppText style={{ color: colors.muted }}>
+                          {listing.groupbuyId
+                            ? "Target: " +
+                              listing.currentOrderCount +
+                              "/" +
+                              listing.milestone1_settings.orders_quota +
+                              " "
+                            : "Target:  0/" +
+                              listing.milestone1_settings.orders_quota +
+                              " "}
+                        </AppText>
                       </View>
 
                       <Progress.Bar
@@ -869,30 +855,29 @@ function ListingDetailsScreen({ route, navigation }) {
                     <View style={{ paddingHorizontal: 20 }}>
                       <View
                         style={{
-                          flexDirection: "row",
+                          flexDirection: "row-reverse",
                           alignItems: "center",
                           marginBottom: 10,
                           marginTop: 5,
                         }}
                       >
-                        <AppText style={{ color: colors.muted }}>
-                          {"Target: " + listing.groupbuyId
-                            ? listing.currentOrderCount +
-                              "/" +
-                              listing.milestone2_settings.orders_quota +
-                              " "
-                            : listing.currentOrderCount +
-                              "/" +
-                              listing.milestone2_settings.orders_quota +
-                              " "}
-                        </AppText>
-
                         <MaterialCommunityIcons
                           name='account-group'
                           size={18}
                           color={colors.black}
                           style={{ marginRight: 5 }}
                         />
+                        <AppText style={{ color: colors.muted }}>
+                          {listing.groupbuyId
+                            ? "Target: " +
+                              listing.currentOrderCount +
+                              "/" +
+                              listing.milestone2_settings.orders_quota +
+                              " "
+                            : "Target:  0/" +
+                              listing.milestone2_settings.orders_quota +
+                              " "}
+                        </AppText>
                       </View>
 
                       <Progress.Bar
@@ -940,30 +925,29 @@ function ListingDetailsScreen({ route, navigation }) {
                     <View style={{ paddingHorizontal: 20 }}>
                       <View
                         style={{
-                          flexDirection: "row",
+                          flexDirection: "row-reverse",
                           alignItems: "center",
                           marginBottom: 10,
                           marginTop: 5,
                         }}
                       >
-                        <AppText style={{ color: colors.muted }}>
-                          {"Target: " + listing.groupbuyId
-                            ? listing.currentOrderCount +
-                              "/" +
-                              listing.milestone3_settings.orders_quota +
-                              " "
-                            : listing.currentOrderCount +
-                              "/" +
-                              listing.milestone3_settings.orders_quota +
-                              " "}
-                        </AppText>
-
                         <MaterialCommunityIcons
                           name='account-group'
                           size={18}
                           color={colors.black}
                           style={{ marginRight: 5 }}
                         />
+                        <AppText style={{ color: colors.muted }}>
+                          {listing.groupbuyId
+                            ? "Target: " +
+                              listing.currentOrderCount +
+                              "/" +
+                              listing.milestone3_settings.orders_quota +
+                              " "
+                            : "Target:  0/" +
+                              listing.milestone3_settings.orders_quota +
+                              " "}
+                        </AppText>
                       </View>
 
                       <Progress.Bar

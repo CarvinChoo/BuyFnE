@@ -24,7 +24,7 @@ function ShoppingCartScreen({ navigation }) {
   //Change order1 to item.count property for each item
   const onChange = (number, item) => {
     item.count = number;
-    console.log(item);
+    console.log(cart);
     //item.count = number
   };
   const onDelete = (item) => {
@@ -89,22 +89,9 @@ function ShoppingCartScreen({ navigation }) {
                     color: "#ff3300",
                     fontFamily: "sans-serif-light",
                     fontWeight: "bold",
-                    textDecorationLine: "line-through",
-                    textDecorationStyle: "solid",
                   }}
                 >
-                  {"$" + item.price.toFixed(2)}
-                </AppText>
-                <AppText
-                  style={{
-                    marginLeft: 10,
-                    fontSize: 18,
-                    fontFamily: "sans-serif-light",
-                    fontWeight: "bold",
-                    color: "teal",
-                  }}
-                >
-                  {"$" + item.discountedPrice}
+                  {"$ " + item.price.toFixed(2)}
                 </AppText>
               </View>
 

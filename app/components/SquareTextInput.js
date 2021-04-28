@@ -37,7 +37,6 @@ function SquareTextInput({
             width: boxWidth,
             fontSize: 15,
           },
-          inputStyle,
         ]}
         {...otherProps} // spread all other properties given in argument into this component
       />

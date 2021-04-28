@@ -159,36 +159,122 @@ exports.scheduledGroupBuyCheck = functions
               if (
                 groupbuy.data().currentOrderCount <
                 groupbuy.data().minimumOrderCount
-              )
-                groupbuy.ref
-                  .update({
-                    groupbuyStatus: "Unsuccessful",
-                  })
-                  .then(() => {
-                    console.log("Successfully updated Unsuccessful status");
-                  })
-                  .catch((error) => {
-                    console.log(
-                      "Error when setting Unsuccessful status: ",
-                      error.message
-                    );
+              ) {
+                let promises1 = [];
+
+                promises1.push(
+                  db
+                    .collection("transactions")
+                    .where("product_id", "==", groupbuy.data().listingId)
+                    .where("status", "==", 1)
+                    .get()
+                    .then((transactions) => {
+                      transactions.forEach((transaction) => {
+                        transaction.ref
+                          .update({
+                            status: 6, //refunded
+                          })
+                          .then(() => {
+                            stripe.refunds //refund on failed group buy
+                              .create({
+                                charge: transaction.data().charge_id,
+                              })
+                              .then(() => {
+                                console.log("Successfully refunded customer");
+                              })
+                              .catch((error) => {
+                                console.log(
+                                  "Error when refunding customer: ",
+                                  error
+                                );
+                              });
+                          })
+                          .catch((error) => {
+                            console.log(
+                              "Error when setting refunded status: ",
+                              error.message
+                            );
+                          });
+                      });
+                    })
+                    .catch((error) => {
+                      console.log(
+                        "Error when setting Unsuccessful status: ",
+                        error.message
+                      );
+                    })
+                );
+
+                Promise.all(promises1)
+                  .then(() => [
+                    groupbuy.ref
+                      .update({
+                        groupbuyStatus: "Unsuccessful",
+                      })
+                      .then(() => {
+                        console.log("Succesfully updated Unsuccessful status");
+                      })
+                      .catch((error) => {
+                        console.log(
+                          "Error when setting Unsuccessful status: ",
+                          error.message
+                        );
+                      }),
+                  ])
+                  .catch((err) => {
+                    console.log("Error: some transaction failed to process");
                   });
-              else {
-                groupbuy.ref
-                  .update({
-                    groupbuyStatus: "Awaiting seller confirmation",
-                  })
-                  .then(() => {
-                    console.log(
-                      "Successfully updated Awaiting seller confirmation status"
-                    );
-                  })
-                  .catch((error) => {
-                    console.log(
-                      "Error when setting Awaiting seller confirmation status: ",
-                      error.message
-                    );
-                  });
+              } else {
+                let promises2 = [];
+                promises2.push(
+                  db
+                    .collection("transactions")
+                    .where("product_id", "==", groupbuy.data().listingId)
+                    .where("status", "==", 1)
+                    .get()
+                    .then((transactions) => {
+                      transactions.forEach((transaction) => {
+                        transaction.ref
+                          .update({
+                            status: 2, //Awaiting seller confirmation
+                          })
+                          .then(() => {
+                            console.log(
+                              "Updated Awaiting seller confirmation status"
+                            );
+                          })
+                          .catch((error) => {
+                            console.log(
+                              "Error when setting Awaiting seller confirmation status: ",
+                              error.message
+                            );
+                          });
+                      });
+                    })
+                    .catch((error) => {
+                      console.log(
+                        "Error when setting Awaiting seller confirmation status: ",
+                        error.message
+                      );
+                    })
+                );
+                Promise.all(promises2).then(() => {
+                  groupbuy.ref
+                    .update({
+                      groupbuyStatus: "Awaiting seller confirmation",
+                    })
+                    .then(() => {
+                      console.log(
+                        "Succesfully updated Awaiting seller confirmation status"
+                      );
+                    })
+                    .catch((error) => {
+                      console.log(
+                        "Error when setting Awaiting seller confirmation status: ",
+                        error.message
+                      );
+                    });
+                });
               }
             } else {
               console.log("Not updating groupbuy");
@@ -448,22 +534,95 @@ exports.completePaymentWithStripe = functions.https.onRequest(
   }
 );
 
-// exports.releasePaymentToSeller = functions.https.onRequest(
-//   (request, response) => {
-//     stripe.transfers
-//       .create({
-//         amount: 1000,
-//         currency: "sgd",
-//         destination: request.body.sellerAccountId,
-//       })
-//       .then((account) => {
-//         response.send(account);
-//       })
-//       .catch((error) => {
-//         console.log(error);
-//       });
-//   }
-// );
+exports.createRefund = functions.https.onRequest((request, response) => {
+  return stripe.refunds
+    .create({
+      charge: request.body.charge_id,
+    })
+    .then((refund) => {
+      console.log("Successfully refunded customer");
+      response.send(refund);
+    })
+    .catch((error) => {
+      console.log("Error when refunding customer: ", error);
+      response.send(error);
+    });
+});
+
+exports.releasePaymentToSeller = functions.https.onRequest(
+  (request, response) => {
+    stripe.transfers
+      .create({
+        amount: request.body.paid,
+        currency: "sgd",
+        destination: request.body.stripe_id,
+      })
+      .then((transfer) => {
+        console.log("Succesfully released payment to seller");
+        response.send(transfer);
+      })
+      .catch((error) => {
+        console.log("Error releasing payment to seller: ", error);
+        response.send(error);
+      });
+  }
+);
+
+exports.releaseOnScheduleToSeller = functions
+  .region("asia-southeast2")
+  .pubsub.schedule("0 0 * * *")
+  .timeZone("Asia/Singapore")
+  .onRun(async (context) => {
+    return db
+      .collection("transactions")
+      .where("status", "==", 4)
+      .get()
+      .then((transactions) => {
+        var days = 1; // change to 14
+        var timeNow = new Date();
+        if (!transactions.empty) {
+          transactions.forEach((transaction) => {
+            var shippedDate = transaction.data().shippedDate.toDate();
+            shippedDate.setDate(shippedDate.getDate() + days);
+
+            if (timeNow > shippedDate) {
+              //if 2 weeks after shipped date
+              db.collection("users")
+                .doc(transaction.data().seller_id)
+                .get()
+                .then((seller) => {
+                  if (seller.exists) {
+                    stripe.transfers
+                      .create({
+                        amount: Math.round(
+                          ((transaction.data().paid * 100) / 100) * 100
+                        ),
+                        currency: "sgd",
+                        destination: seller.data().stripe_id,
+                      })
+                      .then(() => {
+                        console.log("Succesfully released payment to seller");
+                      })
+                      .catch((error) => {
+                        console.log(
+                          "Error releasing payment to seller: ",
+                          error
+                        );
+                      });
+                  } else {
+                    console.log("Error: No such seller");
+                  }
+                })
+                .catch((err) => {
+                  console.log("Fail to retrieve seller: ", err.message);
+                });
+            }
+          });
+        } else {
+          console.log("No payment to be released to sellers");
+        }
+      });
+  });
 
 // exports.addMessage = functions.https.onCall((data, context) => {
 // const ref = db.collection(sellerTransaction).doc()

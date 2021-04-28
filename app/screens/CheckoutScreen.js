@@ -216,7 +216,7 @@ function CheckoutScreen({ navigation }) {
         });
     } else {
       setVouchers([]);
-      setLoading(false);
+      getShippingAddress();
     }
   };
   const getShippingAddress = () => {
@@ -257,6 +257,7 @@ function CheckoutScreen({ navigation }) {
       },
     })
       .then(({ _, data }) => {
+        console.log(data);
         if (mounted.current == true) {
           setCustomer(data);
           getCardSources(data);
@@ -569,8 +570,8 @@ function CheckoutScreen({ navigation }) {
   const createTransactionStatement = (charge_id) => {
     var currentTime = new Date();
     const timeNow = firebase.firestore.Timestamp.fromDate(currentTime);
-    const twoWeeks = 604800 * 2;
-    currentTime.setSeconds(currentTime.getSeconds() + twoWeeks);
+    const twoWeeks = 14;
+    currentTime.setDate(currentTime.getDate() + twoWeeks);
     const estimatedDeliveryTime = firebase.firestore.Timestamp.fromDate(
       currentTime
     );
@@ -601,7 +602,13 @@ function CheckoutScreen({ navigation }) {
                 product_title: item.title,
                 product_id: item.listingId,
                 transaction_id: ref.id,
+                shippedDate: null,
+                shipping: currentShipping,
+                buyer_name:
+                  currentUser.first_name + " " + currentUser.last_name,
                 seller_id: item.seller,
+                store_name: item.store_name,
+                store_logo: item.seller_logo,
                 charge_id: charge_id,
                 buyer_id: currentUser.uid,
                 image: item.images[0],
@@ -611,9 +618,8 @@ function CheckoutScreen({ navigation }) {
                 paid: Number(item.price * item.count - thisdiscount),
                 orderDate: timeNow,
                 estimatedDeliveryTime: estimatedDeliveryTime,
-                sellerConfirmedDeliveryTime: null,
-                status: "To be Delivered",
-                refunded: false,
+                confirmedDeliveryTime: null,
+                status: 3,
                 groupbuy: false,
                 voucher: voucher,
               })
@@ -658,7 +664,13 @@ function CheckoutScreen({ navigation }) {
                   product_title: item.title,
                   product_id: item.listingId,
                   transaction_id: ref.id,
+                  shippedDate: null,
+                  shipping: currentShipping,
+                  buyer_name:
+                    currentUser.first_name + " " + currentUser.last_name,
                   seller_id: item.seller,
+                  store_name: item.store_name,
+                  store_logo: item.seller_logo,
                   charge_id: charge_id,
                   buyer_id: currentUser.uid,
                   image: item.images[0],
@@ -668,9 +680,8 @@ function CheckoutScreen({ navigation }) {
                   paid: Number(item.price * item.count),
                   orderDate: timeNow,
                   estimatedDeliveryTime: estimatedDeliveryTime,
-                  sellerConfirmedDeliveryTime: null,
-                  status: "To be Delivered",
-                  refunded: false,
+                  confirmedDeliveryTime: null,
+                  status: 3,
                   groupbuy: false,
                   voucher: voucher,
                 })
@@ -695,7 +706,13 @@ function CheckoutScreen({ navigation }) {
                   product_title: item.title,
                   product_id: item.listingId,
                   transaction_id: ref.id,
+                  shippedDate: null,
+                  shipping: currentShipping,
+                  buyer_name:
+                    currentUser.first_name + " " + currentUser.last_name,
                   seller_id: item.seller,
+                  store_name: item.store_name,
+                  store_logo: item.seller_logo,
                   charge_id: charge_id,
                   buyer_id: currentUser.uid,
                   image: item.images[0],
@@ -705,9 +722,8 @@ function CheckoutScreen({ navigation }) {
                   paid: Number(item.price * item.count),
                   orderDate: timeNow,
                   estimatedDeliveryTime: estimatedDeliveryTime,
-                  sellerConfirmedDeliveryTime: null,
-                  status: "To be Delivered",
-                  refunded: false,
+                  confirmedDeliveryTime: null,
+                  status: 3,
                   groupbuy: false,
                   voucher: null,
                 })
@@ -734,7 +750,12 @@ function CheckoutScreen({ navigation }) {
               product_title: item.title,
               product_id: item.listingId,
               transaction_id: ref.id,
+              shippedDate: null,
+              shipping: currentShipping,
+              buyer_name: currentUser.first_name + " " + currentUser.last_name,
               seller_id: item.seller,
+              store_name: item.store_name,
+              store_logo: item.seller_logo,
               charge_id: charge_id,
               buyer_id: currentUser.uid,
               image: item.images[0],
@@ -744,9 +765,8 @@ function CheckoutScreen({ navigation }) {
               paid: Number(item.price * item.count),
               orderDate: timeNow,
               estimatedDeliveryTime: estimatedDeliveryTime,
-              sellerConfirmedDeliveryTime: null,
-              status: "To be Delivered",
-              refunded: false,
+              confirmedDeliveryTime: null,
+              status: 3,
               groupbuy: false,
               voucher: null,
             })

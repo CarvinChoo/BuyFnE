@@ -11,10 +11,8 @@ import {
 } from "react-native";
 import * as Yup from "yup";
 //BackEnd
-import app from "../auth/base.js";
 import db from "../api/db";
 import AuthApi from "../api/auth";
-import axios from "axios";
 import * as firebase from "firebase";
 //Front End
 import Screen from "../components/Screen";

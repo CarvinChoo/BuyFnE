@@ -13,6 +13,7 @@ const AuthProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [productMounted, setProductMounted] = useState(false);
   const stillListening = useRef(false);
+  const [listingId, setListingId] = useState(null);
   useEffect(() => {
     console.log("Auth Mounted");
     var userListener;
@@ -91,6 +92,8 @@ const AuthProvider = ({ children }) => {
         setProductMounted,
         loggedIn,
         setLoggedIn,
+        listingId,
+        setListingId,
       }}
     >
       {children}
