@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
+import colors from "../../config/colors";
 import AppText from "../AppText";
 
 //dynamic Error message component
@@ -10,7 +11,9 @@ function Error_Message({ error, visible }) {
 
 const styles = StyleSheet.create({
   error: {
-    color: "red",
+    color: colors.red,
+    paddingHorizontal: 10,
+    fontSize: 15,
   },
 });
 export default Error_Message;

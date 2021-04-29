@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     height: 80,
     marginHorizontal: 10,
     marginVertical: 5,
-    resizeMode: "center",
+    resizeMode: "contain",
   },
 
   background: {

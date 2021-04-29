@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     overflow: "hidden",
-    resizeMode: "center",
+    resizeMode: "contain",
   },
 });
 

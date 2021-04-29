@@ -325,7 +325,7 @@ exports.createStripeAccount = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       cconsole.log("Error when creating external account : ", error);
-      response.status(404).send(error.message);
+      throw new Error(error);
     });
 });
 
@@ -368,7 +368,7 @@ exports.createBankAccount = functions.https.onRequest((request, response) => {
         })
         .catch((error) => {
           console.log("Error when creating external account : ", error);
-          response.send(error);
+          throw new Error(error);
         });
     })
     .catch((error) => {
@@ -389,7 +389,7 @@ exports.retreiveBankAccount = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when retrieving bank account : ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -405,7 +405,7 @@ exports.createCustomer = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when creating customer : ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -418,7 +418,7 @@ exports.addCardToSource = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when creating source : ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -431,7 +431,7 @@ exports.listCardSources = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when retrieving sources : ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -444,7 +444,7 @@ exports.deleteCardSource = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when deleting sources : ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -457,7 +457,7 @@ exports.retrieveCustomer = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when retrieving customer : ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -470,7 +470,7 @@ exports.setDefaultSource = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when updating customer default source: ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -499,7 +499,7 @@ exports.completePaymentWithStripeUsingBypass = functions.https.onRequest(
       })
       .catch((error) => {
         console.log("Error when chargin customer using bypass: ", error);
-        response.send(error);
+        throw new Error(error);
       });
   }
 );
@@ -529,7 +529,7 @@ exports.completePaymentWithStripe = functions.https.onRequest(
       })
       .catch((error) => {
         console.log("Error charging customer: ", error);
-        response.send(error);
+        throw new Error(error);
       });
   }
 );
@@ -545,7 +545,7 @@ exports.createRefund = functions.https.onRequest((request, response) => {
     })
     .catch((error) => {
       console.log("Error when refunding customer: ", error);
-      response.send(error);
+      throw new Error(error);
     });
 });
 
@@ -563,7 +563,7 @@ exports.releasePaymentToSeller = functions.https.onRequest(
       })
       .catch((error) => {
         console.log("Error releasing payment to seller: ", error);
-        response.send(error);
+        throw new Error(error);
       });
   }
 );
@@ -624,6 +624,87 @@ exports.releaseOnScheduleToSeller = functions
       });
   });
 
+exports.retrieveStoreAddress = functions.https.onRequest(
+  (request, response) => {
+    return stripe.accounts
+      .retrieve(request.body.stripe_id)
+      .then((account) => {
+        console.log("Retreived Account");
+        response.send(account);
+      })
+      .catch((error) => {
+        console.log("Error retreiving account: ", error);
+        throw new Error(error);
+      });
+  }
+);
+
+exports.createNewExternal = functions.https.onRequest((request, response) => {
+  return stripe.accounts
+    .createExternalAccount(
+      request.body.stripe_id, //seller's stripe acct number
+      {
+        external_account: {
+          object: "bank_account",
+          country: "SG",
+          currency: "sgd",
+          account_holder_name: request.body.account_holder_name,
+          account_holder_type: "individual",
+          account_number: request.body.bank_account, //"000123456"
+          routing_number: "1100-000", // request.body.routing_number
+        },
+        default_for_currency: true,
+      }
+    )
+    .then((account) => {
+      console.log("Successfully created new external account");
+      response.send(account);
+    })
+    .catch((error) => {
+      console.log("Error when creating new external account : ", error);
+      throw new Error(error);
+    });
+});
+
+exports.deleteOldExternal = functions.https.onRequest((request, response) => {
+  return stripe.accounts
+    .deleteExternalAccount(
+      request.body.stripe_id, //seller's stripe acct number
+      request.body.old_bank_id
+    )
+    .then((event) => {
+      console.log("Successfully deleted old external account");
+      response.send(event);
+    })
+    .catch((error) => {
+      console.log("Error when deleting old external account : ", error);
+      throw new Error(error);
+    });
+});
+
+exports.updateStoreAddress = functions.https.onRequest((request, response) => {
+  return stripe.accounts
+    .update(
+      request.body.stripe_id, // seller's stripe acct number
+      {
+        individual: {
+          address: {
+            line1: request.body.store_address, // Address
+            line2: request.body.store_unitno, // Unit number
+            postal_code: request.body.postal_code, //Postal code
+          },
+        },
+      }
+    )
+    .then((account) => {
+      console.log("Successfully updated store address");
+      response.send(account);
+    })
+    .catch((error) => {
+      console.log("Error when updating store address : ", error);
+      throw new Error(error);
+    });
+});
 // exports.addMessage = functions.https.onCall((data, context) => {
 // const ref = db.collection(sellerTransaction).doc()
 //   return .set({

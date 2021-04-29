@@ -985,13 +985,13 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: 250,
-    resizeMode: "center",
+    resizeMode: "contain",
     backgroundColor: colors.white,
   },
   images: {
     width: 70,
     height: 70,
-    resizeMode: "center",
+    resizeMode: "contain",
     backgroundColor: colors.white,
   },
   title: {

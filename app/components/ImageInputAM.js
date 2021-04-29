@@ -16,6 +16,9 @@ function ImageInputAM({ imageUri, onChangeImage }) {
     requestPremission();
   }, []);
 
+  useEffect(() => {
+    requestPremission();
+  }, [imageUri]);
   //Request Premission to access Media Library///////////////////////////////////
   const requestPremission = async () => {
     const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -47,8 +50,11 @@ function ImageInputAM({ imageUri, onChangeImage }) {
       });
 
       //if user didnt cancel
-      if (!result.cancelled) onChangeImage(result.uri); //onChangeImage sends back the new state to parent component so their imageUri state can be changed
+      if (!result.cancelled) {
+        onChangeImage(result.uri);
+      } //onChangeImage sends back the new state to parent component so their imageUri state can be changed
     } catch (error) {
+      console.log(error);
       console.log("Error reading an image!");
     }
   };

@@ -83,7 +83,7 @@ function ReceiptScreen({ route, navigation }) {
           style={{
             width: 100,
             height: 100,
-            resizeMode: "center",
+            resizeMode: "contain",
             backgroundColor: colors.white,
             borderWidth: 1,
             borderColor: colors.black,

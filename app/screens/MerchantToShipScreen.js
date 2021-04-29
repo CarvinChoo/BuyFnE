@@ -708,7 +708,7 @@ function MerchantToShipScreen() {
             <View style={{ flexDirection: "row" }}>
               <View style={{ borderWidth: 1, marginRight: 20 }}>
                 <Image
-                  style={{ width: 100, height: 100, resizeMode: "center" }}
+                  style={{ width: 100, height: 100, resizeMode: "contain" }}
                   source={{ uri: groupbuy.images[0] }}
                 />
               </View>

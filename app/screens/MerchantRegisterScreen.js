@@ -71,12 +71,14 @@ function MerchantRegisterScreen({ navigation }) {
     })
       .then(({ _, data }) => {
         console.log("Succesfully created stripe external account");
+        console.log(data);
         uploadImage(data.id, merchantDetails);
       })
       .catch((error) => {
-        console.log("Error message: ", error.message);
+        console.log("Error message: ", error);
         setError(
-          "Failed to register as merchant using provided info. Please contact support."
+          "Failed to register as merchant using provided info.\n" +
+            error.message
         );
         setLoading(false);
       });
@@ -100,7 +102,6 @@ function MerchantRegisterScreen({ navigation }) {
         updateUser(stripe_bank_id, merchantDetails, url);
       })
       .catch((error) => {
-        updateUser(user, merchantDetails);
         console.log("uploadImage:", error.message);
         console.log("Failed to Uploaded Image.");
         setLoading(false);

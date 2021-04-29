@@ -67,7 +67,7 @@ function ToShipListItem({ item }) {
           style={{
             width: 60,
             height: 60,
-            resizeMode: "center",
+            resizeMode: "contain",
             backgroundColor: colors.white,
             borderWidth: 1,
             borderColor: colors.black,

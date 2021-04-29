@@ -17,7 +17,6 @@ import routes from "../navigation/routes";
 // Back end
 import app from "../auth/base.js";
 import AuthApi from "../api/auth";
-import db from "../api/db";
 
 const validationSchema = Yup.object().shape({
   // can use Yup.string() or Yup.number(),  used to define the rules to validate
@@ -43,7 +42,6 @@ function LoginScreen({ navigation }) {
 
   // function to handle submission
   const handSubmit = (loginDetails) => {
-    console.log(loggedIn);
     setLoading(true);
     app
       .auth()

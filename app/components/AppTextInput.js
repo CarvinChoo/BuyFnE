@@ -5,7 +5,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import colors from "../config/colors";
 import defaultStyles from "../config/styles";
 
-function AppTextInput({ icon, width = "100%", color, ...otherProps }) {
+function AppTextInput({
+  icon,
+  width = "100%",
+  color,
+  containerStyle,
+  ...otherProps
+}) {
   //"...otherProps" copies all other properties given in the argument that isn't specified before
   // Text box Bar with conditional icon and dynamic text rendering
   return (
@@ -13,6 +19,7 @@ function AppTextInput({ icon, width = "100%", color, ...otherProps }) {
       style={[
         styles.container,
         { width: width, backgroundColor: color ? color : colors.whitegrey },
+        containerStyle,
       ]}
     >
       {icon && (
