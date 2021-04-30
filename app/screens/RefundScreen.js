@@ -92,12 +92,8 @@ function RefundScreen({ navigation }) {
                     navigation.navigate(routes.RECEIPT, {
                       ...item,
                       orderDate: item.orderDate.toDate().toDateString(),
-                      estimatedDeliveryTime: item.estimatedDeliveryTime
-                        .toDate()
-                        .toDateString(),
-                      confirmedDeliveryTime: item.confirmedDeliveryTime
-                        ? item.confirmedDeliveryTime.toDate().toDateString()
-                        : item.confirmedDeliveryTime,
+                      estimatedDeliveryTime: null,
+                      confirmedDeliveryTime: null,
                     })
                   }
                 >

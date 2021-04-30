@@ -245,6 +245,38 @@ function ReceiptScreen({ route, navigation }) {
           </View>
         </>
       )}
+      {item.shippedDate && (
+        <>
+          <ListItemSeperator />
+          <View
+            style={{
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              backgroundColor: colors.white,
+              flexDirection: "row",
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+              }}
+            >
+              <AppText
+                style={{
+                  fontSize: 13,
+                  color: colors.muted,
+                  fontWeight: "bold",
+                }}
+              >
+                {"Shipped Time:"}
+              </AppText>
+              <AppText style={{ fontSize: 13, color: colors.muted }}>
+                {item.shippedDate}
+              </AppText>
+            </View>
+          </View>
+        </>
+      )}
       {item.confirmedDeliveryTime && (
         <>
           <ListItemSeperator />
@@ -271,7 +303,7 @@ function ReceiptScreen({ route, navigation }) {
                 {"Delivered Time:"}
               </AppText>
               <AppText style={{ fontSize: 13, color: colors.muted }}>
-                {item.confirmedDeliveryTime.toDate().toDateString()}
+                {item.confirmedDeliveryTime}
               </AppText>
             </View>
           </View>

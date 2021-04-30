@@ -1383,7 +1383,13 @@ function CheckoutScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { backgroundColor: colors.whitegrey, paddingTop: 0 },
-  image: { width: 80, height: 80, marginHorizontal: 10, marginVertical: 5 },
+  image: {
+    width: 80,
+    height: 80,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    resizeMode: "contain",
+  },
   modal: {
     backgroundColor: "#000000aa",
     flex: 1,

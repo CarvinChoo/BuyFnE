@@ -27,10 +27,12 @@ import AppActivityIndicator from "../components/AppActivityIndicator";
 //style properties of items on page
 function ToShipScreen({ navigation }) {
   const { currentUser } = useContext(AuthApi.AuthContext);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(false);
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
+    setLoading(true);
     const sub = db
       .collection("transactions")
       .where("buyer_id", "==", currentUser.uid)
@@ -55,6 +57,7 @@ function ToShipScreen({ navigation }) {
             });
           });
           setOrders(updatedOrders);
+          setLoading(false);
         },
         (error) => {
           console.log(error.message);
@@ -62,6 +65,7 @@ function ToShipScreen({ navigation }) {
             "Fail to communicate with database",
             "Please try again later"
           );
+          setLoading(false);
         }
       );
     return () => {
@@ -70,7 +74,7 @@ function ToShipScreen({ navigation }) {
   }, []);
 
   const handleRefund = (item) => {
-    setLoading(true);
+    setLoading2(true);
     var refundDeadline = item.orderDate.toDate();
     refundDeadline.setHours(refundDeadline.getHours() + 3);
     if (new Date() < refundDeadline) {
@@ -95,7 +99,7 @@ function ToShipScreen({ navigation }) {
                 "Refunded",
                 "Item has been refunded. It may take a few days to reflect on your statement."
               );
-              setLoading(false);
+              setLoading2(false);
             })
             .catch((error) => {
               console.log("Error : ", error.message);
@@ -103,7 +107,7 @@ function ToShipScreen({ navigation }) {
                 "Refund Failed",
                 "Please try again in a few minutes or contact the administrator."
               );
-              setLoading(false);
+              setLoading2(false);
             });
         })
         .catch((err) => {
@@ -112,19 +116,19 @@ function ToShipScreen({ navigation }) {
             "Error updating databse",
             "Please try again in a few minutes or contact the administrator"
           );
-          setLoading(false);
+          setLoading2(false);
         });
     } else {
       Alert.alert(
         "Refund Failed",
         " Your grace period (3 hours after ordering) has expired."
       );
-      setLoading(false);
+      setLoading2(false);
     }
   };
 
   const handleReleasePayment = (item) => {
-    setLoading(true);
+    setLoading2(true);
     db.collection("transactions")
       .doc(item.transaction_id)
       .update({
@@ -153,7 +157,7 @@ function ToShipScreen({ navigation }) {
                     "Delivery Confirmed",
                     "Payment has been released to seller."
                   );
-                  setLoading(false);
+                  setLoading2(false);
                 })
                 .catch((error) => {
                   console.log("Error : ", error.message);
@@ -161,14 +165,14 @@ function ToShipScreen({ navigation }) {
                     "Delivery Confirmed Error",
                     "Failed to release payment to seller. Please contact the administrator."
                   );
-                  setLoading(false);
+                  setLoading2(false);
                 });
             } else {
               Alert.alert(
                 "Fail to release payment to seller.",
                 "Seller does not exist "
               );
-              setLoading(false);
+              setLoading2(false);
             }
           })
           .catch((err) => {
@@ -177,7 +181,7 @@ function ToShipScreen({ navigation }) {
               "Delivery Confirmed Error.",
               "Failed to release payment to seller. Please contact the administrator "
             );
-            setLoading(false);
+            setLoading2(false);
           });
       })
       .catch((err) => {
@@ -186,11 +190,12 @@ function ToShipScreen({ navigation }) {
           "Failed",
           "Failed to confirm delivery. Please try again later"
         );
-        setLoading(false);
+        setLoading2(false);
       });
   };
   return (
     <>
+      <AppActivityIndicator visible={loading2} />
       <AppActivityIndicator visible={loading} />
       <Screen style={styles.container}>
         <FlatList
@@ -221,6 +226,9 @@ function ToShipScreen({ navigation }) {
                     navigation.navigate(routes.RECEIPT, {
                       ...item,
                       orderDate: item.orderDate.toDate().toDateString(),
+                      shippedDate: item.shippedDate
+                        ? item.shippedDate.toDate().toDateString()
+                        : null,
                       estimatedDeliveryTime: item.estimatedDeliveryTime
                         .toDate()
                         .toDateString(),
@@ -331,6 +339,35 @@ function ToShipScreen({ navigation }) {
           )}
         />
       </Screen>
+      {/* <Modal transparent={true} visible={modalVisible}>
+        <View style={styles.modal}>
+          <View style={styles.modalBoxContainer}>
+            <View style={styles.switchTextContainer}>
+              <AppText style={styles.switchText}>
+                Set this card as default?
+              </AppText>
+            </View>
+            <View style={styles.modalButtonContainer}>
+              <TouchableHighlight
+                underlayColor={colors.sienna}
+                activeOpacity={0.5}
+                style={styles.buttonYesContainer}
+                onPress={handleYes}
+              >
+                <AppText style={{ color: colors.darkorange }}>Yes</AppText>
+              </TouchableHighlight>
+              <TouchableHighlight
+                underlayColor={colors.brown}
+                activeOpacity={0.5}
+                style={styles.buttonNoContainer}
+                onPress={handleNo}
+              >
+                <AppText style={{ color: colors.brightred }}>No</AppText>
+              </TouchableHighlight>
+            </View>
+          </View>
+        </View>
+      </Modal> */}
     </>
   );
 }

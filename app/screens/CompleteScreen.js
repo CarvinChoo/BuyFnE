@@ -92,12 +92,13 @@ function CompleteScreen({ navigation }) {
                     navigation.navigate(routes.RECEIPT, {
                       ...item,
                       orderDate: item.orderDate.toDate().toDateString(),
-                      estimatedDeliveryTime: item.estimatedDeliveryTime
-                        .toDate()
-                        .toDateString(),
+                      shippedDate: item.shippedDate
+                        ? item.shippedDate.toDate().toDateString()
+                        : null,
+                      estimatedDeliveryTime: null,
                       confirmedDeliveryTime: item.confirmedDeliveryTime
                         ? item.confirmedDeliveryTime.toDate().toDateString()
-                        : item.confirmedDeliveryTime,
+                        : null,
                     })
                   }
                 >

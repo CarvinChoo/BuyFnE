@@ -204,7 +204,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
               (item) => item.id === customer.default_source
             );
             setPaymentOption(defaultpayment[0]);
-            console.log(defaultpayment);
+
             setSourceList(sourcelist);
             setLoading(false);
           }
