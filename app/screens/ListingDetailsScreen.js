@@ -20,6 +20,7 @@ import AppActivityIndicator from "../components/AppActivityIndicator";
 import * as firebase from "firebase";
 import db from "../api/db";
 import VoucherListItem from "../components/VoucherListItem";
+import color from "color";
 
 function ListingDetailsScreen({ route, navigation }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
@@ -332,6 +333,35 @@ function ListingDetailsScreen({ route, navigation }) {
     console.log(cart);
   };
 
+  const addToWatchlist = () => {
+    if (currentUser.watchlist) {
+      db.collection("users")
+        .doc(currentUser.uid)
+        .update({
+          watchlist: firebase.firestore.FieldValue.arrayUnion(all_listingId),
+        })
+        .then(() => {
+          Alert.alert("Watchlist updated", "Added to Watchlist");
+        })
+        .catch((err) => {
+          console.log(err.message);
+          Alert.alert("Error", "Failed to save to watchlist");
+        });
+    } else {
+      db.collection("users")
+        .doc(currentUser.uid)
+        .update({
+          watchlist: [all_listingId],
+        })
+        .then(() => {
+          Alert.alert("Watchlist updated", "Added to Watchlist");
+        })
+        .catch((err) => {
+          console.log(err.message);
+          Alert.alert("Error", "Failed to save to watchlist");
+        });
+    }
+  };
   return (
     //******* REMEMBER Listing document id is listing.key
     //********* TO BE USED WHEN ADDING TO CART
@@ -347,314 +377,64 @@ function ListingDetailsScreen({ route, navigation }) {
           }}
         >
           {listing ? (
-            <View>
-              {/* New Image component imported from react-native-expo-image-cache and uses new props*/}
-              <Image style={styles.image} source={{ uri: imageOnFocus }} />
-              <ScrollView
-                ref={scrollView} // to tell scrollView that this is the instance component we are referencing
-                horizontal={true} // to scroll horizontally
-                onContentSizeChange={() => scrollView.current.scrollToEnd()} //When component changes size, execute an event,
-                //scrollToEnd() is a method found in ScrollView documentation
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
+            listing.listingStatus == "Active" ? (
+              <View>
+                {/* New Image component imported from react-native-expo-image-cache and uses new props*/}
+                <Image style={styles.image} source={{ uri: imageOnFocus }} />
+                <ScrollView
+                  ref={scrollView} // to tell scrollView that this is the instance component we are referencing
+                  horizontal={true} // to scroll horizontally
+                  onContentSizeChange={() => scrollView.current.scrollToEnd()} //When component changes size, execute an event,
+                  //scrollToEnd() is a method found in ScrollView documentation
                 >
-                  {/* split array into individual images, view is used to give each image right margin */}
-                  {listing.images.map((uri) => (
-                    <View
-                      key={uri}
-                      style={{ marginHorizontal: 1, overflow: "scroll" }}
-                    >
-                      <TouchableHighlight onPress={() => handlePress(uri)}>
-                        <Image
-                          style={styles.images}
-                          key={uri} // unique identifier
-                          source={{ uri: uri }}
-                        />
-                      </TouchableHighlight>
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-              {/* Title, Price Section */}
-              <View
-                style={{
-                  justifyContent: "center",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  backgroundColor: "white",
-                }}
-              >
-                <AppText
-                  style={{
-                    fontSize: 20,
-                    marginBottom: 10,
-                    fontFamily: "sans-serif-medium",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {listing.title}
-                </AppText>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginBottom: 10,
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <AppText
+                  <View
                     style={{
-                      fontSize: 18,
-                      color: "#ff3300",
-                      fontFamily: "sans-serif-light",
-                      fontWeight: "bold",
+                      flexDirection: "row",
                     }}
                   >
-                    {"$" + listing.price.toFixed(2)}
-                  </AppText>
-                  <AppText
-                    style={{
-                      fontSize: 18,
-                      color: "black",
-                      fontFamily: "sans-serif-condensed",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {"Stock: " + listing.quantity}
-                  </AppText>
-                </View>
-                <AppText
-                  style={{
-                    fontSize: 18,
-                    marginBottom: 5,
-                    fontWeight: "bold",
-                    fontFamily: "sans-serif-condensed",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {"10 Reviews | " + listing.soldCount + " Sold"}
-                </AppText>
-              </View>
-              <ListItemSeperator />
-              {/*!!!!!!!!!!!!!!!!!! Hard coded Seller Info */}
-              <ListItem
-                style={{ paddingHorizontal: 10, paddingVertical: 5 }}
-                image={listing.seller_logo}
-                title='Sold by:'
-                subTitle={listing.store_name}
-                border={true}
-              />
-              <ListItemSeperator />
-              {/* Description Section */}
-              <View
-                style={{
-                  justifyContent: "center",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  backgroundColor: "white",
-                }}
-              >
-                <AppText
-                  style={{
-                    fontSize: 20,
-                    marginBottom: 10,
-                    fontWeight: "bold",
-                  }}
-                >
-                  Description
-                </AppText>
-                <View style={{ marginBottom: 10 }}>
-                  <ReadMore
-                    numberOfLines={3}
-                    renderTruncatedFooter={renderTruncatedFooter}
-                    renderRevealedFooter={renderRevealedFooter}
-                    onReady={handleTextReady}
-                  >
-                    <AppText
-                      style={{
-                        fontSize: 18,
-                        fontFamily: "sans-serif-thin",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {listing.description ? listing.description : "N.A"}
-                    </AppText>
-                  </ReadMore>
-                </View>
-              </View>
-              {/* Add to Cart Button */}
-              <View
-                style={{
-                  // flex: 1,
-                  // justifyContent: "center",
-                  // alignItems: "center",
-                  flexDirection: "row",
-                  marginVertical: 5,
-                  overflow: "hidden",
-                  justifyContent: "space-around",
-                }}
-              >
-                <AppButton
-                  icon='cart-arrow-down'
-                  color='cyan'
-                  title='Add to Cart'
-                  style={{ width: "48%" }}
-                  onPress={() =>
-                    userType == 1
-                      ? listing.quantity != 0
-                        ? currentUser.uid == listing.seller
-                          ? Alert.alert(
-                              "Listing owner",
-                              "You are the owner of this listing and cannot add it to your cart."
-                            )
-                          : addToCart(listing)
-                        : Alert.alert(
-                            "No enough stock",
-                            "There is no current stock for this product."
-                          )
-                      : userType == 2
-                      ? currentUser.uid == listing.seller
-                        ? Alert.alert(
-                            "Listing owner",
-                            "You are the owner of this listing and cannot add it to your cart."
-                          )
-                        : Alert.alert(
-                            "Currently functioning as Merchant",
-                            "Please switch to shopper to access shopping cart functions."
-                          )
-                      : Alert.alert(
-                          "Not Logged In",
-                          "Please log in or sign up to add item to cart."
-                        )
-                  }
-                />
-                <AppButton
-                  icon='clipboard-list'
-                  color='darkslategrey'
-                  title='Watchlist It'
-                  style={{ width: "48%" }}
-                />
-              </View>
-              {/* Group Buy Section */}
-              <View
-                style={{
-                  justifyContent: "center",
-                  paddingVertical: 5,
-                  backgroundColor: "white",
-                }}
-              >
+                    {/* split array into individual images, view is used to give each image right margin */}
+                    {listing.images.map((uri) => (
+                      <View
+                        key={uri}
+                        style={{ marginHorizontal: 1, overflow: "scroll" }}
+                      >
+                        <TouchableHighlight onPress={() => handlePress(uri)}>
+                          <Image
+                            style={styles.images}
+                            key={uri} // unique identifier
+                            source={{ uri: uri }}
+                          />
+                        </TouchableHighlight>
+                      </View>
+                    ))}
+                  </View>
+                </ScrollView>
+                {/* Title, Price Section */}
                 <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: 15,
+                    justifyContent: "center",
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    backgroundColor: "white",
                   }}
                 >
                   <AppText
                     style={{
                       fontSize: 20,
-                      paddingHorizontal: 10,
-
+                      marginBottom: 10,
+                      fontFamily: "sans-serif-medium",
                       fontWeight: "bold",
                     }}
                   >
-                    Group Buy
+                    {listing.title}
                   </AppText>
                   <View
                     style={{
-                      backgroundColor: listing.groupbuyId
-                        ? colors.green
-                        : colors.darkred,
-                      paddingHorizontal: 5,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginRight: 15,
+                      flexDirection: "row",
+                      marginBottom: 10,
+                      justifyContent: "space-between",
                     }}
                   >
-                    <AppText
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {listing.groupbuyId ? listing.groupbuyStatus : "Inactive"}
-                    </AppText>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    paddingHorizontal: 10,
-                    marginBottom: 15,
-                  }}
-                >
-                  <AppText
-                    style={{
-                      fontSize: 18,
-                      color: "#ff3300",
-                      fontFamily: "sans-serif-light",
-                      fontWeight: "bold",
-                      textDecorationLine: "line-through",
-                      textDecorationStyle: "solid",
-                    }}
-                  >
-                    {"$" + listing.price.toFixed(2)}
-                  </AppText>
-                  <AppText
-                    style={{
-                      fontSize: 18,
-                      fontFamily: "sans-serif-light",
-                      fontWeight: "bold",
-                      color: "green",
-                      marginLeft: 10,
-                    }}
-                  >
-                    {"$" +
-                      (
-                        listing.price -
-                        (listing.price / 100) * listing.discount
-                      ).toFixed(2)}
-                  </AppText>
-
-                  <View
-                    style={{
-                      backgroundColor: "teal",
-                      paddingHorizontal: 5,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginLeft: 10,
-                    }}
-                  >
-                    <AppText
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {listing.discount + "% OFF"}
-                    </AppText>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    paddingHorizontal: 10,
-                    marginBottom: 15,
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <MaterialCommunityIcons
-                      name='clock-outline'
-                      size={18}
-                      color='#ff3300'
-                      style={{ marginRight: 5 }}
-                    />
                     <AppText
                       style={{
                         fontSize: 18,
@@ -663,307 +443,623 @@ function ListingDetailsScreen({ route, navigation }) {
                         fontWeight: "bold",
                       }}
                     >
-                      {day} day {hour}:{minute}:{second}
+                      {"$" + listing.price.toFixed(2)}
+                    </AppText>
+                    <AppText
+                      style={{
+                        fontSize: 18,
+                        color: "black",
+                        fontFamily: "sans-serif-condensed",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {"Stock: " + listing.quantity}
                     </AppText>
                   </View>
-                  {listing.groupbuyId ? (
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
+                  <AppText
+                    style={{
+                      fontSize: 18,
+                      marginBottom: 5,
+                      fontWeight: "bold",
+                      fontFamily: "sans-serif-condensed",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {"10 Reviews | " + listing.soldCount + " Sold"}
+                  </AppText>
+                </View>
+                <ListItemSeperator />
+                {/*!!!!!!!!!!!!!!!!!! Hard coded Seller Info */}
+                <ListItem
+                  style={{ paddingHorizontal: 10, paddingVertical: 5 }}
+                  image={listing.seller_logo}
+                  title='Sold by:'
+                  subTitle={listing.store_name}
+                  border={true}
+                />
+                <ListItemSeperator />
+                {/* Description Section */}
+                <View
+                  style={{
+                    justifyContent: "center",
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    backgroundColor: "white",
+                  }}
+                >
+                  <AppText
+                    style={{
+                      fontSize: 20,
+                      marginBottom: 10,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Description
+                  </AppText>
+                  <View style={{ marginBottom: 10 }}>
+                    <ReadMore
+                      numberOfLines={3}
+                      renderTruncatedFooter={renderTruncatedFooter}
+                      renderRevealedFooter={renderRevealedFooter}
+                      onReady={handleTextReady}
                     >
                       <AppText
                         style={{
                           fontSize: 18,
-                          fontFamily: "sans-serif-condensed",
-                          marginLeft: 10,
+                          fontFamily: "sans-serif-thin",
+                          fontWeight: "bold",
                         }}
                       >
-                        {listing.currentOrderCount}/{listing.minimumOrderCount}
-                        {"  "}
+                        {listing.description ? listing.description : "N.A"}
                       </AppText>
-                      <MaterialCommunityIcons
-                        name='account-group'
-                        size={18}
-                        color={colors.black}
-                        style={{ marginRight: 5 }}
-                      />
+                    </ReadMore>
+                  </View>
+                </View>
+                {/* Add to Cart Button */}
+                <View
+                  style={{
+                    // flex: 1,
+                    // justifyContent: "center",
+                    // alignItems: "center",
+                    flexDirection: "row",
+                    marginVertical: 5,
+                    overflow: "hidden",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <AppButton
+                    icon='cart-arrow-down'
+                    color='cyan'
+                    title='Add to Cart'
+                    style={{ width: "48%" }}
+                    onPress={() =>
+                      userType == 1
+                        ? listing.quantity != 0
+                          ? currentUser.uid == listing.seller
+                            ? Alert.alert(
+                                "Listing owner",
+                                "You are the owner of this listing and cannot add it to your cart."
+                              )
+                            : addToCart(listing)
+                          : Alert.alert(
+                              "No enough stock",
+                              "There is no current stock for this product."
+                            )
+                        : userType == 2
+                        ? currentUser.uid == listing.seller
+                          ? Alert.alert(
+                              "Listing owner",
+                              "You are the owner of this listing and cannot add it to your cart."
+                            )
+                          : Alert.alert(
+                              "Currently functioning as Merchant",
+                              "Please switch to shopper to access shopping cart functions."
+                            )
+                        : Alert.alert(
+                            "Not Logged In",
+                            "Please log in or sign up to add item to cart."
+                          )
+                    }
+                  />
+                  <AppButton
+                    icon='clipboard-list'
+                    color='darkslategrey'
+                    title='Watchlist It'
+                    style={{ width: "48%" }}
+                    onPress={() => {
+                      currentUser
+                        ? currentUser.type != 3
+                          ? currentUser.uid != listing.seller
+                            ? addToWatchlist()
+                            : Alert.alert(
+                                "Listing owner",
+                                "You are the owner of this listing."
+                              )
+                          : Alert.alert(
+                              "Administrator role",
+                              "Administrators do not have watchlist functionalities"
+                            )
+                        : Alert.alert(
+                            "Not Logged In",
+                            "Please log in or sign up to add item to cart."
+                          );
+                    }}
+                  />
+                </View>
+                {/* Group Buy Section */}
+                <View
+                  style={{
+                    justifyContent: "center",
+                    paddingVertical: 5,
+                    backgroundColor: "white",
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 15,
+                    }}
+                  >
+                    <AppText
+                      style={{
+                        fontSize: 20,
+                        paddingHorizontal: 10,
+
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Group Buy
+                    </AppText>
+                    <View
+                      style={{
+                        backgroundColor: listing.groupbuyId
+                          ? colors.green
+                          : colors.darkred,
+                        paddingHorizontal: 5,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginRight: 15,
+                      }}
+                    >
+                      <AppText
+                        style={{
+                          fontSize: 18,
+                          color: "white",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {listing.groupbuyId
+                          ? listing.groupbuyStatus
+                          : "Inactive"}
+                      </AppText>
                     </View>
-                  ) : (
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      paddingHorizontal: 10,
+                      marginBottom: 15,
+                    }}
+                  >
+                    <AppText
+                      style={{
+                        fontSize: 18,
+                        color: "#ff3300",
+                        fontFamily: "sans-serif-light",
+                        fontWeight: "bold",
+                        textDecorationLine: "line-through",
+                        textDecorationStyle: "solid",
+                      }}
+                    >
+                      {"$" + listing.price.toFixed(2)}
+                    </AppText>
+                    <AppText
+                      style={{
+                        fontSize: 18,
+                        fontFamily: "sans-serif-light",
+                        fontWeight: "bold",
+                        color: "green",
+                        marginLeft: 10,
+                      }}
+                    >
+                      {"$" +
+                        (
+                          listing.price -
+                          (listing.price / 100) * listing.discount
+                        ).toFixed(2)}
+                    </AppText>
+
+                    <View
+                      style={{
+                        backgroundColor: "teal",
+                        paddingHorizontal: 5,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginLeft: 10,
+                      }}
+                    >
+                      <AppText
+                        style={{
+                          fontSize: 18,
+                          color: "white",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {listing.discount + "% OFF"}
+                      </AppText>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      paddingHorizontal: 10,
+                      marginBottom: 15,
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <View
                       style={{ flexDirection: "row", alignItems: "center" }}
                     >
-                      <AppText a>0/{listing.minimumOrderCount} </AppText>
                       <MaterialCommunityIcons
-                        name='account-group'
+                        name='clock-outline'
                         size={18}
-                        color={colors.black}
+                        color='#ff3300'
                         style={{ marginRight: 5 }}
                       />
+                      <AppText
+                        style={{
+                          fontSize: 18,
+                          color: "#ff3300",
+                          fontFamily: "sans-serif-light",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {day} day {hour}:{minute}:{second}
+                      </AppText>
                     </View>
-                  )}
-                </View>
-                {
-                  //Dont display button if user is not logged in or if owner is the current user
-                  currentUser &&
-                    listing.quantity != 0 &&
-                    currentUser.uid != listing.seller &&
-                    userType != 2 &&
-                    (listing.groupbuyId ? ( // check if there is an ongoing group buy
-                      listing.groupbuyStatus == "Ongoing" ? (
-                        listing.shoppers.includes(currentUser.uid) ? (
-                          <AppButton //already in group buy button
-                            color='darkgrey'
-                            title='Already in this Group Buy'
-                          />
+                    {listing.groupbuyId ? (
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <AppText
+                          style={{
+                            fontSize: 18,
+                            fontFamily: "sans-serif-condensed",
+                            marginLeft: 10,
+                          }}
+                        >
+                          {listing.currentOrderCount}/
+                          {listing.minimumOrderCount}
+                          {"  "}
+                        </AppText>
+                        <MaterialCommunityIcons
+                          name='account-group'
+                          size={18}
+                          color={colors.black}
+                          style={{ marginRight: 5 }}
+                        />
+                      </View>
+                    ) : (
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <AppText a>0/{listing.minimumOrderCount} </AppText>
+                        <MaterialCommunityIcons
+                          name='account-group'
+                          size={18}
+                          color={colors.black}
+                          style={{ marginRight: 5 }}
+                        />
+                      </View>
+                    )}
+                  </View>
+                  {
+                    //Dont display button if user is not logged in or if owner is the current user
+                    currentUser &&
+                      listing.quantity != 0 &&
+                      currentUser.uid != listing.seller &&
+                      userType != 2 &&
+                      (listing.groupbuyId ? ( // check if there is an ongoing group buy
+                        listing.groupbuyStatus == "Ongoing" ? (
+                          listing.shoppers.includes(currentUser.uid) ? (
+                            <AppButton //already in group buy button
+                              color='darkgrey'
+                              title='Already in this Group Buy'
+                            />
+                          ) : (
+                            <AppButton //join group buy button
+                              title='Join Group Buy'
+                              icon='account-group'
+                              color='cornflowerblue'
+                              onPress={() =>
+                                navigation.navigate(
+                                  routes.GBCHECKOUT,
+                                  all_listingId
+                                )
+                              }
+                            />
+                          )
                         ) : (
-                          <AppButton //join group buy button
-                            title='Join Group Buy'
-                            icon='account-group'
-                            color='cornflowerblue'
-                            onPress={() =>
-                              navigation.navigate(
-                                routes.GBCHECKOUT,
-                                all_listingId
-                              )
-                            }
+                          <AppButton //Group buy ended button
+                            title='Group buy has ended'
+                            color='grey'
                           />
                         )
                       ) : (
-                        <AppButton //Group buy ended button
-                          title='Group buy has ended'
-                          color='grey'
+                        <AppButton // create group buy button
+                          title='Create Group Buy'
+                          icon='account-group'
+                          onPress={() =>
+                            navigation.navigate(
+                              routes.GBCHECKOUT,
+                              all_listingId
+                            )
+                          }
                         />
-                      )
-                    ) : (
-                      <AppButton // create group buy button
-                        title='Create Group Buy'
-                        icon='account-group'
-                        onPress={() =>
-                          navigation.navigate(routes.GBCHECKOUT, all_listingId)
-                        }
-                      />
-                    ))
-                }
+                      ))
+                  }
+                </View>
+
+                {/* Order Milestones for Group Buy */}
+                {listing.milestone1 && (
+                  <>
+                    <ListItemSeperator
+                      style={{ backgroundColor: colors.gray }}
+                    />
+                    <View style={{ paddingHorizontal: 20, marginVertical: 10 }}>
+                      <AppText style={{ fontWeight: "bold" }}>
+                        Group Buy Rewards
+                      </AppText>
+                    </View>
+                    <View
+                      style={{
+                        backgroundColor: "white",
+                        marginBottom: listing.milestone2 ? 0 : 20,
+                        paddingVertical: 20,
+
+                        justifyContent: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          flex: 1,
+                        }}
+                      >
+                        <View>
+                          <View style={{ paddingHorizontal: 20 }}>
+                            <AppText style={{ color: colors.muted }}>
+                              Milestone Reward 1 :
+                            </AppText>
+                          </View>
+                          <ListItemSeperator />
+                          <VoucherListItem
+                            item={listing.milestone1_settings.reward}
+                          />
+                        </View>
+                      </View>
+                      <View style={{ paddingHorizontal: 20 }}>
+                        <View
+                          style={{
+                            flexDirection: "row-reverse",
+                            alignItems: "center",
+                            marginBottom: 10,
+                            marginTop: 5,
+                          }}
+                        >
+                          <MaterialCommunityIcons
+                            name='account-group'
+                            size={18}
+                            color={colors.black}
+                            style={{ marginRight: 5 }}
+                          />
+                          <AppText style={{ color: colors.muted }}>
+                            {listing.groupbuyId
+                              ? "Target: " +
+                                listing.currentOrderCount +
+                                "/" +
+                                listing.milestone1_settings.orders_quota +
+                                " "
+                              : "Target:  0/" +
+                                listing.milestone1_settings.orders_quota +
+                                " "}
+                          </AppText>
+                        </View>
+
+                        <Progress.Bar
+                          progress={progress1}
+                          height={20}
+                          color={colors.brightred}
+                          trackColor={colors.muted}
+                          isAnimated={true}
+                        />
+                      </View>
+                    </View>
+                  </>
+                )}
+                {listing.milestone2 && (
+                  <>
+                    <ListItemSeperator
+                      style={{ backgroundColor: colors.gray }}
+                    />
+                    <View
+                      style={{
+                        backgroundColor: "white",
+                        marginBottom: listing.milestone2 ? 0 : 20,
+                        paddingVertical: 20,
+
+                        justifyContent: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          flex: 1,
+                        }}
+                      >
+                        <View>
+                          <View style={{ paddingHorizontal: 20 }}>
+                            <AppText style={{ color: colors.muted }}>
+                              Milestone Reward 2 :
+                            </AppText>
+                          </View>
+                          <ListItemSeperator />
+                          <VoucherListItem
+                            item={listing.milestone2_settings.reward}
+                          />
+                        </View>
+                      </View>
+                      <View style={{ paddingHorizontal: 20 }}>
+                        <View
+                          style={{
+                            flexDirection: "row-reverse",
+                            alignItems: "center",
+                            marginBottom: 10,
+                            marginTop: 5,
+                          }}
+                        >
+                          <MaterialCommunityIcons
+                            name='account-group'
+                            size={18}
+                            color={colors.black}
+                            style={{ marginRight: 5 }}
+                          />
+                          <AppText style={{ color: colors.muted }}>
+                            {listing.groupbuyId
+                              ? "Target: " +
+                                listing.currentOrderCount +
+                                "/" +
+                                listing.milestone2_settings.orders_quota +
+                                " "
+                              : "Target:  0/" +
+                                listing.milestone2_settings.orders_quota +
+                                " "}
+                          </AppText>
+                        </View>
+
+                        <Progress.Bar
+                          progress={progress2}
+                          height={20}
+                          color={colors.brightred}
+                          trackColor={colors.muted}
+                          isAnimated={true}
+                        />
+                      </View>
+                    </View>
+                  </>
+                )}
+                {listing.milestone3 && (
+                  <>
+                    <ListItemSeperator
+                      style={{ backgroundColor: colors.gray }}
+                    />
+                    <View
+                      style={{
+                        backgroundColor: "white",
+                        marginBottom: listing.milestone2 ? 0 : 20,
+                        paddingVertical: 20,
+
+                        justifyContent: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          flex: 1,
+                        }}
+                      >
+                        <View>
+                          <View style={{ paddingHorizontal: 20 }}>
+                            <AppText style={{ color: colors.muted }}>
+                              Milestone Reward 3 :
+                            </AppText>
+                          </View>
+                          <ListItemSeperator />
+                          <VoucherListItem
+                            item={listing.milestone3_settings.reward}
+                          />
+                        </View>
+                      </View>
+                      <View style={{ paddingHorizontal: 20 }}>
+                        <View
+                          style={{
+                            flexDirection: "row-reverse",
+                            alignItems: "center",
+                            marginBottom: 10,
+                            marginTop: 5,
+                          }}
+                        >
+                          <MaterialCommunityIcons
+                            name='account-group'
+                            size={18}
+                            color={colors.black}
+                            style={{ marginRight: 5 }}
+                          />
+                          <AppText style={{ color: colors.muted }}>
+                            {listing.groupbuyId
+                              ? "Target: " +
+                                listing.currentOrderCount +
+                                "/" +
+                                listing.milestone3_settings.orders_quota +
+                                " "
+                              : "Target:  0/" +
+                                listing.milestone3_settings.orders_quota +
+                                " "}
+                          </AppText>
+                        </View>
+
+                        <Progress.Bar
+                          progress={progress3}
+                          height={20}
+                          color={colors.brightred}
+                          trackColor={colors.muted}
+                          isAnimated={true}
+                        />
+                      </View>
+                    </View>
+                  </>
+                )}
               </View>
-
-              {/* Order Milestones for Group Buy */}
-              {listing.milestone1 && (
-                <>
-                  <ListItemSeperator style={{ backgroundColor: colors.gray }} />
-                  <View style={{ paddingHorizontal: 20, marginVertical: 10 }}>
-                    <AppText style={{ fontWeight: "bold" }}>
-                      Group Buy Rewards
-                    </AppText>
-                  </View>
-                  <View
-                    style={{
-                      backgroundColor: "white",
-                      marginBottom: listing.milestone2 ? 0 : 20,
-                      paddingVertical: 20,
-
-                      justifyContent: "center",
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        flex: 1,
-                      }}
-                    >
-                      <View>
-                        <View style={{ paddingHorizontal: 20 }}>
-                          <AppText style={{ color: colors.muted }}>
-                            Milestone Reward 1 :
-                          </AppText>
-                        </View>
-                        <ListItemSeperator />
-                        <VoucherListItem
-                          item={listing.milestone1_settings.reward}
-                        />
-                      </View>
-                    </View>
-                    <View style={{ paddingHorizontal: 20 }}>
-                      <View
-                        style={{
-                          flexDirection: "row-reverse",
-                          alignItems: "center",
-                          marginBottom: 10,
-                          marginTop: 5,
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name='account-group'
-                          size={18}
-                          color={colors.black}
-                          style={{ marginRight: 5 }}
-                        />
-                        <AppText style={{ color: colors.muted }}>
-                          {listing.groupbuyId
-                            ? "Target: " +
-                              listing.currentOrderCount +
-                              "/" +
-                              listing.milestone1_settings.orders_quota +
-                              " "
-                            : "Target:  0/" +
-                              listing.milestone1_settings.orders_quota +
-                              " "}
-                        </AppText>
-                      </View>
-
-                      <Progress.Bar
-                        progress={progress1}
-                        height={20}
-                        color={colors.brightred}
-                        trackColor={colors.muted}
-                        isAnimated={true}
-                      />
-                    </View>
-                  </View>
-                </>
-              )}
-              {listing.milestone2 && (
-                <>
-                  <ListItemSeperator style={{ backgroundColor: colors.gray }} />
-                  <View
-                    style={{
-                      backgroundColor: "white",
-                      marginBottom: listing.milestone2 ? 0 : 20,
-                      paddingVertical: 20,
-
-                      justifyContent: "center",
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        flex: 1,
-                      }}
-                    >
-                      <View>
-                        <View style={{ paddingHorizontal: 20 }}>
-                          <AppText style={{ color: colors.muted }}>
-                            Milestone Reward 2 :
-                          </AppText>
-                        </View>
-                        <ListItemSeperator />
-                        <VoucherListItem
-                          item={listing.milestone2_settings.reward}
-                        />
-                      </View>
-                    </View>
-                    <View style={{ paddingHorizontal: 20 }}>
-                      <View
-                        style={{
-                          flexDirection: "row-reverse",
-                          alignItems: "center",
-                          marginBottom: 10,
-                          marginTop: 5,
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name='account-group'
-                          size={18}
-                          color={colors.black}
-                          style={{ marginRight: 5 }}
-                        />
-                        <AppText style={{ color: colors.muted }}>
-                          {listing.groupbuyId
-                            ? "Target: " +
-                              listing.currentOrderCount +
-                              "/" +
-                              listing.milestone2_settings.orders_quota +
-                              " "
-                            : "Target:  0/" +
-                              listing.milestone2_settings.orders_quota +
-                              " "}
-                        </AppText>
-                      </View>
-
-                      <Progress.Bar
-                        progress={progress2}
-                        height={20}
-                        color={colors.brightred}
-                        trackColor={colors.muted}
-                        isAnimated={true}
-                      />
-                    </View>
-                  </View>
-                </>
-              )}
-              {listing.milestone3 && (
-                <>
-                  <ListItemSeperator style={{ backgroundColor: colors.gray }} />
-                  <View
-                    style={{
-                      backgroundColor: "white",
-                      marginBottom: listing.milestone2 ? 0 : 20,
-                      paddingVertical: 20,
-
-                      justifyContent: "center",
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        flex: 1,
-                      }}
-                    >
-                      <View>
-                        <View style={{ paddingHorizontal: 20 }}>
-                          <AppText style={{ color: colors.muted }}>
-                            Milestone Reward 3 :
-                          </AppText>
-                        </View>
-                        <ListItemSeperator />
-                        <VoucherListItem
-                          item={listing.milestone3_settings.reward}
-                        />
-                      </View>
-                    </View>
-                    <View style={{ paddingHorizontal: 20 }}>
-                      <View
-                        style={{
-                          flexDirection: "row-reverse",
-                          alignItems: "center",
-                          marginBottom: 10,
-                          marginTop: 5,
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name='account-group'
-                          size={18}
-                          color={colors.black}
-                          style={{ marginRight: 5 }}
-                        />
-                        <AppText style={{ color: colors.muted }}>
-                          {listing.groupbuyId
-                            ? "Target: " +
-                              listing.currentOrderCount +
-                              "/" +
-                              listing.milestone3_settings.orders_quota +
-                              " "
-                            : "Target:  0/" +
-                              listing.milestone3_settings.orders_quota +
-                              " "}
-                        </AppText>
-                      </View>
-
-                      <Progress.Bar
-                        progress={progress3}
-                        height={20}
-                        color={colors.brightred}
-                        trackColor={colors.muted}
-                        isAnimated={true}
-                      />
-                    </View>
-                  </View>
-                </>
-              )}
-            </View>
+            ) : (
+              <View
+                style={{
+                  paddingHorizontal: 30,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginVertical: "50%",
+                }}
+              >
+                <AppText
+                  style={{
+                    fontSize: 30,
+                    fontWeight: "bold",
+                    color: colors.grey,
+                  }}
+                >
+                  Listing has been paused by seller.
+                </AppText>
+              </View>
+            )
           ) : (
-            <AppText>Listing has been deleted.</AppText>
+            <View
+              style={{
+                paddingHorizontal: 20,
+                justifyContent: "center",
+                alignItems: "center",
+                marginVertical: "50%",
+              }}
+            >
+              <AppText
+                style={{ fontSize: 30, fontWeight: "bold", color: colors.grey }}
+              >
+                Listing has been deleted.
+              </AppText>
+            </View>
           )}
         </Screen>
       </ScrollView>

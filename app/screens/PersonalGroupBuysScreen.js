@@ -88,6 +88,7 @@ function PersonalGroupBuysScreen({ navigation }) {
                   style={{
                     flexDirection: "row",
                     padding: 10,
+                    paddingHorizontal: 15,
                     backgroundColor: colors.white,
                   }}
                 >
@@ -117,7 +118,7 @@ function PersonalGroupBuysScreen({ navigation }) {
                         style={{
                           fontFamily: "sans-serif-medium",
                           fontWeight: "bold",
-                          fontSize: 20,
+                          fontSize: 17,
                         }}
                         numberOfLines={1}
                       >
@@ -206,6 +207,7 @@ function PersonalGroupBuysScreen({ navigation }) {
                 <View
                   style={{
                     padding: 10,
+                    paddingHorizontal: 15,
                     backgroundColor: colors.white,
                     flexDirection: "row",
                     alignItems: "center",
@@ -247,6 +249,7 @@ function PersonalGroupBuysScreen({ navigation }) {
                 <View
                   style={{
                     padding: 10,
+                    paddingHorizontal: 15,
                     backgroundColor: colors.white,
                     flexDirection: "row",
                     alignItems: "center",
@@ -300,9 +303,12 @@ function PersonalGroupBuysScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {},
   image: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
+    borderWidth: 1,
+    borderColor: colors.black,
     overflow: "hidden",
+    resizeMode: "contain",
   },
 });
 

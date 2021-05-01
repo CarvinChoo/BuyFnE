@@ -808,22 +808,22 @@ function MerchantToShipScreen() {
                 style={{
                   padding: 8,
                   backgroundColor:
-                    groupbuy.groupbuyStatus == "Awaiting seller confirmation"
+                    groupbuy.groupbuyStatus == "Awaiting seller confirmation" ||
+                    groupbuy.groupbuyStatus == "Unsuccessful"
                       ? colors.brightred
                       : colors.muted,
 
                   borderRadius: 10,
                 }}
                 onPress={() => {
-                  groupbuy.groupbuyStatus == "Awaiting seller confirmation"
+                  groupbuy.groupbuyStatus == "Awaiting seller confirmation" ||
+                  groupbuy.groupbuyStatus == "Unsuccessful"
                     ? closeGroupbuy()
-                    : groupbuy.groupbuyStatus == "Ongoing"
-                    ? Alert.alert(
+                    : groupbuy.groupbuyStatus == "Ongoing" &&
+                      Alert.alert(
                         "Group buy still ongoing",
                         "Please wait for group buy to end."
-                      )
-                    : groupbuy.groupbuyStatus == "Unsuccessful " &&
-                      closeGroupbuy();
+                      );
                 }}
               >
                 <View

@@ -208,6 +208,7 @@ function RegisterScreen({ navigation }) {
         store_image: null,
         vouchers: null,
         used_vouchers: null,
+        watchlist: null,
       })
       .then(() => {
         // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller

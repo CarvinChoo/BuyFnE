@@ -41,5 +41,6 @@ export default Object.freeze({
   CATEGORIESVOUCHERS: "Categories Vouchers",
   STOREWIDEVOUCHERS: "Storewide Vouchers",
   MYGROUPBUYS: "My Group Buys",
+  WATCHLIST: "Watchlist",
   MERCHANTREGISTER: " Merchant Registration",
 });

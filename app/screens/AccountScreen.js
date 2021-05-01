@@ -93,7 +93,7 @@ const menuItemsBuyer = [
       name: "clipboard-list",
       backgroundColor: colors.midnightblue,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.WATCHLIST,
   },
   {
     title: "Vouchers",

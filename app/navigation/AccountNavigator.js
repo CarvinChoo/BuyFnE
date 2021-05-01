@@ -13,6 +13,7 @@ import AccountManagementScreen from "../screens/AccountManagementScreen";
 import OrderHistoryNavigator from "../navigation/OrderHistoryNavigator";
 import MerchantOrdersNavigator from "../navigation/MerchantOrdersNavigator";
 import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
+import WatchlistScreen from "../screens/WatchlistScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
 import CardDetailsScreen from "../screens/CardDetailsScreen";
@@ -35,7 +36,6 @@ const AccountNavigator = () => (
     <Stack.Screen name={routes.ACCOUNT} component={AccountScreen} />
     {/* Add Stack Screen for Profile
     Add Stack Screen for myListings
-    Add Stack Screen for Watchlist
     Add Stack Screen for Order History */}
     <Stack.Screen
       name={routes.MERCHANTREGISTER}
@@ -52,12 +52,14 @@ const AccountNavigator = () => (
       options={{ headerTitle: false }}
     />
     {/* GroupBuys Section End*/}
+    {/* Watchlist Section */}
+    <Stack.Screen name={routes.RECEIPT} component={ReceiptScreen} />
     {/* Buyer Order section */}
     <Stack.Screen
       name={routes.ORDERHISTORY}
       component={OrderHistoryNavigator}
     />
-    <Stack.Screen name={routes.RECEIPT} component={ReceiptScreen} />
+    <Stack.Screen name={routes.WATCHLIST} component={WatchlistScreen} />
     <Stack.Screen
       name={routes.GBCHECKOUT}
       component={GroupBuyCheckoutScreen}
