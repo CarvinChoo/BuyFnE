@@ -24,11 +24,12 @@
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "package": "com.carvinchoo.DoneWithIt"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Account management Done\n"
+    "description": "Republish\n"
   }
 }

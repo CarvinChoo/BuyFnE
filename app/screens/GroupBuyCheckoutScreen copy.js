@@ -74,84 +74,76 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
       mounted.current = true;
       if (mounted.current) {
         setLoading(true);
-        if (listingId) {
-          var subscriber = db
-            .collection("all_listings")
-            .doc(listingId)
-            .onSnapshot(
-              (doc) => {
-                if (doc.exists) {
+
+        var subscriber = db
+          .collection("all_listings")
+          .doc(listingId)
+          .onSnapshot(
+            (doc) => {
+              if (doc.exists) {
+                if (mounted.current) {
+                  setCart(() => [
+                    { ...doc.data(), count: count, key: doc.data().listingId },
+                  ]);
+                  setListing({ ...doc.data(), count: count });
+
                   if (mounted.current) {
-                    setCart(() => [
-                      {
-                        ...doc.data(),
-                        count: count,
-                        key: doc.data().listingId,
-                      },
-                    ]);
-                    setListing({ ...doc.data(), count: count });
-
-                    if (mounted.current) {
-                      setOrderTotal(
+                    setOrderTotal(
+                      Math.round(doc.data().discountedPrice * count * 100) / 100
+                    );
+                    if (currentUser.loyalty_accumulative >= 1000) {
+                      setLoyaltyDiscount(7);
+                      var payable =
+                        Math.round(
+                          (doc.data().discountedPrice * count -
+                            doc.data().discountedPrice * count * (7 / 100)) *
+                            100
+                        ) / 100;
+                      console.log(payable);
+                      setPayableTotal(payable);
+                    } else if (currentUser.loyalty_accumulative >= 500) {
+                      setLoyaltyDiscount(5);
+                      var payable =
+                        Math.round(
+                          (doc.data().discountedPrice * count -
+                            doc.data().discountedPrice * count * (5 / 100)) *
+                            100
+                        ) / 100;
+                      setPayableTotal(payable);
+                    } else if (currentUser.loyalty_accumulative >= 150) {
+                      setLoyaltyDiscount(3);
+                      var payable =
+                        Math.round(
+                          (doc.data().discountedPrice * count -
+                            doc.data().discountedPrice * count * (3 / 100)) *
+                            100
+                        ) / 100;
+                      setPayableTotal(payable);
+                    } else {
+                      setLoyaltyDiscount(0);
+                      var payable =
                         Math.round(doc.data().discountedPrice * count * 100) /
-                          100
-                      );
-                      if (currentUser.loyalty_accumulative >= 1000) {
-                        setLoyaltyDiscount(7);
-                        var payable =
-                          Math.round(
-                            (doc.data().discountedPrice * count -
-                              doc.data().discountedPrice * count * (7 / 100)) *
-                              100
-                          ) / 100;
-                        console.log(payable);
-                        setPayableTotal(payable);
-                      } else if (currentUser.loyalty_accumulative >= 500) {
-                        setLoyaltyDiscount(5);
-                        var payable =
-                          Math.round(
-                            (doc.data().discountedPrice * count -
-                              doc.data().discountedPrice * count * (5 / 100)) *
-                              100
-                          ) / 100;
-                        setPayableTotal(payable);
-                      } else if (currentUser.loyalty_accumulative >= 150) {
-                        setLoyaltyDiscount(3);
-                        var payable =
-                          Math.round(
-                            (doc.data().discountedPrice * count -
-                              doc.data().discountedPrice * count * (3 / 100)) *
-                              100
-                          ) / 100;
-                        setPayableTotal(payable);
-                      } else {
-                        setLoyaltyDiscount(0);
-                        var payable =
-                          Math.round(doc.data().discountedPrice * count * 100) /
-                          100;
+                        100;
 
-                        setPayableTotal(payable);
-                      }
-
-                      getShippingAddress();
+                      setPayableTotal(payable);
                     }
+
+                    getShippingAddress();
                   }
-                } else {
-                  console.log("Listing has been deleted");
-                  Alert.alert("Error", "Listing has been deleted");
-                  navigation.goBack();
                 }
-              },
-              (error) => {
-                // Error catching for listing query
-                console.log(error.message);
-                Alert.alert("Error", error.message);
+              } else {
+                console.log("Listing has been deleted");
+                Alert.alert("Error", "Listing has been deleted");
                 navigation.goBack();
               }
-            );
-        }
-      } else {
-        navigation.goBack();
+            },
+            (error) => {
+              // Error catching for listing query
+              console.log(error.message);
+              Alert.alert("Error", error.message);
+              navigation.goBack();
+            }
+          );
       }
 
       return () => {
@@ -504,7 +496,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
         timeStart: timeNow,
         timeEnd: timeExpireAt,
         currentOrderCount: 1,
-        groupbuyPayout: payableTotal,
+        groupbuyPayout: listing.discountedPrice * count,
         groupbuyTotalPurchases: count,
         groupbuyStatus: "Ongoing",
         shoppers: [currentUser.uid],
@@ -534,7 +526,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
                         title: listing.title,
                         images: listing.images,
                         count: count,
-                        paid: payableTotal,
+                        discountedPrice: listing.discountedPrice,
                         store_name: listing.store_name,
                       },
                     ],
@@ -834,7 +826,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
           100
       ) / 100;
     console.log(payable);
-    setPayableTotal(payable);
+    // setPayableTotal(payable);
     setCount(number);
     //item.count = number
   };

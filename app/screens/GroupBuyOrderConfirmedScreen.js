@@ -6,7 +6,7 @@ import Screen from "../components/Screen";
 
 // BackEnd
 import AuthApi from "../api/auth";
-import AppText from "../components/AppText";
+
 import Icon from "../components/Icon";
 
 function OrderConfirmedScreen({ route, navigation }) {
@@ -32,26 +32,26 @@ function OrderConfirmedScreen({ route, navigation }) {
         <View style={{ backgroundColor: colors.white }}>
           {/*view to insert buyer name  */}
           <View style={styles.view2}>
-            <AppText style={styles.text2} maxLines={1}>
+            <Text style={styles.text2} maxLines={1}>
               {"Item will be delivered to: " +
                 currentUser.first_name +
                 " " +
                 currentUser.last_name}
-            </AppText>
+            </Text>
           </View>
 
           {/*view to insert address  */}
           <View style={styles.view2}>
-            <AppText style={styles.text2}>
+            <Text style={styles.text2}>
               {"Address: " + deliveryInfo.address + ", #" + deliveryInfo.unitno}
-            </AppText>
+            </Text>
           </View>
 
           {/*view to insert postal code  */}
           <View style={styles.view2}>
-            <AppText style={styles.text2}>
+            <Text style={styles.text2}>
               {"Postal Code: " + deliveryInfo.postal_code}
-            </AppText>
+            </Text>
           </View>
           <ListItemSeperator />
         </View>
@@ -101,7 +101,7 @@ function OrderConfirmedScreen({ route, navigation }) {
                 backgroundColor={colors.white}
                 iconColor='black'
               />
-              <AppText
+              <Text
                 style={{
                   fontSize: 15,
                   width: 200,
@@ -109,7 +109,7 @@ function OrderConfirmedScreen({ route, navigation }) {
                 numberOfLines={1}
               >
                 {item.store_name}
-              </AppText>
+              </Text>
             </View>
             <ListItemSeperator />
             <View
@@ -119,15 +119,26 @@ function OrderConfirmedScreen({ route, navigation }) {
               <View
                 style={{
                   flexDirection: "column",
-                  justifyContent: "space-between",
+                  marginLeft: 10,
                 }}
               >
-                <AppText
+                <Text
                   style={{ fontSize: 17, marginTop: 5, width: 250 }}
                   numberOfLines={1}
                 >
                   {item.title}
-                </AppText>
+                </Text>
+                <View style={{ marginTop: 5 }}>
+                  <Text
+                    style={{
+                      color: colors.muted,
+                      fontSize: 15,
+                    }}
+                    numberOfLines={1}
+                  >
+                    {"Quantity:   x" + item.count}
+                  </Text>
+                </View>
                 <View
                   style={{
                     justifyContent: "space-between",
@@ -136,7 +147,7 @@ function OrderConfirmedScreen({ route, navigation }) {
                   }}
                 >
                   <View>
-                    <AppText
+                    <Text
                       style={{
                         color: colors.muted,
                         fontSize: 15,
@@ -144,21 +155,8 @@ function OrderConfirmedScreen({ route, navigation }) {
                       }}
                       numberOfLines={1}
                     >
-                      {"$" + item.discountedPrice.toFixed(2)}
-                    </AppText>
-                  </View>
-                  <View>
-                    <AppText
-                      style={{
-                        color: colors.muted,
-                        fontSize: 15,
-                        marginBottom: 5,
-                        marginRight: 30,
-                      }}
-                      numberOfLines={1}
-                    >
-                      {"x" + item.count}
-                    </AppText>
+                      {"Paid:   $" + item.paid.toFixed(2)}
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -179,6 +177,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 5,
     resizeMode: "contain",
+    borderWidth: 1,
+    borderColor: colors.black,
   },
 
   background: {

@@ -37,6 +37,7 @@ import * as firebase from "firebase";
 import routes from "../navigation/routes";
 import CheckoutVoucherListItem from "../components/CheckoutVoucherListItem";
 import { Button } from "react-native";
+import { array } from "yup/lib/locale";
 
 const validationSchema = Yup.object().shape({
   address: Yup.string().required("Address is required"),
@@ -92,18 +93,10 @@ function CheckoutScreen({ navigation }) {
       mounted.current = true;
       if (mounted.current) {
         setLoading(true);
-      }
-      if (voucher) {
-        // Calculate Voucher discount and deduct from payable total
-      } else {
-        if (mounted.current) {
-          setPayableTotal(orderTotal + 1.99);
-        }
-      }
-      if (mounted.current) {
+        setVoucher(null);
+        setPayableTotal(orderTotal);
         getVouchers();
       }
-
       return () => {
         console.log("unmounted");
         mounted.current = false;
@@ -568,12 +561,14 @@ function CheckoutScreen({ navigation }) {
   };
 
   const createTransactionStatement = (charge_id) => {
-    var currentTime = new Date();
-    const timeNow = firebase.firestore.Timestamp.fromDate(currentTime);
+    // caluclate estimated delivery time
+    var deliveryTime = new Date();
+    const timeNow = firebase.firestore.Timestamp.fromDate(deliveryTime);
     const twoWeeks = 14;
-    currentTime.setDate(currentTime.getDate() + twoWeeks);
+    deliveryTime.setDate(deliveryTime.getDate() + twoWeeks);
     const estimatedDeliveryTime = firebase.firestore.Timestamp.fromDate(
-      currentTime
+      // convert to timestamp
+      deliveryTime
     );
     var promises = [];
 
@@ -789,11 +784,11 @@ function CheckoutScreen({ navigation }) {
     Promise.all(promises)
       .then(() => {
         if (voucher) {
-          removeVoucher(currentTime);
+          removeVoucher(deliveryTime);
         } else {
           navigation.navigate(routes.ORDERCONFIRMED, {
             currentShipping: currentShipping,
-            deliveryTime: currentTime.toDateString(),
+            deliveryTime: deliveryTime.toDateString(),
           });
         }
       })
@@ -803,54 +798,77 @@ function CheckoutScreen({ navigation }) {
       });
   };
 
-  const removeVoucher = (currentTime) => {
-    if (currentUser.used_vouchers) {
-      var used_vouchers = currentUser.used_vouchers;
-      used_voucher.push(voucher.voucher_id);
+  const removeVoucher = (deliveryTime) => {
+    // vouchers.length can only be 1 or > 1 when in this function if 0/null ignore
+    // used_vouchers can be null, empty array, array.length <= 1
+    if (currentUser.vouchers) {
+      if (currentUser.used_vouchers) {
+        // if used voucher is empty array or length > 1
+        db.collection("users")
+          .doc(currentUser.uid)
+          .update({
+            vouchers: firebase.firestore.FieldValue.arrayRemove(
+              voucher.voucher_id
+            ),
+            used_vouchers: firebase.firestore.FieldValue.arrayUnion(
+              voucher.voucher_id
+            ),
+          })
+          .then(() => {
+            navigation.navigate(routes.ORDERCONFIRMED, {
+              currentShipping: currentShipping,
+              deliveryTime: deliveryTime.toDateString(),
+            });
+          })
+          .catch((error) => {
+            console.log(error.message);
+            navigation.navigate(routes.ORDERCONFIRMED, {
+              currentShipping: currentShipping,
+              deliveryTime: deliveryTime.toDateString(),
+            });
+          });
+      } else {
+        // if used voucher is null
+        db.collection("users")
+          .doc(currentUser.uid)
+          .update({
+            vouchers: firebase.firestore.FieldValue.arrayRemove(
+              voucher.voucher_id
+            ),
+            used_vouchers: [voucher.voucher_id],
+          })
+          .then(() => {
+            navigation.navigate(routes.ORDERCONFIRMED, {
+              currentShipping: currentShipping,
+              deliveryTime: deliveryTime.toDateString(),
+            });
+          })
+          .catch((error) => {
+            console.log(error.message);
+            navigation.navigate(routes.ORDERCONFIRMED, {
+              currentShipping: currentShipping,
+              deliveryTime: deliveryTime.toDateString(),
+            });
+          });
+      }
     } else {
-      var used_vouchers = [voucher.voucher_id];
-    }
-    if (currentUser.vouchers.length == 1) {
+      // Error occurs as not suppose to happen but add voucher to used anyways
       db.collection("users")
         .doc(currentUser.uid)
         .update({
-          vouchers: null,
-          used_vouchers: used_vouchers,
+          used_vouchers: [voucher.voucher_id],
         })
         .then(() => {
           navigation.navigate(routes.ORDERCONFIRMED, {
             currentShipping: currentShipping,
-            deliveryTime: currentTime.toDateString(),
+            deliveryTime: deliveryTime.toDateString(),
           });
         })
         .catch((error) => {
           console.log(error.message);
           navigation.navigate(routes.ORDERCONFIRMED, {
             currentShipping: currentShipping,
-            deliveryTime: currentTime.toDateString(),
-          });
-        });
-    } else {
-      var thisvouchers = currentUser.vouchers.filter(
-        (x) => x != voucher.voucher_id
-      );
-      db.collection("users")
-        .doc(currentUser.uid)
-        .update({
-          vouchers: thisvouchers,
-          used_vouchers: used_vouchers,
-        })
-        .then(() => {
-          navigation.navigate(routes.ORDERCONFIRMED, {
-            currentShipping: currentShipping,
-            deliveryTime: currentTime.toDateString(),
-          });
-        })
-        .catch((error) => {
-          console.log(error.message);
-          navigation.navigate(routes.ORDERCONFIRMED, {
-            currentShipping: currentShipping,
-            deliveryTime: currentTime.toDateString(),
+            deliveryTime: deliveryTime.toDateString(),
           });
         });
     }
@@ -858,7 +876,7 @@ function CheckoutScreen({ navigation }) {
 
   useEffect(() => {
     let totalDiscount = 0;
-    setPayableTotal(orderTotal + 1.99);
+    setPayableTotal(orderTotal);
     if (voucher) {
       cart.forEach((item) => {
         if (voucher.category) {
@@ -1033,21 +1051,7 @@ function CheckoutScreen({ navigation }) {
               {"$" + orderTotal.toFixed(2)}
             </AppText>
           </View>
-          {/* Shipping total */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 5,
-            }}
-          >
-            <AppText style={{ color: colors.muted, fontSize: 15 }}>
-              Shipping Subtotal
-            </AppText>
-            <AppText style={{ color: colors.muted, fontSize: 15 }}>
-              $1.99
-            </AppText>
-          </View>
+
           {/* Voucher Discount total */}
           <View
             style={{

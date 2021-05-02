@@ -9,13 +9,7 @@ import colors from "../../config/colors";
 import Error_Message from "./Error_Message";
 
 function AppExpiryPicker({ name, title }) {
-  const {
-    setFieldTouched,
-    setFieldValue,
-    values,
-    errors,
-    touched,
-  } = useFormikContext();
+  const { setFieldValue, values, errors, touched } = useFormikContext();
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(null);
   var currdate = new Date();
@@ -83,7 +77,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     alignItems: "center",
     backgroundColor: colors.whitegrey,
-    width: "50%",
+    width: "60%",
   },
   icon: { marginRight: 10 },
   dobText: { color: colors.muted },

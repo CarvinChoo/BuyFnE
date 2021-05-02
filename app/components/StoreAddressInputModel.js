@@ -26,12 +26,14 @@ function StoreAddressInputModel({
   const [postal_code, setPostal_code] = useState("");
   const [loading, setLoading] = useState(false);
   useEffect(() => {
-    if (old_store_address) {
-      setStore_address(old_store_address.line1);
-      setStore_unitno(old_store_address.line2);
-      setPostal_code(old_store_address.postal_code);
+    if (visible == true) {
+      if (old_store_address) {
+        setStore_address(old_store_address.line1);
+        setStore_unitno(old_store_address.line2);
+        setPostal_code(old_store_address.postal_code);
+      }
+      setError(null);
     }
-    setError(null);
   }, [visible]);
 
   const validatePostal = (postal_code) => {
@@ -40,26 +42,24 @@ function StoreAddressInputModel({
   };
 
   const saveChanges = () => {
-    setLoading(true);
     if (
       store_address.length > 0 &&
       store_unitno.length > 0 &&
-      postal_code > 0
+      postal_code.length > 0
     ) {
       if (validatePostal(postal_code)) {
         setError(null);
         updateStoreAddress();
       } else {
         setError("Postal code must be exactly 6 digits");
-        setLoading(false);
       }
     } else {
       setError("Please fill up all fields");
-      setLoading(false);
     }
   };
 
   const updateStoreAddress = () => {
+    setLoading(true);
     onPress();
     axios({
       method: "POST",
@@ -73,13 +73,16 @@ function StoreAddressInputModel({
       },
     })
       .then(({ _, data }) => {
+        setLoading(false);
         Alert.alert(
           "Changes Saved",
           "Changes has been successfully saved and updated."
         );
-        console.log(data.individual.address);
-        onExit(data.individual.address);
-        setLoading(false);
+        onExit({
+          line1: store_address,
+          line2: store_unitno,
+          postal_code: postal_code,
+        });
       })
       .catch((error) => {
         setLoading(false);
@@ -146,9 +149,9 @@ function StoreAddressInputModel({
             <View style={{ alignItems: "center" }}>
               <Error_Message error={error} visible={error} />
               <AppButton
-                color={!loading ? "brightred" : "grey"}
+                color='brightred'
                 title='Save Changes'
-                style={{ width: "50%", padding: 10 }}
+                style={{ width: "60%", padding: 10 }}
                 onPress={() => saveChanges()}
               />
             </View>

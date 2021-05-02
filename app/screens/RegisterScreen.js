@@ -13,6 +13,7 @@ import db from "../api/db";
 import filestorage from "../api/filestorage";
 import AuthApi from "../api/auth";
 import axios from "axios";
+import * as firebase from "firebase";
 //Front End
 import Screen from "../components/Screen";
 import {
@@ -185,6 +186,11 @@ function RegisterScreen({ navigation }) {
     dob,
     url = null
   ) => {
+    var expiry = new Date();
+    const threeMonths = 91;
+    expiry.setDate(expiry.getDate() + threeMonths);
+    expiry.setHours(0, 0, 0, 0);
+    var loyalty_interval_end = firebase.firestore.Timestamp.fromDate(expiry);
     db.collection("users")
       .doc(user.uid)
       .set({
@@ -199,16 +205,19 @@ function RegisterScreen({ navigation }) {
         displayName: registrationDetails.name,
         email: registrationDetails.email,
         type: 1,
-        shippingAddress: null,
+        shippingAddress: [],
         // type: isEnabled ? 2 : 1, // set type numeric 1 for Buyer and 2 for Seller
         // storename: isEnabled ? registrationDetails.storename : "",
         profilePic: url,
-        inGroupBuys: null,
+        inGroupBuys: [],
         isMerchant: false,
         store_image: null,
-        vouchers: null,
-        used_vouchers: null,
+        vouchers: [],
+        used_vouchers: [],
         watchlist: null,
+        loyalty_accumulative: Number(0),
+        loyalty_interval_start: firebase.firestore.Timestamp.now(),
+        loyalty_interval_end: loyalty_interval_end,
       })
       .then(() => {
         // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller

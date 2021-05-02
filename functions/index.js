@@ -54,56 +54,50 @@ const stripe = require("stripe")(functions.config().stripe.secret_key);
 //     console.log(snap.createTime.nanoseconds);
 //   });
 
-// Example of trigger function that updates database
-// exports.makeUppercase = functions.firestore.document('/users/{documentId}')
-// .onCreate((snap, context) => {
-//     // Grab the current value of what was written to Firestore.
-//     const original = snap.data().displayName;
+exports.scheduledLoyaltyIntervalCheck = functions
+  .region("asia-southeast2")
+  .pubsub.schedule("0 0 * * *")
+  .timeZone("Asia/Singapore")
+  .onRun(async (context) => {
+    var currentTime = admin.firestore.Timestamp.now();
+    return db
+      .collection("users")
+      .where("loyalty_interval_end", "<=", currentTime)
+      .get()
+      .then((users) => {
+        if (!users.empty) {
+          console.log("Not Empty");
+          var expiry = new Date();
+          const threeMonths = 1; // change to 91
+          expiry.setDate(expiry.getDate() + threeMonths);
+          expiry.setHours(0, 0, 0, 0);
+          var loyalty_interval_end = admin.firestore.Timestamp.fromDate(expiry);
 
-//     // Access the parameter `{documentId}` with `context.params`
-//     functions.logger.log('Uppercasing', context.params.documentId, original);
-
-//     const uppercase = original.toUpperCase();
-
-//     // You must return a Promise when performing asynchronous tasks inside a Functions such as
-//     // writing to Firestore.
-//     // Setting an 'uppercase' field in Firestore document returns a Promise.
-//     return snap.ref.set({uppercase}, {merge: true});
-// });
-
-// //Example of Scheduled update to database
-// exports.scheduledFunction = functions.pubsub.schedule('every 5 minutes').onRun((context) => {
-//    let query =  db.collection("users").where('type','==', 2)
-//    query.get().then((sellers)=> sellers.forEach((seller)=>{
-//        seller.ref.update({status:"seller"})
-//    }))
-
-//   });
-
-// exports.createStripeCheckout = functions.https.onCall(async (data, context)=> {
-//     //Stripe init
-//     const stripe = require("stripe")(functions.config().stripe.secret_key);
-//     const session = await stripe.checkout.sessions.create({
-//         payment_method_types: ["card"],
-//         mode: "payment",
-//         line_items: [
-//             {
-//                 quantity:1,
-//                 price_data:{
-//                     currency:"usd",
-//                     unit_amount: (100)*100,// 10000=100 USD
-//                     product_data:{
-//                         name:"New camera"
-//                     }
-//                 }
-//             }
-//         ]
-
-//     });
-//     return{
-//         id: session.id
-//     };
-// });
+          users.forEach((user) => {
+            user.ref
+              .update({
+                loyalty_accumulative: Number(0),
+                loyalty_interval_start: currentTime,
+                loyalty_interval_end: loyalty_interval_end,
+              })
+              .then(() => {
+                console.log("Successfully updated user loyalty program");
+              })
+              .catch((error) => {
+                console.log(
+                  "Error when updating user loyalty program: ",
+                  error.message
+                );
+              });
+          });
+        } else {
+          console.log("No expired loyalty program");
+        }
+      })
+      .catch((error) => {
+        console.log("Fail to retrieve users: ", error.message);
+      });
+  });
 
 exports.scheduledVoucherCheck = functions
   .region("asia-southeast2")
@@ -578,7 +572,7 @@ exports.releaseOnScheduleToSeller = functions
       .where("status", "==", 4)
       .get()
       .then((transactions) => {
-        var days = 1; // change to 14
+        var days = 14; // change to 14
         var timeNow = new Date();
         if (!transactions.empty) {
           transactions.forEach((transaction) => {
@@ -601,12 +595,27 @@ exports.releaseOnScheduleToSeller = functions
                         destination: seller.data().stripe_id,
                       })
                       .then(() => {
-                        console.log("Succesfully released payment to seller");
+                        transaction.ref
+                          .update({
+                            status: 5,
+                            confirmedDeliveryTime: admin.firestore.Timestamp.now(),
+                          })
+                          .then(() => {
+                            console.log(
+                              "Succesfully released payment to seller"
+                            );
+                          })
+                          .catch((error) => {
+                            console.log(
+                              "Updating transaction status after releasing payment: ",
+                              error.message
+                            );
+                          });
                       })
                       .catch((error) => {
                         console.log(
                           "Error releasing payment to seller: ",
-                          error
+                          error.message
                         );
                       });
                   } else {

@@ -23,6 +23,7 @@ import routes from "../navigation/routes";
 import AuthApi from "../api/auth";
 import app from "../auth/base.js";
 import db from "../api/db";
+import firebase from "firebase";
 
 const menuItemsGuest = [
   {
@@ -109,7 +110,7 @@ const menuItemsBuyer = [
       name: "gift",
       backgroundColor: colors.plum,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.LOYALTY,
   },
   {
     title: "Support Tickets",
@@ -370,7 +371,9 @@ function AccountScreen({ navigation }) {
         <View style={styles.modal}>
           <View style={styles.modalBoxContainer}>
             <View style={styles.switchTextContainer}>
-              <AppText style={styles.switchText}>Switch to Shopper?</AppText>
+              <AppText style={styles.switchText}>
+                {userType == 1 ? "Switch to Merchant?" : "Switch to Shopper?"}
+              </AppText>
             </View>
             <View style={styles.modalButtonContainer}>
               <TouchableHighlight

@@ -147,16 +147,6 @@ function ReceiptScreen({ route, navigation }) {
               {"$" + item.paid.toFixed(2)}
             </AppText>
           </View>
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <AppText style={{ fontSize: 13, color: colors.muted }}>
-              {"Shipping:"}
-            </AppText>
-            <AppText style={{ fontSize: 13, color: colors.muted }}>
-              {"$1.99"}
-            </AppText>
-          </View>
         </View>
       </View>
       <ListItemSeperator />

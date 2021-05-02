@@ -107,6 +107,11 @@ function ShippingAddressesScreen({ navigation }) {
     console.log("Adding address");
     if (currentUser.shippingAddress) {
       // if it is not null
+      if (currentUser.shippingAddress.length < 1) {
+        var isDefault = true;
+      } else {
+        var isDefault = false;
+      }
       db.collection("users")
         .doc(currentUser.uid)
         .update({
@@ -114,7 +119,7 @@ function ShippingAddressesScreen({ navigation }) {
             address: address.address,
             unitno: address.unitno,
             postal_code: address.postal_code,
-            isDefault: false,
+            isDefault: isDefault,
           }),
         })
         .then(() => {

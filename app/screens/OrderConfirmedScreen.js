@@ -206,6 +206,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 5,
     resizeMode: "contain",
+    borderWidth: 1,
+    borderColor: colors.black,
   },
 
   background: {

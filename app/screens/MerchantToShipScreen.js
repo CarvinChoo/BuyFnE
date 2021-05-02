@@ -97,7 +97,76 @@ function MerchantToShipScreen() {
                       estimatedDeliveryTime: estimatedDeliveryTime,
                     })
                     .then(() => {
-                      console.log("Updated Transaction");
+                      if (groupbuy.milestone3) {
+                        if (
+                          groupbuy.currentOrderCount >=
+                          groupbuy.milestone3_settings.orders_quota
+                        ) {
+                          var rewards = [
+                            groupbuy.milestone1_settings.reward.voucher_id,
+                            groupbuy.milestone2_settings.reward.voucher_id,
+                            groupbuy.milestone3_settings.reward.voucher_id,
+                          ];
+                        } else {
+                          var rewards = [
+                            groupbuy.milestone1_settings.reward.voucher_id,
+                            groupbuy.milestone2_settings.reward.voucher_id,
+                          ];
+                        }
+                      } else if (groupbuy.milestone2) {
+                        if (
+                          groupbuy.currentOrderCount >=
+                          groupbuy.milestone2_settings.orders_quota
+                        ) {
+                          var rewards = [
+                            groupbuy.milestone1_settings.reward.voucher_id,
+                            groupbuy.milestone2_settings.reward.voucher_id,
+                          ];
+                        } else {
+                          var rewards = [
+                            groupbuy.milestone1_settings.reward.voucher_id,
+                          ];
+                        }
+                      } else if (groupbuy.milestone1) {
+                        if (
+                          groupbuy.currentOrderCount >=
+                          groupbuy.milestone1_settings.orders_quota
+                        ) {
+                          var rewards = [
+                            groupbuy.milestone1_settings.reward.voucher_id,
+                          ];
+                        } else {
+                          var rewards = [];
+                        }
+                      } else {
+                        var rewards = [];
+                      }
+                      if (rewards.length < 1) {
+                        db.collection("users")
+                          .doc(transac.data().buyer_id)
+                          .update({
+                            loyalty_accumulative: firebase.firestore.FieldValue.increment(
+                              transac.data().paid
+                            ),
+                            inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
+                              groupbuy.listingId
+                            ),
+                          });
+                      } else {
+                        db.collection("users")
+                          .doc(transac.data().buyer_id)
+                          .update({
+                            loyalty_accumulative: firebase.firestore.FieldValue.increment(
+                              transac.data().paid
+                            ),
+                            inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
+                              groupbuy.listingId
+                            ),
+                            vouchers: firebase.firestore.FieldValue.arrayUnion(
+                              ...rewards
+                            ),
+                          });
+                      }
                     })
                     .catch((err) => {
                       console.log("Error updating transactions: ");
@@ -108,307 +177,11 @@ function MerchantToShipScreen() {
 
               Promise.all(promises)
                 .then(() => {
-                  // Perform removal of group buy from user array
-                  db.collection("users")
-                    .where("inGroupBuys", "array-contains", groupbuy.listingId)
-                    .get()
-                    .then((users) => {
-                      const promises2 = [];
-                      users.forEach((user) => {
-                        if (groupbuy.milestone1) {
-                          //got milestone 1
-                          if (
-                            groupbuy.currentOrderCount <
-                            groupbuy.milestone1_settings.orders_quota
-                          ) {
-                            //fail to reach quota
-                            promises2.push(
-                              user.ref
-                                .update({
-                                  //removes successful group buy from array
-                                  inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                    groupbuy.listingId
-                                  ),
-                                })
-                                .then(() => {
-                                  console.log("user updated");
-                                })
-                                .catch((err) => {
-                                  console.log("user fail to update");
-                                })
-                            );
-                          } else {
-                            //reach quota 1
-                            if (groupbuy.milestone2) {
-                              // got milestone 2
-                              if (
-                                groupbuy.currentOrderCount <
-                                groupbuy.milestone2_settings.orders_quota
-                              ) {
-                                //fail to reach quota
-                                var rewards = [
-                                  groupbuy.milestone1_settings.reward
-                                    .voucher_id,
-                                ];
-                                if (user.data().vouchers) {
-                                  promises2.push(
-                                    user.ref
-                                      .update({
-                                        //removes successful group buy from array
-                                        inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                          groupbuy.listingId
-                                        ),
-                                        vouchers: firebase.firestore.FieldValue.arrayUnion(
-                                          ...rewards
-                                        ),
-                                      })
-                                      .then(() => {
-                                        console.log("user updated");
-                                      })
-                                      .catch((err) => {
-                                        console.log("user fail to update");
-                                      })
-                                  );
-                                } else {
-                                  promises2.push(
-                                    user.ref
-                                      .update({
-                                        //removes successful group buy from array
-                                        inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                          groupbuy.listingId
-                                        ),
-                                        vouchers: rewards,
-                                      })
-                                      .then(() => {
-                                        console.log("user updated");
-                                      })
-                                      .catch((err) => {
-                                        console.log("user fail to update");
-                                      })
-                                  );
-                                }
-                              } else {
-                                //reach quota 2
-                                if (groupbuy.milestone3) {
-                                  // got milestone 3
-                                  if (
-                                    groupbuy.currentOrderCount <
-                                    groupbuy.milestone3_settings.orders_quota
-                                  ) {
-                                    //fail to reach quota
-                                    var rewards = [
-                                      groupbuy.milestone1_settings.reward
-                                        .voucher_id,
-                                      groupbuy.milestone2_settings.reward
-                                        .voucher_id,
-                                    ];
-                                    if (user.data().vouchers) {
-                                      promises2.push(
-                                        user.ref
-                                          .update({
-                                            //removes successful group buy from array
-                                            inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                              groupbuy.listingId
-                                            ),
-                                            vouchers: firebase.firestore.FieldValue.arrayUnion(
-                                              ...rewards
-                                            ),
-                                          })
-                                          .then(() => {
-                                            console.log("user updated");
-                                          })
-                                          .catch((err) => {
-                                            console.log("user fail to update");
-                                          })
-                                      );
-                                    } else {
-                                      promises2.push(
-                                        user.ref
-                                          .update({
-                                            //removes successful group buy from array
-                                            inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                              groupbuy.listingId
-                                            ),
-                                            vouchers: rewards,
-                                          })
-                                          .then(() => {
-                                            console.log("user updated");
-                                          })
-                                          .catch((err) => {
-                                            console.log("user fail to update");
-                                          })
-                                      );
-                                    }
-                                  } else {
-                                    //reach quota 3
-                                    var rewards = [
-                                      groupbuy.milestone1_settings.reward
-                                        .voucher_id,
-                                      groupbuy.milestone2_settings.reward
-                                        .voucher_id,
-                                      groupbuy.milestone3_settings.reward
-                                        .voucher_id,
-                                    ];
-                                    if (user.data().vouchers) {
-                                      promises2.push(
-                                        user.ref
-                                          .update({
-                                            //removes successful group buy from array
-                                            inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                              groupbuy.listingId
-                                            ),
-                                            vouchers: firebase.firestore.FieldValue.arrayUnion(
-                                              ...rewards
-                                            ),
-                                          })
-                                          .then(() => {
-                                            console.log("user updated");
-                                          })
-                                          .catch((err) => {
-                                            console.log("user fail to update");
-                                          })
-                                      );
-                                    } else {
-                                      promises2.push(
-                                        user.ref
-                                          .update({
-                                            //removes successful group buy from array
-                                            inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                              groupbuy.listingId
-                                            ),
-                                            vouchers: rewards,
-                                          })
-                                          .then(() => {
-                                            console.log("user updated");
-                                          })
-                                          .catch((err) => {
-                                            console.log("user fail to update");
-                                          })
-                                      );
-                                    }
-                                  }
-                                } else {
-                                  // no milestone 3
-                                  var rewards = [
-                                    groupbuy.milestone1_settings.reward
-                                      .voucher_id,
-                                    groupbuy.milestone2_settings.reward
-                                      .voucher_id,
-                                  ];
-                                  if (user.data().vouchers) {
-                                    promises2.push(
-                                      user.ref
-                                        .update({
-                                          //removes successful group buy from array
-                                          inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                            groupbuy.listingId
-                                          ),
-                                          vouchers: firebase.firestore.FieldValue.arrayUnion(
-                                            ...rewards
-                                          ),
-                                        })
-                                        .then(() => {
-                                          console.log("user updated");
-                                        })
-                                        .catch((err) => {
-                                          console.log("user fail to update");
-                                        })
-                                    );
-                                  } else {
-                                    promises2.push(
-                                      user.ref
-                                        .update({
-                                          //removes successful group buy from array
-                                          inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                            groupbuy.listingId
-                                          ),
-                                          vouchers: rewards,
-                                        })
-                                        .then(() => {
-                                          console.log("user updated");
-                                        })
-                                        .catch((err) => {
-                                          console.log("user fail to update");
-                                        })
-                                    );
-                                  }
-                                }
-                              }
-                            } else {
-                              // no milestone 2
-                              var rewards = [
-                                groupbuy.milestone1_settings.reward.voucher_id,
-                              ];
-                              if (user.data().vouchers) {
-                                promises2.push(
-                                  user.ref
-                                    .update({
-                                      //removes successful group buy from array
-                                      inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                        groupbuy.listingId
-                                      ),
-                                      vouchers: firebase.firestore.FieldValue.arrayUnion(
-                                        ...rewards
-                                      ),
-                                    })
-                                    .then(() => {
-                                      console.log("user updated");
-                                    })
-                                    .catch((err) => {
-                                      console.log("user fail to update");
-                                    })
-                                );
-                              } else {
-                                promises2.push(
-                                  user.ref
-                                    .update({
-                                      //removes successful group buy from array
-                                      inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                        groupbuy.listingId
-                                      ),
-                                      vouchers: rewards,
-                                    })
-                                    .then(() => {
-                                      console.log("user updated");
-                                    })
-                                    .catch((err) => {
-                                      console.log("user fail to update");
-                                    })
-                                );
-                              }
-                            }
-                          }
-                        } else {
-                          //no milestone 1
-                          promises2.push(
-                            user.ref
-                              .update({
-                                //removes successful group buy from array
-                                inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                                  groupbuy.listingId
-                                ),
-                              })
-                              .then(() => {
-                                console.log("user updated");
-                              })
-                              .catch((err) => {
-                                console.log("user fail to update");
-                              })
-                          );
-                        }
-                      });
-                      Promise.all(promises2).then(() => {
-                        Alert.alert(
-                          "Group buy ended",
-                          "All group buy transactions is ready to be shipped."
-                        );
-                        setLoading(false);
-                      });
-                    })
-                    .catch((err) => {
-                      console.log(err.message);
-                      setLoading(false);
-                    });
+                  Alert.alert(
+                    "Group buy ended",
+                    "All group buy transactions is ready to be shipped."
+                  );
+                  setLoading(false);
                 })
                 .catch((err) => {
                   console.log(err.message);

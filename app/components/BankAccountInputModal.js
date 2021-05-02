@@ -19,8 +19,10 @@ function BankAccountInputModal({ visible, bank_id, onPress, onExit }) {
   const [bank_account, setBank_account] = useState("");
   const [loading, setLoading] = useState(false);
   useEffect(() => {
-    setBank_account("");
-    setError(null);
+    if (visible == true) {
+      setBank_account("");
+      setError(null);
+    }
   }, [visible]);
 
   const validateAccount = (bank_account) => {

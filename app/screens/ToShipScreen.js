@@ -298,7 +298,8 @@ function ToShipScreen({ navigation }) {
                     </View>
                   </TouchableHighlight>
                 ) : (
-                  item.viableForRefund && (
+                  item.viableForRefund &&
+                  !item.groupbuy && (
                     <TouchableHighlight
                       style={{
                         padding: 8,

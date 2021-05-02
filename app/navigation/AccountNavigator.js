@@ -17,7 +17,9 @@ import WatchlistScreen from "../screens/WatchlistScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
 import CardDetailsScreen from "../screens/CardDetailsScreen";
+import LoyaltyProgramScreen from "../screens/LoyaltyProgramScreen";
 import ShippingAddressesScreen from "../screens/ShippingAddressesScreen";
+
 import routes from "./routes";
 import ReceiptScreen from "../screens/ReceiptScreen";
 import GroupBuyCheckoutScreen from "../screens/GroupBuyCheckoutScreen";
@@ -114,7 +116,7 @@ const AccountNavigator = () => (
     />
 
     {/* Account Management Section End */}
-
+    <Stack.Screen name={routes.LOYALTY} component={LoyaltyProgramScreen} />
     {/* Add Stack Screen for FAQ */}
     <Stack.Screen name={routes.MESSAGES} component={MessagesScreen} />
   </Stack.Navigator>
