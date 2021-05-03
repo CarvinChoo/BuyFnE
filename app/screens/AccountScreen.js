@@ -32,7 +32,7 @@ const menuItemsGuest = [
       name: "frequently-asked-questions",
       backgroundColor: colors.steelblue,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.FAQ,
   },
 ];
 
@@ -67,7 +67,7 @@ const menuItemsSeller = [
       name: "frequently-asked-questions",
       backgroundColor: colors.steelblue,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.FAQ,
   },
 ];
 
@@ -126,7 +126,7 @@ const menuItemsBuyer = [
       name: "frequently-asked-questions",
       backgroundColor: colors.steelblue,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.FAQ,
   },
 ];
 

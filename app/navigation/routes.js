@@ -44,4 +44,5 @@ export default Object.freeze({
   WATCHLIST: "Watchlist",
   MERCHANTREGISTER: " Merchant Registration",
   LOYALTY: "Group Buy Loyalty",
+  FAQ: "FAQ",
 });
