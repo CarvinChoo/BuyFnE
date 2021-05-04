@@ -45,52 +45,27 @@ function MessagesScreen({ navigation }) {
   const [tickets, setTickets] = useState([]);
   const { currentUser } = useContext(AuthApi.AuthContext);
   useEffect(() => {
-    if (currentUser.type != 3) {
-      var sub = db
-        .collection("supportTickets")
-        .where("user_uid", "==", currentUser.uid)
-        .orderBy("status", "asc")
-        .where("status", "<=", 1)
-        .orderBy("date_created", "desc")
-        .onSnapshot(
-          (tickets) => {
-            if (!tickets.empty) {
-              var tempTickets = [];
-              tickets.forEach((tick) => {
-                tempTickets.push({ ...tick.data() });
-              });
-              setTickets(tempTickets);
-            } else {
-              setTickets([]);
-            }
-          },
-          (error) => {
-            console.log(error.message);
+    var sub = db
+      .collection("supportTickets")
+      .where("admin", "==", currentUser.uid)
+      .where("status", "==", 0)
+      .orderBy("date_created", "desc")
+      .onSnapshot(
+        (tickets) => {
+          if (!tickets.empty) {
+            var tempTickets = [];
+            tickets.forEach((tick) => {
+              tempTickets.push({ ...tick.data() });
+            });
+            setTickets(tempTickets);
+          } else {
+            setTickets([]);
           }
-        );
-    } else {
-      var sub = db
-        .collection("supportTickets")
-        .where("admin", "==", null)
-        .where("status", "==", 0)
-        .orderBy("date_created", "desc")
-        .onSnapshot(
-          (tickets) => {
-            if (!tickets.empty) {
-              var tempTickets = [];
-              tickets.forEach((tick) => {
-                tempTickets.push({ ...tick.data() });
-              });
-              setTickets(tempTickets);
-            } else {
-              setTickets([]);
-            }
-          },
-          (error) => {
-            console.log(error.message);
-          }
-        );
-    }
+        },
+        (error) => {
+          console.log(error.message);
+        }
+      );
 
     return () => {
       sub();
@@ -216,60 +191,6 @@ function MessagesScreen({ navigation }) {
           </Text>
         </View>
       )}
-
-      {currentUser.type != 3 && (
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={() => setModal(true)}
-        >
-          <MaterialCommunityIcons
-            color={colors.teal}
-            size={80}
-            name='plus-circle'
-          />
-        </TouchableOpacity>
-      )}
-      <Modal transparent={true} visible={modal}>
-        <View style={styles.modal}>
-          <View style={styles.modalBoxContainer}>
-            <View style={{ alignItems: "flex-end" }}>
-              <TouchableOpacity onPress={() => setModal(false)}>
-                <MaterialCommunityIcons name='close' size={25} />
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: 5,
-              }}
-            >
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                Support Ticket
-              </Text>
-            </View>
-            <AppForm
-              initialValues={{
-                topic: "",
-                details: "", // even though price is a number, but in a form, it is represented as a string>
-              }}
-              onSubmit={handleSubmit}
-              validationSchema={validationSchema}
-            >
-              <AppFormField placeholder='Topic' name='topic' />
-              <AppFormField
-                placeholder='Details (explain your problem)'
-                name='details'
-                multiline
-                numberOfLines={5}
-              />
-              <View style={{ marginTop: 5 }}>
-                <SubmitButton title='Submit Ticket' />
-              </View>
-            </AppForm>
-          </View>
-        </View>
-      </Modal>
     </Screen>
   );
 }

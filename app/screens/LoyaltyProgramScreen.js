@@ -6,11 +6,11 @@ import colors from "../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AppText from "../components/AppText";
 import * as Progress from "expo-progress";
+import color from "color";
+import ListItemSeperator from "../components/lists/ListItemSeperator";
 
 // BackEnd
 import AuthApi from "../api/auth";
-import color from "color";
-import ListItemSeperator from "../components/lists/ListItemSeperator";
 function LoyaltyProgramScreen(props) {
   const [loyaltyThreshold1, setLoyaltyThreshold1] = useState(150);
   const [loyaltyThreshold2, setLoyaltyThreshold2] = useState(500);

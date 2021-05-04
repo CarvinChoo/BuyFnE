@@ -26,9 +26,6 @@ function AppNavigator() {
         },
         // set style options for all tabs
         activeBackgroundColor: colors.whitegrey, // on tab bg color
-        //activeTintColor: colors.darkgray, // on tab text color
-        // inactiveBackgroundColor: "#eee", //off tab bg color
-        // inactivateTintColor: "black", // off tab text color
       }}
     >
       <Tab.Screen
@@ -130,7 +127,14 @@ function AppNavigator() {
         component={AccountNavigator} // Stack navigator between AccountScreen and MessagesScreen
         options={({ navigation }) => ({
           tabBarVisible:
-            navigation.dangerouslyGetState().routes.length > 2
+            userType == 3
+              ? navigation
+                  .dangerouslyGetState()
+                  .routes[1].hasOwnProperty("state") &&
+                navigation.dangerouslyGetState().routes[1].state.index > 0
+                ? false
+                : true
+              : navigation.dangerouslyGetState().routes.length > 2
               ? navigation
                   .dangerouslyGetState()
                   .routes[2].hasOwnProperty("state") &&

@@ -30,6 +30,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "FAQ\n"
+    "description": "Support ticket\n"
   }
 }

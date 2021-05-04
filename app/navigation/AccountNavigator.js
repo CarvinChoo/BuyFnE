@@ -3,6 +3,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import AccountScreen from "../screens/AccountScreen";
 import MessagesScreen from "../screens/MessagesScreen";
+import MessagesInProgressScreen from "../screens/MessagesInProgressScreen";
+import TicketScreen from "../screens/TicketScreen";
 import ViewVouchersScreen from "../screens/ViewVouchersScreen";
 import ViewMerchantVouchersScreen from "../screens/ViewMerchantVouchersScreen";
 import CreateMerchantVoucherScreen from "../screens/CreateMerchantVoucherScreen";
@@ -120,6 +122,12 @@ const AccountNavigator = () => (
     {/* Add Stack Screen for FAQ */}
     <Stack.Screen name={routes.FAQ} component={FaqScreen} />
     <Stack.Screen name={routes.MESSAGES} component={MessagesScreen} />
+    <Stack.Screen name={routes.PENDINGMESSAGES} component={MessagesScreen} />
+    <Stack.Screen
+      name={routes.MESSAGESINPROGRESS}
+      component={MessagesInProgressScreen}
+    />
+    <Stack.Screen name={routes.SUPPORTTICKET} component={TicketScreen} />
   </Stack.Navigator>
 );
 

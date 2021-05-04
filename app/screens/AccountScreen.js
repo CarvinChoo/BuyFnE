@@ -137,7 +137,7 @@ const menuItemsAdmin = [
       name: "ticket-account",
       backgroundColor: colors.lightseagreen,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.PENDINGMESSAGES,
   },
   {
     title: "Support in Progress",
@@ -145,7 +145,7 @@ const menuItemsAdmin = [
       name: "comment-account",
       backgroundColor: colors.dodgerblue,
     },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.MESSAGESINPROGRESS,
   },
   {
     title: "Suspend Users",

@@ -555,6 +555,11 @@ function ListingDetailsScreen({ route, navigation }) {
                               "Currently functioning as Merchant",
                               "Please switch to shopper to access shopping cart functions."
                             )
+                        : userType == 3
+                        ? Alert.alert(
+                            "Administrator role",
+                            "Administrators do not have cart functionalities"
+                          )
                         : Alert.alert(
                             "Not Logged In",
                             "Please log in or sign up to add item to cart."
@@ -761,6 +766,7 @@ function ListingDetailsScreen({ route, navigation }) {
                       listing.quantity != 0 &&
                       currentUser.uid != listing.seller &&
                       userType != 2 &&
+                      userType != 3 &&
                       (listing.groupbuyId ? ( // check if there is an ongoing group buy
                         listing.groupbuyStatus == "Ongoing" ? (
                           listing.shoppers.includes(currentUser.uid) ? (
