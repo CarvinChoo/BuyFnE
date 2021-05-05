@@ -5,7 +5,74 @@ import { StyleSheet, View } from "react-native";
 import AppText from "./AppText";
 import ListItemSeperator from "./lists/ListItemSeperator";
 import colors from "../config/colors";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import Icon from "./Icon";
 function CheckoutVoucherListItem({ item, onPress }) {
+  const categories = [
+    {
+      label: "All",
+      value: 0,
+      backgroundColor: colors.brightred,
+      icon: "storefront",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Furniture",
+      value: 1,
+      backgroundColor: "saddlebrown",
+      icon: "table-furniture",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Clothing",
+      value: 2,
+      backgroundColor: "palevioletred",
+      icon: "shoe-formal",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Food",
+      value: 3,
+      backgroundColor: "orange",
+      icon: "food-fork-drink",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Games",
+      value: 4,
+      backgroundColor: "green",
+      icon: "games",
+      IconType: MaterialIcons,
+    },
+    {
+      label: "Computer",
+      value: 5,
+      backgroundColor: colors.muted,
+      icon: "computer",
+      IconType: MaterialIcons,
+    },
+    {
+      label: "Health",
+      value: 6,
+      backgroundColor: "red",
+      icon: "heart-plus",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Books",
+      value: 7,
+      backgroundColor: "maroon",
+      icon: "bookshelf",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Electronic",
+      value: 8,
+      backgroundColor: "skyblue",
+      icon: "electrical-services",
+      IconType: MaterialIcons,
+    },
+  ];
   return (
     <>
       <TouchableWithoutFeedback style={styles.container} onPress={onPress}>
@@ -15,8 +82,18 @@ function CheckoutVoucherListItem({ item, onPress }) {
             backgroundColor: item.apply ? colors.white : colors.whitegrey,
           }}
         >
-          <Image style={styles.image} source={{ uri: item.store_logo }} />
-
+          {item.store_logo ? (
+            <Image style={styles.image} source={{ uri: item.store_logo }} />
+          ) : (
+            <View style={{ justifyContent: "center", marginLeft: 10 }}>
+              <Icon
+                backgroundColor={categories[item.category].backgroundColor}
+                name={categories[item.category].icon}
+                IconType={categories[item.category].IconType}
+                size={80}
+              />
+            </View>
+          )}
           <View
             style={{
               flexDirection: "column",
@@ -59,16 +136,29 @@ function CheckoutVoucherListItem({ item, onPress }) {
                 </AppText>
               )}
             </View>
-            <AppText
-              numberOfLines={1}
-              style={{
-                color: colors.muted,
-                fontSize: 15,
-                width: 250,
-              }}
-            >
-              {"Store: " + item.store_name}
-            </AppText>
+            {item.store_name ? (
+              <AppText
+                numberOfLines={1}
+                style={{
+                  color: colors.muted,
+                  fontSize: 15,
+                  width: 250,
+                }}
+              >
+                {"Store: " + item.store_name}
+              </AppText>
+            ) : (
+              <AppText
+                numberOfLines={1}
+                style={{
+                  color: colors.muted,
+                  fontSize: 15,
+                  width: 250,
+                }}
+              >
+                {"Category: " + categories[item.category].label}
+              </AppText>
+            )}
           </View>
         </View>
       </TouchableWithoutFeedback>

@@ -8,13 +8,13 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   View,
+  Text,
 } from "react-native";
 
 import colors from "../config/colors";
 import Screen from "./Screen";
 import Icon from "./Icon";
 import CategoryPickerItem from "./CategoryPickerItem";
-import AppText from "./AppText";
 
 function AppPickerCat({ items, numOfColumns = 1, onSelectItem }) {
   // Text box Bar with conditional icon and dynamic text rendering
@@ -53,7 +53,9 @@ function AppPickerCat({ items, numOfColumns = 1, onSelectItem }) {
                 alignItems: "center",
               }}
             >
-              <AppText style={{ color: colors.white }}>Close</AppText>
+              <Text style={{ color: colors.white, fontWeight: "bold" }}>
+                Close
+              </Text>
             </View>
           </TouchableWithoutFeedback>
           <FlatList

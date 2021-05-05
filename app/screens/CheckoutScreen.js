@@ -116,7 +116,7 @@ function CheckoutScreen({ navigation }) {
             .get()
             .then((e) => {
               if (e.exists) {
-                if (e.data().category) {
+                if (e.data().category != null) {
                   // if admin issued voucher or store issued voucer
                   if (e.data().category == 0) {
                     // storewide voucher
@@ -250,7 +250,6 @@ function CheckoutScreen({ navigation }) {
       },
     })
       .then(({ _, data }) => {
-        console.log(data);
         if (mounted.current == true) {
           setCustomer(data);
           getCardSources(data);
@@ -879,14 +878,14 @@ function CheckoutScreen({ navigation }) {
     setPayableTotal(orderTotal);
     if (voucher) {
       cart.forEach((item) => {
-        if (voucher.category) {
-          if (item.category == voucher.category) {
+        if (voucher.category != null) {
+          if (item.category == voucher.category || voucher.category == 0) {
             if (voucher.percent) {
               totalDiscount =
                 totalDiscount +
                 item.price * item.count * (voucher.percentage_discount / 100);
             } else {
-              totalDiscount = totalDiscount + amount_discount;
+              totalDiscount = totalDiscount + voucher.amount_discount;
             }
           }
         } else {
@@ -896,7 +895,7 @@ function CheckoutScreen({ navigation }) {
                 totalDiscount +
                 item.price * item.count * (voucher.percentage_discount / 100);
             } else {
-              (totalDiscount) => totalDiscount + amount_discount;
+              (totalDiscount) => totalDiscount + voucher.amount_discount;
             }
           }
         }
@@ -916,6 +915,7 @@ function CheckoutScreen({ navigation }) {
     setVoucher(voucher);
     setVoucherModalVisible(false);
   };
+
   const renderHeader = () => {
     return (
       <View style={{ marginBottom: 10 }}>
@@ -986,10 +986,10 @@ function CheckoutScreen({ navigation }) {
               />
             }
             onPress={() => {
-              currentUser.vouchers == null
+              currentUser.vouchers == null || currentUser.vouchers.length < 1
                 ? Alert.alert(
                     "No Vouchers available",
-                    "You do not have any vouchers. Add more in the Voucher section in your account page"
+                    "You do not have any vouchers. \nAdd more in the Voucher section of your account page"
                   )
                 : setVoucherModalVisible(true);
             }}

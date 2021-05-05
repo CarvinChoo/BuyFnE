@@ -330,7 +330,6 @@ function ListingDetailsScreen({ route, navigation }) {
       setCart((cart) => [...cart, addedListing]);
       Alert.alert("Added", "Item added to cart.");
     }
-    console.log(cart);
   };
 
   const addToWatchlist = () => {

@@ -7,6 +7,8 @@ import MessagesInProgressScreen from "../screens/MessagesInProgressScreen";
 import TicketScreen from "../screens/TicketScreen";
 import ViewVouchersScreen from "../screens/ViewVouchersScreen";
 import ViewMerchantVouchersScreen from "../screens/ViewMerchantVouchersScreen";
+import ViewAdminVouchersScreen from "../screens/ViewAdminVouchersScreen";
+import CreateAdminVoucherScreen from "../screens/CreateAdminVoucherScreen";
 import CreateMerchantVoucherScreen from "../screens/CreateMerchantVoucherScreen";
 import ListingsHistoryScreen from "../screens/ListingsHistoryScreen";
 import EditListingParameterScreen from "../screens/EditListingParameterScreen";
@@ -78,6 +80,14 @@ const AccountNavigator = () => (
     <Stack.Screen
       name={routes.VIEWMERVOUCHER}
       component={ViewMerchantVouchersScreen}
+    />
+    <Stack.Screen
+      name={routes.PLATFORMVOUCHERS}
+      component={ViewAdminVouchersScreen}
+    />
+    <Stack.Screen
+      name={routes.CREATEPLATFORMVOUCHERS}
+      component={CreateAdminVoucherScreen}
     />
     <Stack.Screen name={routes.VIEWVOUCHER} component={ViewVouchersScreen} />
     <Stack.Screen

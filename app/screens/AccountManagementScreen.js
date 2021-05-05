@@ -268,28 +268,32 @@ function AccountManagementScreen({ navigation }) {
                 setSecretModalVisible(true);
               }}
             />
-            <ListItemSeperator />
-            <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                Checkout Details
-              </AppText>
-            </View>
-            {/* Address */}
-            <ListItemSeperator />
-            <ListItem
-              title='Shipping Addresses'
-              style={{ paddingLeft: 0 }}
-              onPress={() => navigation.navigate(routes.SHIPPINGADDRESSES)}
-            />
-            <ListItemSeperator />
+            {currentUser.type != 3 && (
+              <>
+                <ListItemSeperator />
+                <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
+                  <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                    Checkout Details
+                  </AppText>
+                </View>
+                {/* Address */}
+                <ListItemSeperator />
+                <ListItem
+                  title='Shipping Addresses'
+                  style={{ paddingLeft: 0 }}
+                  onPress={() => navigation.navigate(routes.SHIPPINGADDRESSES)}
+                />
+                <ListItemSeperator />
 
-            {/* Payment Info */}
-            <ListItem
-              title='Shopper Payment Details'
-              style={{ paddingLeft: 0 }}
-              onPress={() => navigation.navigate(routes.PAYMENTDETAILS)}
-            />
-            <ListItemSeperator />
+                {/* Payment Info */}
+                <ListItem
+                  title='Shopper Payment Details'
+                  style={{ paddingLeft: 0 }}
+                  onPress={() => navigation.navigate(routes.PAYMENTDETAILS)}
+                />
+                <ListItemSeperator />
+              </>
+            )}
             {/* Merchant Information */}
 
             {currentUser.isMerchant == true && (

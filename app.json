@@ -30,6 +30,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Support ticket\n"
+    "description": "Admin Vouchers"
   }
 }

@@ -5,7 +5,74 @@ import { StyleSheet, View } from "react-native";
 import AppText from "../components/AppText";
 import ListItemSeperator from "../components/lists/ListItemSeperator";
 import colors from "../config/colors";
+import Icon from "./Icon";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 function VoucherListItem({ item, onPress }) {
+  const categories = [
+    {
+      label: "All",
+      value: 0,
+      backgroundColor: colors.brightred,
+      icon: "storefront",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Furniture",
+      value: 1,
+      backgroundColor: "saddlebrown",
+      icon: "table-furniture",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Clothing",
+      value: 2,
+      backgroundColor: "palevioletred",
+      icon: "shoe-formal",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Food",
+      value: 3,
+      backgroundColor: "orange",
+      icon: "food-fork-drink",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Games",
+      value: 4,
+      backgroundColor: "green",
+      icon: "games",
+      IconType: MaterialIcons,
+    },
+    {
+      label: "Computer",
+      value: 5,
+      backgroundColor: colors.muted,
+      icon: "computer",
+      IconType: MaterialIcons,
+    },
+    {
+      label: "Health",
+      value: 6,
+      backgroundColor: "red",
+      icon: "heart-plus",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Books",
+      value: 7,
+      backgroundColor: "maroon",
+      icon: "bookshelf",
+      IconType: MaterialCommunityIcons,
+    },
+    {
+      label: "Electronic",
+      value: 8,
+      backgroundColor: "skyblue",
+      icon: "electrical-services",
+      IconType: MaterialIcons,
+    },
+  ];
   return (
     <>
       <TouchableWithoutFeedback style={styles.container} onPress={onPress}>
@@ -15,7 +82,18 @@ function VoucherListItem({ item, onPress }) {
             backgroundColor: colors.white,
           }}
         >
-          <Image style={styles.image} source={{ uri: item.store_logo }} />
+          {item.store_logo ? (
+            <Image style={styles.image} source={{ uri: item.store_logo }} />
+          ) : (
+            <View style={{ justifyContent: "center", marginLeft: 10 }}>
+              <Icon
+                backgroundColor={categories[item.category].backgroundColor}
+                name={categories[item.category].icon}
+                IconType={categories[item.category].IconType}
+                size={80}
+              />
+            </View>
+          )}
 
           <View
             style={{
@@ -48,16 +126,29 @@ function VoucherListItem({ item, onPress }) {
                 {"Valid till: " + item.expiry_date_string}
               </AppText>
             </View>
-            <AppText
-              numberOfLines={1}
-              style={{
-                color: colors.muted,
-                fontSize: 15,
-                width: 250,
-              }}
-            >
-              {"Store: " + item.store_name}
-            </AppText>
+            {item.store_name ? (
+              <AppText
+                numberOfLines={1}
+                style={{
+                  color: colors.muted,
+                  fontSize: 15,
+                  width: 250,
+                }}
+              >
+                {"Store: " + item.store_name}
+              </AppText>
+            ) : (
+              <AppText
+                numberOfLines={1}
+                style={{
+                  color: colors.muted,
+                  fontSize: 15,
+                  width: 250,
+                }}
+              >
+                {"Category: " + categories[item.category].label}
+              </AppText>
+            )}
           </View>
         </View>
       </TouchableWithoutFeedback>

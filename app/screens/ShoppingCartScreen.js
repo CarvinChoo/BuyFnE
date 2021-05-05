@@ -24,7 +24,7 @@ function ShoppingCartScreen({ navigation }) {
   //Change order1 to item.count property for each item
   const onChange = (number, item) => {
     item.count = number;
-    console.log(cart);
+
     //item.count = number
   };
   const onDelete = (item) => {

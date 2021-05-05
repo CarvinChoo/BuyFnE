@@ -105,7 +105,7 @@ const menuItemsBuyer = [
     targetScreen: routes.VIEWVOUCHER,
   },
   {
-    title: "Group Buy Loyalty Progress",
+    title: "Group Buy Loyalty Program",
     icon: {
       name: "gift",
       backgroundColor: colors.plum,
@@ -304,7 +304,7 @@ function AccountScreen({ navigation }) {
               IconComponent={
                 <Icon name='ticket-percent' backgroundColor={colors.green} />
               }
-              onPress={() => navigation.navigate(routes.MESSAGES)}
+              onPress={() => navigation.navigate(routes.PLATFORMVOUCHERS)}
             />
           </View>
         )}
