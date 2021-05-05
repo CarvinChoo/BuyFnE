@@ -46,6 +46,14 @@ const menuItemsSeller = [
     targetScreen: routes.LISTINGSHISTORY,
   },
   {
+    title: "Messages (Merchant)",
+    icon: {
+      name: "message",
+      backgroundColor: colors.teal,
+    },
+    targetScreen: routes.CHAT,
+  },
+  {
     title: "Store Vouchers",
     icon: {
       name: "ticket-percent",
@@ -87,6 +95,14 @@ const menuItemsBuyer = [
       backgroundColor: colors.darkorchid,
     },
     targetScreen: routes.MYGROUPBUYS,
+  },
+  {
+    title: "Messages",
+    icon: {
+      name: "message",
+      backgroundColor: colors.teal,
+    },
+    targetScreen: routes.CHAT,
   },
   {
     title: "Watchlist",
@@ -131,6 +147,14 @@ const menuItemsBuyer = [
 ];
 
 const menuItemsAdmin = [
+  {
+    title: "Messages",
+    icon: {
+      name: "message",
+      backgroundColor: colors.teal,
+    },
+    targetScreen: routes.CHAT,
+  },
   {
     title: "Pending Support Tickets",
     icon: {

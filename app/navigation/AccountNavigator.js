@@ -3,6 +3,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import AccountScreen from "../screens/AccountScreen";
 import MessagesScreen from "../screens/MessagesScreen";
+import ChatMessagesScreen from "../screens/ChatMessagesScreen";
+import ChatScreen from "../screens/ChatScreen";
 import MessagesInProgressScreen from "../screens/MessagesInProgressScreen";
 import TicketScreen from "../screens/TicketScreen";
 import ViewVouchersScreen from "../screens/ViewVouchersScreen";
@@ -131,12 +133,15 @@ const AccountNavigator = () => (
     <Stack.Screen name={routes.LOYALTY} component={LoyaltyProgramScreen} />
     {/* Add Stack Screen for FAQ */}
     <Stack.Screen name={routes.FAQ} component={FaqScreen} />
+    {/* Messages section */}
     <Stack.Screen name={routes.MESSAGES} component={MessagesScreen} />
     <Stack.Screen name={routes.PENDINGMESSAGES} component={MessagesScreen} />
     <Stack.Screen
       name={routes.MESSAGESINPROGRESS}
       component={MessagesInProgressScreen}
     />
+    <Stack.Screen name={routes.CHAT} component={ChatMessagesScreen} />
+    <Stack.Screen name={routes.CHATROOM} component={ChatScreen} />
     <Stack.Screen name={routes.SUPPORTTICKET} component={TicketScreen} />
   </Stack.Navigator>
 );

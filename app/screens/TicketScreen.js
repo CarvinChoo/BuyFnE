@@ -67,25 +67,47 @@ function TicketScreen({ route, navigation }) {
       });
   };
   const handleSubmit = (details) => {
-    if (currentUser.type == 3 && ticket.admin == null) {
-      if (details.length > 0) {
-        db.collection("supportTickets")
-          .doc(support_id)
-          .update({
-            admin: currentUser.uid,
-            messages: firebase.firestore.FieldValue.arrayUnion({
-              author: currentUser.uid,
-              author_name: currentUser.displayName,
-              time: firebase.firestore.Timestamp.now(),
-              details: details,
-            }),
-          })
-          .then(() => {
-            setNewMessage("");
-          })
-          .catch((e) => {
-            console.log(e.message);
-          });
+    if (currentUser.type == 3) {
+      if (ticket.admin == null) {
+        if (details.length > 0) {
+          db.collection("supportTickets")
+            .doc(support_id)
+            .update({
+              admin: currentUser.uid,
+              messages: firebase.firestore.FieldValue.arrayUnion({
+                author: currentUser.uid,
+                author_name: currentUser.displayName + " (admin)",
+                time: firebase.firestore.Timestamp.now(),
+                details: details,
+              }),
+            })
+            .then(() => {
+              setNewMessage("");
+            })
+            .catch((e) => {
+              console.log(e.message);
+            });
+        }
+      } else {
+        if (details.length > 0) {
+          db.collection("supportTickets")
+            .doc(support_id)
+            .update({
+              admin: currentUser.uid,
+              messages: firebase.firestore.FieldValue.arrayUnion({
+                author: currentUser.uid,
+                author_name: currentUser.displayName + " (admin)",
+                time: firebase.firestore.Timestamp.now(),
+                details: details,
+              }),
+            })
+            .then(() => {
+              setNewMessage("");
+            })
+            .catch((e) => {
+              console.log(e.message);
+            });
+        }
       }
     } else {
       if (details.length > 0) {

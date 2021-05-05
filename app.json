@@ -30,6 +30,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "Admin Vouchers"
+    "description": "User and seller contact"
   }
 }

@@ -1,5 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, Image, ScrollView, Text, Alert } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Text,
+  Alert,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler";
 
 import AppText from "../components/AppText";
@@ -11,7 +20,12 @@ import ListItemSeperator from "../components/lists/ListItemSeperator";
 import ListItem from "../components/lists/ListItem";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Progress from "expo-progress";
-
+import {
+  AppForm,
+  AppFormField,
+  AppSquareFormField,
+  SubmitButton,
+} from "../components/forms";
 //Navigation
 import routes from "../navigation/routes";
 // BackEnd
@@ -21,7 +35,12 @@ import * as firebase from "firebase";
 import db from "../api/db";
 import VoucherListItem from "../components/VoucherListItem";
 import color from "color";
+import * as Yup from "yup";
+import Icon from "../components/Icon";
 
+const validationSchema = Yup.object().shape({
+  chat: Yup.string().required().min(1).label("Message"), //label is just to set the name for the field when displaying generic error message
+});
 function ListingDetailsScreen({ route, navigation }) {
   // // Stack.Screen and part of navigation, has access to {route} to bring over parameters from previous page
   const all_listingId = route.params;
@@ -31,6 +50,7 @@ function ListingDetailsScreen({ route, navigation }) {
   const [progress2, setProgress2] = useState(0);
   const [progress3, setProgress3] = useState(0);
   const [currentMilestone, setCurrentMilestone] = useState(null);
+  const [modal, setModal] = useState(false);
   const [complete1, setComplete1] = useState("");
   const [complete2, setComplete2] = useState("");
   const [complete3, setComplete3] = useState("");
@@ -361,6 +381,79 @@ function ListingDetailsScreen({ route, navigation }) {
         });
     }
   };
+
+  const handleSubmit = (chat, { resetForm }) => {
+    const ref = db.collection("chat").doc();
+    if (currentUser.type == 3) {
+      ref
+        .set({
+          chat_id: ref.id,
+          user_uid: currentUser.uid,
+          user_name: currentUser.displayName,
+          seller: listing.seller,
+          store_name: listing.store_name,
+          product_name: listing.title,
+          date_created: firebase.firestore.Timestamp.now(),
+          messages: [
+            {
+              author: currentUser.uid,
+              author_name: currentUser.displayName + " (admin)",
+              time: firebase.firestore.Timestamp.now(),
+              chat: chat.chat,
+            },
+          ],
+        })
+        .then(() => {
+          resetForm();
+          Alert.alert(
+            "New message posted to seller",
+            "Please wait for the seller to answer your queries or respond."
+          );
+          setModal(false);
+        })
+        .catch((e) => {
+          console.log(e.message);
+          Alert.alert(
+            "Error",
+            "Failed to create new message. Please try again later."
+          );
+        });
+    } else {
+      ref
+        .set({
+          chat_id: ref.id,
+          user_uid: currentUser.uid,
+          user_name: currentUser.displayName,
+          seller: listing.seller,
+          store_name: listing.store_name,
+          product_name: listing.title,
+          date_created: firebase.firestore.Timestamp.now(),
+          messages: [
+            {
+              author: currentUser.uid,
+              author_name: currentUser.displayName,
+              time: firebase.firestore.Timestamp.now(),
+              chat: chat.chat,
+            },
+          ],
+        })
+        .then(() => {
+          resetForm();
+          Alert.alert(
+            "New message posted to seller",
+            "Please wait for the seller to answer your queries or respond."
+          );
+          setModal(false);
+        })
+        .catch((e) => {
+          console.log(e.message);
+          Alert.alert(
+            "Error",
+            "Failed to create new message. Please try again later."
+          );
+        });
+    }
+  };
   return (
     //******* REMEMBER Listing document id is listing.key
     //********* TO BE USED WHEN ADDING TO CART
@@ -415,6 +508,7 @@ function ListingDetailsScreen({ route, navigation }) {
                     paddingHorizontal: 10,
                     paddingVertical: 5,
                     backgroundColor: "white",
+                    marginBottom: 5,
                   }}
                 >
                   <AppText
@@ -476,6 +570,26 @@ function ListingDetailsScreen({ route, navigation }) {
                   subTitle={listing.store_name}
                   border={true}
                 />
+                {currentUser && currentUser.uid != listing.seller && (
+                  <>
+                    <ListItemSeperator />
+                    <ListItem
+                      style={{ paddingVertical: 5, marginBottom: 5 }}
+                      IconComponent={
+                        <Icon
+                          name='message'
+                          backgroundColor={colors.white}
+                          iconColor={colors.muted}
+                          size={50}
+                        />
+                      }
+                      title='Contact Seller'
+                      onPress={() => {
+                        setModal(true);
+                      }}
+                    />
+                  </>
+                )}
                 <ListItemSeperator />
                 {/* Description Section */}
                 <View
@@ -1066,6 +1180,45 @@ function ListingDetailsScreen({ route, navigation }) {
               </AppText>
             </View>
           )}
+          <Modal transparent={true} visible={modal}>
+            <View style={styles.modal}>
+              <View style={styles.modalBoxContainer}>
+                <View style={{ alignItems: "flex-end" }}>
+                  <TouchableOpacity onPress={() => setModal(false)}>
+                    <MaterialCommunityIcons name='close' size={25} />
+                  </TouchableOpacity>
+                </View>
+                <View
+                  style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginBottom: 5,
+                  }}
+                >
+                  <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                    Contact Seller
+                  </Text>
+                </View>
+                <AppForm
+                  initialValues={{
+                    chat: "", // even though price is a number, but in a form, it is represented as a string>
+                  }}
+                  onSubmit={handleSubmit}
+                  validationSchema={validationSchema}
+                >
+                  <AppFormField
+                    placeholder='Message to the seller'
+                    name='chat'
+                    multiline
+                    numberOfLines={5}
+                  />
+                  <View style={{ marginTop: 5 }}>
+                    <SubmitButton title='Submit message' />
+                  </View>
+                </AppForm>
+              </View>
+            </View>
+          </Modal>
         </Screen>
       </ScrollView>
     </>
@@ -1120,6 +1273,18 @@ const styles = StyleSheet.create({
     color: "#ff3300",
     fontFamily: "sans-serif-light",
     fontWeight: "bold",
+  },
+
+  modal: {
+    backgroundColor: "#000000aa",
+    flex: 1,
+  },
+  modalBoxContainer: {
+    backgroundColor: colors.white,
+    marginTop: 50,
+    borderRadius: 5,
+    padding: 20,
+    paddingTop: 5,
   },
 });
 export default ListingDetailsScreen;

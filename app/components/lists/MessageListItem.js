@@ -8,8 +8,11 @@ import ListItemSeperator from "./ListItemSeperator";
 import color from "color";
 
 function MessageListItem({
+  chat = false,
+  usertype,
   time,
   title,
+  product_name,
   subTitle,
   status,
   image,
@@ -47,10 +50,22 @@ function MessageListItem({
                 : time.toDate().getMinutes()}
               {status == 1 && "                        Status: CLOSED"}
             </AppText>
-            <AppText style={styles.title} numberOfLines={1}>
-              {"Topic:  "}
-              {title}
-            </AppText>
+            {chat ? (
+              usertype == 1 ? (
+                <AppText style={styles.title} numberOfLines={1}>
+                  {"Store:  " + title}
+                </AppText>
+              ) : (
+                <AppText style={styles.title} numberOfLines={1}>
+                  {"Product:  " + product_name}
+                </AppText>
+              )
+            ) : (
+              <AppText style={styles.title} numberOfLines={1}>
+                {"Topic:  "}
+                {title}
+              </AppText>
+            )}
             <View style={{ flexDirection: "row" }}>
               {subTitle && (
                 <AppText style={styles.subTitle} numberOfLines={2}>
