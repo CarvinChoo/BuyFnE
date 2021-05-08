@@ -127,6 +127,8 @@ function ListingsScreen({ navigation }) {
               currentOrderCount: documentSnapshot.data().currentOrderCount,
               minimumOrderCount: documentSnapshot.data().minimumOrderCount,
               quantity: documentSnapshot.data().quantity,
+              rating: documentSnapshot.data().rating,
+              reviews: documentSnapshot.data().reviews,
             });
           });
           setAllListings(listings);

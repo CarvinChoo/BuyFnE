@@ -1,17 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
   StyleSheet,
   TouchableWithoutFeedback,
   Image,
+  Text,
 } from "react-native";
 // import { Image } from "react-native-expo-image-cache"; //for image blur when loading
 import colors from "../config/colors";
-import AppText from "./AppText";
 import ListItemSeperator from "./lists/ListItemSeperator";
+
 // function Card({ title, subTitle, imageUrl, onPress, thumbnailUrl })
 function ListingsCard({ item, onPress }) {
+  const [maxRating, setMaxRating] = useState([1, 2, 3, 4, 5]);
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.card}>
@@ -24,24 +26,57 @@ function ListingsCard({ item, onPress }) {
           uri={imageUrl}
         /> */}
         <View style={styles.detailsContainer}>
-          <AppText style={styles.title} numberOfLines={1}>
+          <Text style={styles.title} numberOfLines={1}>
             {item.title}
-          </AppText>
+          </Text>
           {/*!!!!!!!!!!!!!!!!!!!!!!! Hard Coded Store Tag */}
           <View>
-            <AppText
+            <Text
               style={{
                 color: colors.muted,
                 fontFamily: "sans-serif-light",
-                marginBottom: 10,
+                fontSize: 15,
+                fontWeight: "bold",
               }}
               numberOfLines={1}
             >
               {"Sold by: " + item.store_name}
-            </AppText>
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            {maxRating.map((each, key) => {
+              return each <= item.rating / item.reviews ? ( // if rating is larger than
+                <MaterialCommunityIcons
+                  key={each}
+                  color={colors.goldenrod}
+                  name='star'
+                  size={20}
+                />
+              ) : each - item.rating / item.reviews <= 0.5 &&
+                each - item.rating / item.reviews > 0 ? (
+                <MaterialCommunityIcons
+                  key={each}
+                  color={colors.goldenrod}
+                  name='star-half-full'
+                  size={20}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  key={each}
+                  name='star-outline'
+                  size={20}
+                  color={colors.muted}
+                />
+              );
+            })}
           </View>
           <View style={[styles.subTitleContainer]}>
-            <AppText
+            <Text
               style={[
                 styles.subTitle,
                 item.groupbuyId && {
@@ -52,11 +87,11 @@ function ListingsCard({ item, onPress }) {
               numberOfLines={1}
             >
               ${item.price.toFixed(2)}
-            </AppText>
+            </Text>
             {item.groupbuyId && (
-              <AppText style={styles.subTitle2} numberOfLines={1}>
-                ${item.discountedPrice}
-              </AppText>
+              <Text style={styles.subTitle2} numberOfLines={1}>
+                ${item.discountedPrice.toFixed(2)}
+              </Text>
             )}
             {/* Discount Tag */}
 
@@ -69,15 +104,15 @@ function ListingsCard({ item, onPress }) {
                 marginLeft: item.groupbuyId ? 10 : 20,
               }}
             >
-              <AppText
+              <Text
                 style={{
-                  fontSize: 18,
+                  fontSize: 17,
                   color: "white",
                   fontWeight: "bold",
                 }}
               >
                 {(!item.groupbuyId && "Group Buy: ") + item.discount + "% OFF"}
-              </AppText>
+              </Text>
             </View>
           </View>
           {/*!!!!!!!!!!!!!!!!!!!!!!! Hard coded Timer and stock*/}
@@ -101,15 +136,15 @@ function ListingsCard({ item, onPress }) {
                     justifyContent: "center",
                   }}
                 >
-                  <AppText
+                  <Text
                     style={{
-                      fontSize: 18,
+                      fontSize: 15,
                       color: "white",
                       fontWeight: "bold",
                     }}
                   >
                     {"Group Buy " + item.groupbuyStatus}
-                  </AppText>
+                  </Text>
                 </View>
               </View>
 
@@ -126,7 +161,7 @@ function ListingsCard({ item, onPress }) {
                   color={colors.chocolate}
                   style={{}}
                 />
-                <AppText
+                <Text
                   style={{
                     fontSize: 14,
                     color: colors.chocolate,
@@ -138,7 +173,7 @@ function ListingsCard({ item, onPress }) {
                   {item.currentOrderCount +
                     (item.currentOrderCount < item.minimumOrderCount &&
                       "/" + item.minimumOrderCount)}
-                </AppText>
+                </Text>
               </View>
             </>
           ) : (
@@ -152,11 +187,16 @@ function ListingsCard({ item, onPress }) {
                 },
               ]}
             >
-              <AppText
-                style={{ color: "black", fontFamily: "sans-serif-condensed" }}
+              <Text
+                style={{
+                  color: colors.muted,
+                  fontFamily: "sans-serif-condensed",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                }}
               >
                 {"Stock: " + item.quantity + " left"}
-              </AppText>
+              </Text>
             </View>
           )}
         </View>
@@ -186,17 +226,20 @@ const styles = StyleSheet.create({
     color: "#ff3300",
     fontFamily: "sans-serif-light",
     fontWeight: "bold",
+    fontSize: 17,
   },
   subTitle2: {
     color: colors.green,
     fontFamily: "sans-serif-light",
     fontWeight: "bold",
     marginLeft: 10,
+    fontSize: 17,
   },
   title: {
     marginBottom: 0,
     fontFamily: "sans-serif-medium",
     fontWeight: "bold",
+    fontSize: 18,
   },
   subTitleContainer: {
     flexDirection: "row",

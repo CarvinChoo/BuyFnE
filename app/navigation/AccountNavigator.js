@@ -26,10 +26,11 @@ import CardDetailsScreen from "../screens/CardDetailsScreen";
 import LoyaltyProgramScreen from "../screens/LoyaltyProgramScreen";
 import ShippingAddressesScreen from "../screens/ShippingAddressesScreen";
 import FaqScreen from "../screens/FaqScreen";
-import routes from "./routes";
 import ReceiptScreen from "../screens/ReceiptScreen";
 import GroupBuyCheckoutScreen from "../screens/GroupBuyCheckoutScreen";
 import GroupBuyOrderConfirmedScreen from "../screens/GroupBuyOrderConfirmedScreen";
+import SuspendUsersScreen from "../screens/SuspendUsersScreen";
+import routes from "./routes";
 const Stack = createStackNavigator();
 
 // Stack navigator between AccountScreen and MessagesScreen
@@ -143,6 +144,7 @@ const AccountNavigator = () => (
     <Stack.Screen name={routes.CHAT} component={ChatMessagesScreen} />
     <Stack.Screen name={routes.CHATROOM} component={ChatScreen} />
     <Stack.Screen name={routes.SUPPORTTICKET} component={TicketScreen} />
+    <Stack.Screen name={routes.SUSPEND} component={SuspendUsersScreen} />
   </Stack.Navigator>
 );
 

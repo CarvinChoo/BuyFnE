@@ -52,10 +52,18 @@ function LoginScreen({ navigation }) {
         authVerification(userCredential.user);
       })
       .catch((error) => {
-        Alert.alert(
-          "Wrong Credentials",
-          "Please sign in using a valid email/password."
-        );
+        if (
+          error.message ==
+          "The user account has been disabled by an administrator."
+        ) {
+          Alert.alert("Account suspended", error.message);
+        } else {
+          Alert.alert(
+            "Wrong Credentials",
+            "Please sign in using a valid email/password."
+          );
+        }
+
         setLoading(false);
       });
   };

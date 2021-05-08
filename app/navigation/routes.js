@@ -51,4 +51,6 @@ export default Object.freeze({
   MERCHANTREGISTER: " Merchant Registration",
   LOYALTY: "Group Buy Loyalty",
   FAQ: "FAQ",
+  SUSPEND: "Suspend Users",
+  REVIEWS: "Reviews",
 });

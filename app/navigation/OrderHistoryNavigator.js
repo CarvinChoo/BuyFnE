@@ -21,7 +21,7 @@ function OrderHistoryNavigator() {
       <Tab.Screen
         name={routes.TOSHIP}
         component={ToShipScreen}
-        options={{ tabBarLabel: "To Ship" }}
+        options={{ tabBarLabel: "Pending" }}
       />
       <Tab.Screen
         name={routes.COMPLETE}
@@ -31,7 +31,7 @@ function OrderHistoryNavigator() {
       <Tab.Screen
         name={routes.REFUND}
         component={RefundScreen}
-        options={{ tabBarLabel: "Refund" }}
+        options={{ tabBarLabel: "Refunded" }}
       />
     </Tab.Navigator>
   );

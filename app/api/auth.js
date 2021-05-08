@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import app from "../auth/base.js";
 import db from "../api/db";
+import { Alert } from "react-native";
 const AuthContext = React.createContext();
 
 const AuthProvider = ({ children }) => {
@@ -28,18 +29,26 @@ const AuthProvider = ({ children }) => {
             .doc(user.uid)
             .onSnapshot(
               (user) => {
-                stillListening.current = true;
-                console.log("onSnapshot listener actively listening.");
-                if (user.exists) {
-                  const utype = user.data().type;
-                  setUserType(utype);
-                  setCurrentUser(user.data());
+                if (user.data().suspended) {
+                  app.auth().signOut();
+                  Alert.alert(
+                    "Account Suspended",
+                    "Your account has been suspended by an administrator."
+                  );
                 } else {
-                  stillListening.current = false;
-                  setCurrentUser(null);
-                  setUserType(0);
+                  stillListening.current = true;
+                  console.log("onSnapshot listener actively listening.");
+                  if (user.exists) {
+                    const utype = user.data().type;
+                    setUserType(utype);
+                    setCurrentUser(user.data());
+                  } else {
+                    stillListening.current = false;
+                    setCurrentUser(null);
+                    setUserType(0);
+                  }
+                  setinitialLoading(false);
                 }
-                setinitialLoading(false);
               },
               (error) => {
                 stillListening.current = false;

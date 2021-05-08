@@ -20,18 +20,19 @@ import ListItemDeleteAction from "../components/lists/ListItemDeleteAction";
 import Icon from "../components/Icon";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Yup from "yup";
-// BackEnd
-import AuthApi from "../api/auth";
-import * as firebase from "firebase";
 import {
   AppForm,
   AppFormField,
   AppSquareFormField,
   SubmitButton,
 } from "../components/forms";
+// BackEnd
+import AuthApi from "../api/auth";
+import * as firebase from "firebase";
+import db from "../api/db";
+
 //Navigation
 import routes from "../navigation/routes";
-import db from "../api/db";
 const validationSchema = Yup.object().shape({
   topic: Yup.string().required().min(1).label("Topic"), //label is just to set the name for the field when displaying generic error message
   details: Yup.string().required().min(1).label("Details"),

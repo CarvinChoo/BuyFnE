@@ -33,7 +33,7 @@ function AppDatePicker() {
             <AppText style={styles.dobText}>Date of Birth</AppText>
           ) : (
             <AppText>
-              {date.getDate()} - {date.getMonth() + 1} - {date.getFullYear()}
+              {date.getDate()} / {date.getMonth() + 1} / {date.getFullYear()}
             </AppText>
           )}
         </View>

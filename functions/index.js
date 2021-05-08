@@ -714,6 +714,279 @@ exports.updateStoreAddress = functions.https.onRequest((request, response) => {
       throw new Error(error);
     });
 });
+
+exports.suspendUser = functions.https.onRequest((request, response) => {
+  return admin
+    .auth()
+    .updateUser(request.body.uid, { disabled: true })
+    .then(() => {
+      if (request.body.date) {
+        const date = new Date(request.body.date);
+        var suspended_till = admin.firestore.Timestamp.fromDate(date);
+        db.collection("users")
+          .doc(request.body.uid)
+          .update({
+            suspended: true,
+            suspended_till: suspended_till,
+          })
+          .then(() => {
+            if (request.body.isMerchant) {
+              db.collection("all_listings")
+                .where("seller", "==", request.body.uid)
+                .get()
+                .then((listings) => {
+                  if (!listings.empty) {
+                    var promises = [];
+                    listings.forEach((listing) => {
+                      promises.push(
+                        listing.ref
+                          .update({
+                            listingStatus: "Pause",
+                            groupbuyId: null,
+                          })
+                          .then(() => {
+                            console.log("Updated listing");
+                          })
+                          .catch((e) => {
+                            console.log(
+                              "Failed to update listing: ",
+                              e.message
+                            );
+                          })
+                      );
+                    });
+                    Promise.all(promises).then(() => {
+                      db.collection("transactions")
+                        .where("seller_id", "==", request.body.uid)
+                        .orderBy("status", "asc")
+                        .where("status", "<", 4)
+                        .get()
+                        .then((trans) => {
+                          if (!trans.empty) {
+                            var promises2 = [];
+                            trans.forEach((tran) => {
+                              promises2.push(
+                                tran.ref
+                                  .update({
+                                    status: 6, //refunded
+                                  })
+                                  .then(() => {
+                                    stripe.refunds //refund on failed group buy
+                                      .create({
+                                        charge: tran.data().charge_id,
+                                      })
+                                      .then(() => {
+                                        console.log(
+                                          "Successfully refunded customer"
+                                        );
+                                      })
+                                      .catch((error) => {
+                                        console.log(
+                                          "Error when refunding customer: ",
+                                          error
+                                        );
+                                      });
+                                  })
+                                  .catch((error) => {
+                                    console.log(
+                                      "Error when setting refunded status: ",
+                                      error.message
+                                    );
+                                  })
+                              );
+                            });
+                            Promise.all(promises2)
+                              .then(() => {
+                                response.send("Success");
+                              })
+                              .catch((e) => {
+                                console.log(
+                                  "Failed to refund all customer: ",
+                                  e.message
+                                );
+                                throw new Error(e);
+                              });
+                          } else {
+                            console.log("Transaction Empty");
+                            response.send("Success");
+                          }
+                        })
+                        .catch((e) => {
+                          console.log("Failed to update listing:", e.message);
+                          throw new Error(e);
+                        });
+                    });
+                  } else {
+                  }
+                });
+            } else {
+              console.log("Not merchant");
+              response.send("Success");
+            }
+          })
+          .catch((e) => {
+            console.log("Error updating user: ", e.message);
+            throw new Error(e);
+          });
+      } else {
+        db.collection("users")
+          .doc(request.body.uid)
+          .update({
+            suspended: true,
+            suspended_till: null,
+          })
+          .then(() => {
+            if (request.body.isMerchant) {
+              db.collection("all_listings")
+                .where("seller", "==", request.body.uid)
+                .get()
+                .then((listings) => {
+                  if (!listings.empty) {
+                    var promises = [];
+                    listings.forEach((listing) => {
+                      promises.push(
+                        listing.ref
+                          .update({
+                            listingStatus: "Pause",
+                            groupbuyId: null,
+                          })
+                          .then(() => {
+                            console.log("Updated listing");
+                          })
+                          .catch((e) => {
+                            console.log(
+                              "Failed to update listing: ",
+                              e.message
+                            );
+                          })
+                      );
+                    });
+                    Promise.all(promises).then(() => {
+                      db.collection("transactions")
+                        .where("seller_id", "==", request.body.uid)
+                        .orderBy("status", "asc")
+                        .where("status", "<", 4)
+                        .get()
+                        .then((trans) => {
+                          if (!trans.empty) {
+                            var promises2 = [];
+                            trans.forEach((tran) => {
+                              promises2.push(
+                                tran.ref
+                                  .update({
+                                    status: 6, //refunded
+                                  })
+                                  .then(() => {
+                                    stripe.refunds //refund on failed group buy
+                                      .create({
+                                        charge: tran.data().charge_id,
+                                      })
+                                      .then(() => {
+                                        console.log(
+                                          "Successfully refunded customer"
+                                        );
+                                      })
+                                      .catch((error) => {
+                                        console.log(
+                                          "Error when refunding customer: ",
+                                          error
+                                        );
+                                      });
+                                  })
+                                  .catch((error) => {
+                                    console.log(
+                                      "Error when setting refunded status: ",
+                                      error.message
+                                    );
+                                  })
+                              );
+                            });
+                            Promise.all(promises2)
+                              .then(() => {
+                                response.send("Success");
+                              })
+                              .catch((e) => {
+                                console.log(
+                                  "Failed to refund all customers: ",
+                                  e.message
+                                );
+                                throw new Error(e);
+                              });
+                          } else {
+                            console.log("Transaction Empty");
+                            response.send("Success");
+                          }
+                        });
+                    });
+                  } else {
+                  }
+                });
+            } else {
+              console.log("Not merchant");
+              response.send("Success");
+            }
+          })
+          .catch((e) => {
+            console.log("Error updating user: ", e.message);
+            throw new Error(e);
+          });
+      }
+    });
+});
+
+exports.unsuspendUser = functions.https.onRequest((request, response) => {
+  return admin
+    .auth()
+    .updateUser(request.body.uid, { disabled: false })
+    .then(() => {
+      db.collection("users")
+        .doc(request.body.uid)
+        .update({
+          suspended: false,
+          suspended_till: null,
+        })
+        .then(() => {
+          console.log("Unsuspend user");
+          response.send("Success");
+        })
+        .catch((e) => {
+          console.log("Error when unsuspending user : ", error);
+          throw new Error(error);
+        });
+    });
+});
+
+exports.scheduledUnsuspend = functions
+  .region("asia-southeast2")
+  .pubsub.schedule("0 0 * * *")
+  .timeZone("Asia/Singapore")
+  .onRun(async (context) => {
+    var currentTime = admin.firestore.Timestamp.now();
+    return db
+      .collection("users")
+      .where("suspended_till", "<=", currentTime)
+      .get()
+      .then((users) => {
+        if (!users.empty) {
+          users.forEach((user) => {
+            user.ref
+              .update({
+                suspended: false,
+                suspended_till: null,
+              })
+              .then(() => {
+                console.log("Unsuspend user");
+              })
+              .catch((e) => {
+                console.log("Error when unsuspending user : ", error);
+              });
+          });
+        }
+      })
+      .catch((e) => {
+        console.log("Error getting suspended users: ", e.message);
+      });
+  });
 // exports.addMessage = functions.https.onCall((data, context) => {
 // const ref = db.collection(sellerTransaction).doc()
 //   return .set({

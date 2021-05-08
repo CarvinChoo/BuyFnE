@@ -177,15 +177,7 @@ const menuItemsAdmin = [
       name: "account-cancel",
       backgroundColor: colors.brightred,
     },
-    targetScreen: routes.MESSAGES,
-  },
-  {
-    title: "Delete Users",
-    icon: {
-      name: "account-off",
-      backgroundColor: colors.darkred,
-    },
-    targetScreen: routes.MESSAGES,
+    targetScreen: routes.SUSPEND,
   },
 ];
 const defaultImage =

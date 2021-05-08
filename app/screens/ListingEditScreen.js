@@ -245,6 +245,8 @@ function ListingEditScreen() {
                 milestone3_settings: null,
                 buylimit: Number(listing.buylimit),
                 listingStatus: "Active",
+                reviews: 0,
+                rating: 0,
               })
               .then(() => {
                 setError(null);

@@ -8,8 +8,8 @@ import {
   Alert,
   Modal,
   TouchableOpacity,
+  TouchableHighlight,
 } from "react-native";
-import { TouchableHighlight } from "react-native-gesture-handler";
 
 import AppText from "../components/AppText";
 import Screen from "../components/Screen";
@@ -61,6 +61,7 @@ function ListingDetailsScreen({ route, navigation }) {
   const [second, setSecond] = useState(0);
   const [minute, setMinute] = useState(0);
   const [hour, setHour] = useState(0);
+  const [maxRating, setMaxRating] = useState([1, 2, 3, 4, 5]);
   const { cart, setCart, currentUser, userType } = useContext(
     AuthApi.AuthContext
   );
@@ -217,7 +218,7 @@ function ListingDetailsScreen({ route, navigation }) {
                         ...doc.data().milestone1_settings,
                         milestone: 1,
                       });
-                      setProgress(1);
+                      setProgress1(1);
                       setComplete1("Milestone reached");
                     }
                   }
@@ -454,6 +455,7 @@ function ListingDetailsScreen({ route, navigation }) {
         });
     }
   };
+
   return (
     //******* REMEMBER Listing document id is listing.key
     //********* TO BE USED WHEN ADDING TO CART
@@ -549,17 +551,66 @@ function ListingDetailsScreen({ route, navigation }) {
                       {"Stock: " + listing.quantity}
                     </AppText>
                   </View>
-                  <AppText
+                  <ListItemSeperator />
+                  <TouchableOpacity
                     style={{
-                      fontSize: 18,
-                      marginBottom: 5,
-                      fontWeight: "bold",
-                      fontFamily: "sans-serif-condensed",
-                      fontWeight: "bold",
+                      paddingVertical: 8,
+                    }}
+                    onPress={() => {
+                      navigation.navigate(routes.REVIEWS, {
+                        listingId: all_listingId,
+                        title: "Reviews (" + listing.reviews + ")",
+                      });
                     }}
                   >
-                    {"10 Reviews | " + listing.soldCount + " Sold"}
-                  </AppText>
+                    <AppText
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        fontFamily: "sans-serif-condensed",
+                        fontWeight: "bold",
+                        color: "#3C3737",
+                      }}
+                    >
+                      {listing.reviews +
+                        " Reviews | " +
+                        listing.soldCount +
+                        " Sold"}
+                    </AppText>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginTop: 5,
+                      }}
+                    >
+                      {maxRating.map((each, key) => {
+                        return each <= listing.rating / listing.reviews ? ( // if rating is larger than
+                          <MaterialCommunityIcons
+                            key={each}
+                            color={colors.goldenrod}
+                            name='star'
+                            size={20}
+                          />
+                        ) : each - listing.rating / listing.reviews <= 0.5 &&
+                          each - listing.rating / listing.reviews > 0 ? (
+                          <MaterialCommunityIcons
+                            key={each}
+                            color={colors.goldenrod}
+                            name='star-half-full'
+                            size={20}
+                          />
+                        ) : (
+                          <MaterialCommunityIcons
+                            key={each}
+                            name='star-outline'
+                            size={20}
+                            color={colors.muted}
+                          />
+                        );
+                      })}
+                    </View>
+                  </TouchableOpacity>
                 </View>
                 <ListItemSeperator />
                 {/*!!!!!!!!!!!!!!!!!! Hard coded Seller Info */}

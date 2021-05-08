@@ -4,6 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import ListingsScreen from "../screens/ListingsScreen";
 import CategoryListingsScreen from "../screens/CategoryListingsScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
+import ReviewsScreen from "../screens/ReviewsScreen";
 import GroupBuyCheckoutScreen from "../screens/GroupBuyCheckoutScreen";
 import GroupBuyOrderConfirmedScreen from "../screens/GroupBuyOrderConfirmedScreen";
 import routes from "./routes";
@@ -37,6 +38,14 @@ const FeedNavigator = () => (
       name={routes.LISTING_DETAILS}
       component={ListingDetailsScreen}
       options={{ headerTitle: false }}
+    />
+    <Stack.Screen
+      name={routes.REVIEWS}
+      component={ReviewsScreen}
+      options={({ route }) => ({
+        title: route.params.title,
+        headerBackTitleVisible: false,
+      })}
     />
     <Stack.Screen
       name={routes.GBCHECKOUT}

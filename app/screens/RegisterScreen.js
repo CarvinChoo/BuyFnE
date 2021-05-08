@@ -218,6 +218,8 @@ function RegisterScreen({ navigation }) {
         loyalty_accumulative: Number(0),
         loyalty_interval_start: firebase.firestore.Timestamp.now(),
         loyalty_interval_end: loyalty_interval_end,
+        suspended: false,
+        suspended_till: null,
       })
       .then(() => {
         // setUserType(isEnabled ? 2 : 1); // set userType numeric 1 for Buyer and 2 for Seller

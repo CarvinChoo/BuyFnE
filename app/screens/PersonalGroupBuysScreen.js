@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   Image,
   StyleSheet,
@@ -18,7 +19,7 @@ import db from "../api/db";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import routes from "../navigation/routes";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-
+import * as firebase from "firebase";
 function PersonalGroupBuysScreen({ navigation }) {
   const { currentUser } = useContext(AuthApi.AuthContext);
 
@@ -29,22 +30,59 @@ function PersonalGroupBuysScreen({ navigation }) {
     var groupbuys = []; // make a temp array to store groupbuys
     const promises = [];
     if (currentUser.inGroupBuys) {
+      var ref = db.collection("users").doc(currentUser.uid);
       currentUser.inGroupBuys.forEach((groupbuyId) => {
-        let promise = db
-          .collection("all_listings")
-          .doc(groupbuyId)
-          .get()
-          .then((groupbuy) => {
-            // push listing one by one into temp array
-            groupbuys.push({
-              ...groupbuy.data(), // spread all properties of a listing document
-              key: groupbuy.id, // used by flatlist to identify each ListItem
-            });
-          })
-          .catch((error) => {
-            console.log("Error getting group buy info: ", error.message);
-          });
-        promises.push(promise);
+        promises.push(
+          db
+            .collection("all_listings")
+            .doc(groupbuyId)
+            .get()
+            .then((groupbuy) => {
+              // push listing one by one into temp array
+              if (
+                groupbuy.data().groupbuyId == null ||
+                (groupbuy.data().shoppers &&
+                  !groupbuy.data().shoppers.includes(currentUser.uid))
+              ) {
+                ref
+                  .update({
+                    inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
+                      groupbuy.data().listingId
+                    ),
+                  })
+                  .then(() => {
+                    console.log("Removed groupbuy");
+                  })
+                  .catch((e) => {
+                    console.log("Failed to removed");
+                  });
+              } else if (
+                groupbuy.data().shoppers == null ||
+                groupbuy.data().shoppers.length < 1
+              ) {
+                ref
+                  .update({
+                    inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
+                      groupbuy.data().listingId
+                    ),
+                  })
+                  .then(() => {
+                    console.log("Removed groupbuy");
+                  })
+                  .catch((e) => {
+                    console.log("Failed to removed");
+                  });
+              } else {
+                groupbuys.push({
+                  ...groupbuy.data(), // spread all properties of a listing document
+                  key: groupbuy.id, // used by flatlist to identify each ListItem
+                });
+              }
+            })
+            .catch((error) => {
+              console.log("Error getting group buy info: ", error.message);
+            })
+        );
       });
 
       Promise.all(promises)

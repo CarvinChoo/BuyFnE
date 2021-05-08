@@ -37,7 +37,7 @@ function AppExpiryPicker({ name, title }) {
             <AppText style={styles.dobText}>{title}</AppText>
           ) : (
             <AppText>
-              {date.getDate()} - {date.getMonth() + 1} - {date.getFullYear()}
+              {date.getDate()} / {date.getMonth() + 1} / {date.getFullYear()}
             </AppText>
           )}
         </View>
