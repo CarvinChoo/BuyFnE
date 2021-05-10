@@ -33,6 +33,7 @@ import db from "../api/db";
 
 //Navigation
 import routes from "../navigation/routes";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 const validationSchema = Yup.object().shape({
   topic: Yup.string().required().min(1).label("Topic"), //label is just to set the name for the field when displaying generic error message
   details: Yup.string().required().min(1).label("Details"),
@@ -44,31 +45,36 @@ function MessagesScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [modal, setModal] = useState(false);
   const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refresh, setRefresh] = useState(0);
   const { currentUser } = useContext(AuthApi.AuthContext);
   useEffect(() => {
+    setLoading(true);
     if (currentUser.type != 3) {
-      var sub = db
-        .collection("supportTickets")
+      db.collection("supportTickets")
         .where("user_uid", "==", currentUser.uid)
         .orderBy("status", "asc")
         .where("status", "<=", 1)
         .orderBy("date_created", "desc")
-        .onSnapshot(
-          (tickets) => {
-            if (!tickets.empty) {
-              var tempTickets = [];
-              tickets.forEach((tick) => {
-                tempTickets.push({ ...tick.data() });
-              });
-              setTickets(tempTickets);
-            } else {
-              setTickets([]);
-            }
-          },
-          (error) => {
-            console.log(error.message);
+        .get()
+        .then((tickets) => {
+          if (!tickets.empty) {
+            var tempTickets = [];
+            tickets.forEach((tick) => {
+              tempTickets.push({ ...tick.data() });
+            });
+            setTickets(tempTickets);
+            setLoading(false);
+          } else {
+            setTickets([]);
+            setLoading(false);
           }
-        );
+        })
+        .catch((error) => {
+          console.log(error.message);
+          Alert.alert("Failed to retrieve support tickets", error.message);
+          setLoading(false);
+        });
     } else {
       var sub = db
         .collection("supportTickets")
@@ -83,20 +89,27 @@ function MessagesScreen({ navigation }) {
                 tempTickets.push({ ...tick.data() });
               });
               setTickets(tempTickets);
+              setLoading(false);
             } else {
               setTickets([]);
+              setLoading(false);
             }
           },
           (error) => {
+            setTickets([]);
             console.log(error.message);
+            Alert.alert("Failed to retrieve support tickets", error.message);
+            setLoading(false);
           }
         );
     }
 
     return () => {
-      sub();
+      if (currentUser.type == 3) {
+        sub();
+      }
     };
-  }, []);
+  }, [refresh]);
 
   //This is a function
   const handleDelete = (item) => {
@@ -111,6 +124,7 @@ function MessagesScreen({ navigation }) {
       });
   };
   const handleSubmit = (supportTicket, { resetForm }) => {
+    setModal(false);
     const ref = db.collection("supportTickets").doc();
 
     ref
@@ -133,13 +147,14 @@ function MessagesScreen({ navigation }) {
       })
       .then(() => {
         resetForm();
+        setRefresh((refresh) => refresh + 1);
         Alert.alert(
           "Support Ticket created",
           "Please wait for our administrator to answer your queries."
         );
-        setModal(false);
       })
       .catch((e) => {
+        setModal(false);
         console.log(e.message);
         Alert.alert(
           "Error",
@@ -155,6 +170,7 @@ function MessagesScreen({ navigation }) {
   return (
     // <View style={styles.screen}></View> // only use on android if SafeAreaView does not work
     <Screen style={{ backgroundColor: colors.whitegrey, paddingTop: 0 }}>
+      <AppActivityIndicator visible={loading} />
       {tickets.length > 0 && (
         <View style={{ alignItems: "center", padding: 5 }}>
           <Text style={{ color: colors.muted, fontSize: 13 }}>
@@ -183,19 +199,6 @@ function MessagesScreen({ navigation }) {
             />
           )} // destructure "item" object  extract out "item" properties to be passed into ListItem
           ItemSeparatorComponent={ListItemSeperator} // a properties that requires an object to be used to seperate each item in "messages" array
-          refreshing={refreshing} // used to refresh page
-          onRefresh={() => {
-            // usually used to retreive from server
-            setMessages([
-              // set state of Messages
-              {
-                id: 2,
-                title: "T2",
-                description: "D2",
-                image: null,
-              },
-            ]);
-          }}
         />
       ) : (
         <View

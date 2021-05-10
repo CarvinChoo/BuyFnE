@@ -29,25 +29,31 @@ const AuthProvider = ({ children }) => {
             .doc(user.uid)
             .onSnapshot(
               (user) => {
-                if (user.data().suspended) {
-                  app.auth().signOut();
-                  Alert.alert(
-                    "Account Suspended",
-                    "Your account has been suspended by an administrator."
-                  );
-                } else {
-                  stillListening.current = true;
-                  console.log("onSnapshot listener actively listening.");
-                  if (user.exists) {
-                    const utype = user.data().type;
-                    setUserType(utype);
-                    setCurrentUser(user.data());
+                if (user.exists) {
+                  if (user.data().suspended) {
+                    app.auth().signOut();
+                    Alert.alert(
+                      "Account Suspended",
+                      "Your account has been suspended by an administrator."
+                    );
                   } else {
-                    stillListening.current = false;
-                    setCurrentUser(null);
-                    setUserType(0);
+                    stillListening.current = true;
+                    console.log("onSnapshot listener actively listening.");
+                    if (user.exists) {
+                      const utype = user.data().type;
+                      setUserType(utype);
+                      setCurrentUser(user.data());
+                    } else {
+                      stillListening.current = false;
+                      setCurrentUser(null);
+                      setUserType(0);
+                    }
+                    setinitialLoading(false);
                   }
-                  setinitialLoading(false);
+                } else {
+                  setCurrentUser(null);
+                  setUserType(0);
+                  userListener();
                 }
               },
               (error) => {

@@ -950,9 +950,13 @@ exports.unsuspendUser = functions.https.onRequest((request, response) => {
           response.send("Success");
         })
         .catch((e) => {
-          console.log("Error when unsuspending user : ", error);
-          throw new Error(error);
+          console.log("Error when unsuspending user : ", e.message);
+          throw new Error(e);
         });
+    })
+    .catch((e) => {
+      console.log("Error when unsuspending user : ", e.message);
+      throw new Error(e);
     });
 });
 
@@ -969,16 +973,30 @@ exports.scheduledUnsuspend = functions
       .then((users) => {
         if (!users.empty) {
           users.forEach((user) => {
-            user.ref
-              .update({
-                suspended: false,
-                suspended_till: null,
-              })
+            admin
+              .auth()
+              .updateUser(request.body.uid, { disabled: false })
               .then(() => {
-                console.log("Unsuspend user");
+                user.ref
+                  .update({
+                    suspended: false,
+                    suspended_till: null,
+                  })
+                  .then(() => {
+                    console.log("Unsuspend user");
+                  })
+                  .catch((e) => {
+                    console.log(
+                      "Error when unsuspending user in database : ",
+                      e.message
+                    );
+                  });
               })
               .catch((e) => {
-                console.log("Error when unsuspending user : ", error);
+                console.log(
+                  "Error when unsuspending user in auth : ",
+                  e.message
+                );
               });
           });
         }

@@ -39,44 +39,59 @@ function PersonalGroupBuysScreen({ navigation }) {
             .get()
             .then((groupbuy) => {
               // push listing one by one into temp array
-              if (
-                groupbuy.data().groupbuyId == null ||
-                (groupbuy.data().shoppers &&
-                  !groupbuy.data().shoppers.includes(currentUser.uid))
-              ) {
-                ref
-                  .update({
-                    inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                      groupbuy.data().listingId
-                    ),
-                  })
-                  .then(() => {
-                    console.log("Removed groupbuy");
-                  })
-                  .catch((e) => {
-                    console.log("Failed to removed");
+              if (groupbuy.exists) {
+                if (
+                  groupbuy.data().groupbuyId == null ||
+                  (groupbuy.data().shoppers &&
+                    !groupbuy.data().shoppers.includes(currentUser.uid))
+                ) {
+                  ref
+                    .update({
+                      inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
+                        groupbuy.data().listingId
+                      ),
+                    })
+                    .then(() => {
+                      console.log("Removed groupbuy");
+                    })
+                    .catch((e) => {
+                      console.log("Failed to removed");
+                    });
+                } else if (
+                  groupbuy.data().shoppers == null ||
+                  groupbuy.data().shoppers.length < 1
+                ) {
+                  ref
+                    .update({
+                      inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
+                        groupbuy.data().listingId
+                      ),
+                    })
+                    .then(() => {
+                      console.log("Removed groupbuy");
+                    })
+                    .catch((e) => {
+                      console.log("Failed to removed");
+                    });
+                } else {
+                  groupbuys.push({
+                    ...groupbuy.data(), // spread all properties of a listing document
+                    key: groupbuy.id, // used by flatlist to identify each ListItem
                   });
-              } else if (
-                groupbuy.data().shoppers == null ||
-                groupbuy.data().shoppers.length < 1
-              ) {
-                ref
-                  .update({
-                    inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
-                      groupbuy.data().listingId
-                    ),
-                  })
-                  .then(() => {
-                    console.log("Removed groupbuy");
-                  })
-                  .catch((e) => {
-                    console.log("Failed to removed");
-                  });
+                }
               } else {
-                groupbuys.push({
-                  ...groupbuy.data(), // spread all properties of a listing document
-                  key: groupbuy.id, // used by flatlist to identify each ListItem
-                });
+                ref
+                  .update({
+                    inGroupBuys: firebase.firestore.FieldValue.arrayRemove(
+                      groupbuyId
+                    ),
+                  })
+                  .then(() => {
+                    console.log("Removed groupbuy");
+                  })
+                  .catch((e) => {
+                    console.log("Failed to removed");
+                  });
               }
             })
             .catch((error) => {
@@ -110,7 +125,7 @@ function PersonalGroupBuysScreen({ navigation }) {
       <AppActivityIndicator // loading animation component
         visible={loading} // {loading} is a boolean state
       />
-      {groupbuys ? (
+      {groupbuys.length > 0 ? (
         <FlatList
           style={{ paddingTop: 10 }}
           data={groupbuys}
@@ -324,13 +339,16 @@ function PersonalGroupBuysScreen({ navigation }) {
       ) : (
         <View
           style={{
+            paddingHorizontal: 20,
             justifyContent: "center",
             alignItems: "center",
-            flex: 1,
+            marginVertical: "50%",
           }}
         >
-          <AppText style={{ fontFamily: "sans-serif-medium" }}>
-            Currently not in any active group buys
+          <AppText
+            style={{ fontSize: 30, fontWeight: "bold", color: colors.grey }}
+          >
+            No Active Group Buys
           </AppText>
         </View>
       )}

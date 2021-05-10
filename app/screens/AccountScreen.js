@@ -258,6 +258,7 @@ function AccountScreen({ navigation }) {
                   : currentUser.displayName
                 : "Guest"
             }
+            admin={userType == 3 ? true : false}
             subTitle={
               currentUser
                 ? currentUser.email

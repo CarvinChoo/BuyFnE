@@ -818,7 +818,9 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
             </Text>
           </View>
         </View>
-        <AppButton title='Place Order' onPress={() => handlePlaceOrder()} />
+        <View style={{ marginTop: 25 }}>
+          <AppButton title='Place Order' onPress={() => handlePlaceOrder()} />
+        </View>
       </View>
     );
   };

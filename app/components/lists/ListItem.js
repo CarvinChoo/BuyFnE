@@ -14,6 +14,7 @@ function ListItem({
   renderRightActions,
   border = false, // default turns off border if not stated
   style,
+  admin,
 }) {
   return (
     <Swipeable renderRightActions={renderRightActions}>
@@ -41,6 +42,17 @@ function ListItem({
             {subTitle && (
               <AppText style={styles.subTitle} numberOfLines={2}>
                 {subTitle}
+              </AppText>
+            )}
+            {admin && (
+              <AppText
+                style={[
+                  styles.subTitle,
+                  { color: colors.danger, fontWeight: "bold" },
+                ]}
+                numberOfLines={2}
+              >
+                Administrator
               </AppText>
             )}
           </View>

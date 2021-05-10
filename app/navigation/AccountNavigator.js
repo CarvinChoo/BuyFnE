@@ -21,6 +21,7 @@ import MerchantOrdersNavigator from "../navigation/MerchantOrdersNavigator";
 import PersonalGroupBuysScreen from "../screens/PersonalGroupBuysScreen";
 import WatchlistScreen from "../screens/WatchlistScreen";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
+import ReviewsScreen from "../screens/ReviewsScreen";
 import MerchantRegisterScreen from "../screens/MerchantRegisterScreen";
 import CardDetailsScreen from "../screens/CardDetailsScreen";
 import LoyaltyProgramScreen from "../screens/LoyaltyProgramScreen";
@@ -59,6 +60,11 @@ const AccountNavigator = () => (
       name={routes.LISTING_DETAILS}
       component={ListingDetailsScreen}
       options={{ headerTitle: false }}
+    />
+    <Stack.Screen
+      name={routes.REVIEWS}
+      component={ReviewsScreen}
+      options={{ backHeaderTitle: false }}
     />
     {/* GroupBuys Section End*/}
     {/* Watchlist Section */}

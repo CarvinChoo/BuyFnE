@@ -22,13 +22,16 @@ import AuthApi from "../api/auth";
 //Navigation
 import routes from "../navigation/routes";
 import db from "../api/db";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 
 function ChatMessagesScreen({ navigation }) {
   //useState(initialMessages) returns an array, 1st element of the array is inital state variable
   // 2nd element of the array is the function name to be used to set the state
   const [chats, setChats] = useState([]);
   const { currentUser } = useContext(AuthApi.AuthContext);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
+    setLoading(true);
     if (currentUser.type == 2) {
       console.log("Hello");
       var sub = db
@@ -43,12 +46,15 @@ function ChatMessagesScreen({ navigation }) {
                 tempChats.push({ ...msg.data() });
               });
               setChats(tempChats);
+              setLoading(false);
             } else {
               setChats([]);
+              setLoading(false);
             }
           },
           (error) => {
             console.log(error.message);
+            setLoading(false);
           }
         );
     } else {
@@ -64,12 +70,15 @@ function ChatMessagesScreen({ navigation }) {
                 tempChats.push({ ...msg.data() });
               });
               setChats(tempChats);
+              setLoading(false);
             } else {
               setChats([]);
+              setLoading(false);
             }
           },
           (error) => {
             console.log(error.message);
+            setLoading(false);
           }
         );
     }
@@ -98,6 +107,7 @@ function ChatMessagesScreen({ navigation }) {
 
   return (
     <Screen style={{ backgroundColor: colors.whitegrey, paddingTop: 0 }}>
+      <AppActivityIndicator visible={loading} />
       {chats.length > 0 && (
         <View style={{ alignItems: "center", padding: 5 }}>
           <Text style={{ color: colors.muted, fontSize: 13 }}>

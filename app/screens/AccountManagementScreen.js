@@ -19,6 +19,9 @@ import AuthenticateInputModal from "../components/AuthenticateInputModal";
 import BankAccountInputModal from "../components/BankAccountInputModal";
 import StoreAddressInputModel from "../components/StoreAddressInputModel";
 import AuthenticateAndChangePasswordInputModal from "../components/AuthenticateAndChangePasswordInputModal";
+import AuthenticateAndDeleteModal from "../components/AuthenticateAndDeleteModal";
+import AuthenticateAndDeleteModal2 from "../components/AuthenticateAndDeleteModal2";
+import AuthenticateAndDeleteModal3 from "../components/AuthenticateAndDeleteModal3";
 import ListItem from "../components/lists/ListItem";
 import AccountMListItem from "../components/lists/AccountMListItem";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -46,6 +49,9 @@ function AccountManagementScreen({ navigation }) {
   const [secretModalVisible, setSecretModalVisible] = useState(false);
   const [bankModalVisible, setBankModalVisible] = useState(false);
   const [addressModalVisible, setAddressModalVisible] = useState(false);
+  const [closeModalVisible, setCloseModalVisible] = useState(false);
+  const [closeModalVisible2, setCloseModalVisible2] = useState(false);
+  const [closeModalVisible3, setCloseModalVisible3] = useState(false);
   const [focusField, setFocusField] = useState(null);
 
   useEffect(() => {
@@ -108,231 +114,276 @@ function AccountManagementScreen({ navigation }) {
   return (
     <>
       <AppActivityIndicator visible={loading} />
-      <ScrollView>
-        <Screen style={{ paddingTop: 0, backgroundColor: colors.whitegrey }}>
-          {/* Profile Pic */}
-          <View style={styles.instruction}>
-            <AppText style={{ color: colors.white, fontSize: 15 }}>
-              Tap to edit
-            </AppText>
-          </View>
+      {currentUser && (
+        <ScrollView>
+          <Screen style={{ paddingTop: 0, backgroundColor: colors.whitegrey }}>
+            {/* Profile Pic */}
+            <View style={styles.instruction}>
+              <AppText style={{ color: colors.white, fontSize: 15 }}>
+                Tap to edit
+              </AppText>
+            </View>
 
-          <View
-            style={{
-              backgroundColor: colors.orange,
-              paddingTop: 15,
-              paddingBottom: 5,
-              alignItems: "center",
-            }}
-          >
-            <ImageInputAM
-              imageUri={profilePic}
-              localImage={localImage}
-              onChangeImage={(image) => {
-                setProfilePic(image);
-                setLocalImage(true);
-              }}
-            />
-          </View>
-          <View
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: colors.orange,
-              flexDirection: "row",
-              paddingBottom: 5,
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => {
-                setProfilePic(currentUser.profilePic);
-                setLocalImage(false);
-              }}
-              style={{ marginRight: 10 }}
-            >
-              <MaterialCommunityIcons
-                name='refresh-circle'
-                size={25}
-                color={colors.muted}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                if (currentUser.profilePic) {
-                  setProfilePic(null);
-                  setLocalImage(true);
-                } else {
-                  setProfilePic(null);
-                  setLocalImage(false);
-                }
-              }}
-            >
-              <MaterialCommunityIcons
-                name='close-circle'
-                size={25}
-                color={colors.muted}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
-            <AppText style={{ color: colors.muted, fontSize: 15 }}>
-              My Account
-            </AppText>
-          </View>
-          {/* Email */}
-          <ListItemSeperator />
-          <AccountMListItem
-            title={"Email:   " + email}
-            style={{ paddingLeft: 0 }}
-            textStyle={{ fontSize: 15 }}
-            onPress={() => {
-              setFocusField("Email");
-              setModalVisible(true);
-            }}
-          />
-          {/* First Name */}
-          <ListItemSeperator />
-          <AccountMListItem
-            title={"First Name:   " + first_name}
-            style={{ paddingLeft: 0 }}
-            textStyle={{ fontSize: 15 }}
-            onPress={() => {
-              setFocusField("First Name");
-              setModalVisible(true);
-            }}
-          />
-          {/* Last Name */}
-          <ListItemSeperator />
-          <AccountMListItem
-            title={"Last Name:   " + last_name}
-            style={{ paddingLeft: 0 }}
-            textStyle={{ fontSize: 15 }}
-            onPress={() => {
-              setFocusField("Last Name");
-              setModalVisible(true);
-            }}
-          />
-          {/* Display Name */}
-          <ListItemSeperator />
-          <AccountMListItem
-            title={"Display Name:   " + displayName}
-            style={{ paddingLeft: 0 }}
-            textStyle={{ fontSize: 15 }}
-            onPress={() => {
-              setFocusField("Display Name");
-              setModalVisible(true);
-            }}
-          />
-          {/* Date of Birth */}
-          <ListItemSeperator />
-          <AccountMListItem
-            title={
-              "Date of Birth:   " +
-              (currentUser.dob_day < 10
-                ? "0" + currentUser.dob_day
-                : currentUser.dob_day) +
-              "/" +
-              (currentUser.dob_month < 10
-                ? "0" + currentUser.dob_month
-                : currentUser.dob_month) +
-              "/" +
-              currentUser.dob_year
-            }
-            style={{ paddingLeft: 0 }}
-            textStyle={{ color: colors.muted, fontSize: 15 }}
-          />
-          <ListItemSeperator />
-          {/* Save Changes button */}
-          <View style={{ alignItems: "center" }}>
-            <AppButton
-              title='Save Changes'
-              icon='content-save'
-              color='brightred'
+            <View
               style={{
-                width: "50%",
-                marginVertical: 20,
-                paddingVertical: 10,
+                backgroundColor: colors.orange,
+                paddingTop: 15,
+                paddingBottom: 5,
+                alignItems: "center",
               }}
-              onPress={() => {
-                setAuthModalVisible(true);
+            >
+              <ImageInputAM
+                imageUri={profilePic}
+                localImage={localImage}
+                onChangeImage={(image) => {
+                  setProfilePic(image);
+                  setLocalImage(true);
+                }}
+              />
+            </View>
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: colors.orange,
+                flexDirection: "row",
+                paddingBottom: 5,
               }}
-            />
-          </View>
-          <ListItemSeperator />
-          <View style={{ marginBottom: 100 }}>
-            <ListItem
-              title='Change Password'
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  setProfilePic(currentUser.profilePic);
+                  setLocalImage(false);
+                }}
+                style={{ marginRight: 10 }}
+              >
+                <MaterialCommunityIcons
+                  name='refresh-circle'
+                  size={25}
+                  color={colors.muted}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  if (currentUser.profilePic) {
+                    setProfilePic(null);
+                    setLocalImage(true);
+                  } else {
+                    setProfilePic(null);
+                    setLocalImage(false);
+                  }
+                }}
+              >
+                <MaterialCommunityIcons
+                  name='close-circle'
+                  size={25}
+                  color={colors.muted}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
+              <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                My Account
+              </AppText>
+            </View>
+            {/* Email */}
+            <ListItemSeperator />
+            <AccountMListItem
+              title={"Email:   " + email}
               style={{ paddingLeft: 0 }}
+              textStyle={{ fontSize: 15 }}
               onPress={() => {
-                setSecretModalVisible(true);
+                setFocusField("Email");
+                setModalVisible(true);
               }}
             />
-            {currentUser.type != 3 && (
-              <>
-                <ListItemSeperator />
-                <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
-                  <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                    Checkout Details
-                  </AppText>
-                </View>
-                {/* Address */}
-                <ListItemSeperator />
-                <ListItem
-                  title='Shipping Addresses'
-                  style={{ paddingLeft: 0 }}
-                  onPress={() => navigation.navigate(routes.SHIPPINGADDRESSES)}
-                />
-                <ListItemSeperator />
+            {/* First Name */}
+            <ListItemSeperator />
+            <AccountMListItem
+              title={"First Name:   " + first_name}
+              style={{ paddingLeft: 0 }}
+              textStyle={{ fontSize: 15 }}
+              onPress={() => {
+                setFocusField("First Name");
+                setModalVisible(true);
+              }}
+            />
+            {/* Last Name */}
+            <ListItemSeperator />
+            <AccountMListItem
+              title={"Last Name:   " + last_name}
+              style={{ paddingLeft: 0 }}
+              textStyle={{ fontSize: 15 }}
+              onPress={() => {
+                setFocusField("Last Name");
+                setModalVisible(true);
+              }}
+            />
+            {/* Display Name */}
+            <ListItemSeperator />
+            <AccountMListItem
+              title={"Display Name:   " + displayName}
+              style={{ paddingLeft: 0 }}
+              textStyle={{ fontSize: 15 }}
+              onPress={() => {
+                setFocusField("Display Name");
+                setModalVisible(true);
+              }}
+            />
+            {/* Date of Birth */}
+            <ListItemSeperator />
+            <AccountMListItem
+              title={
+                "Date of Birth:   " +
+                (currentUser.dob_day < 10
+                  ? "0" + currentUser.dob_day
+                  : currentUser.dob_day) +
+                "/" +
+                (currentUser.dob_month < 10
+                  ? "0" + currentUser.dob_month
+                  : currentUser.dob_month) +
+                "/" +
+                currentUser.dob_year
+              }
+              style={{ paddingLeft: 0 }}
+              textStyle={{ color: colors.muted, fontSize: 15 }}
+            />
+            <ListItemSeperator />
+            {/* Save Changes button */}
+            <View style={{ alignItems: "center" }}>
+              <AppButton
+                title='Save Changes'
+                icon='content-save'
+                color='brightred'
+                style={{
+                  width: "50%",
+                  marginVertical: 20,
+                  paddingVertical: 10,
+                }}
+                onPress={() => {
+                  setAuthModalVisible(true);
+                }}
+              />
+            </View>
+            <ListItemSeperator />
+            <View style={{ marginBottom: 50 }}>
+              <ListItem
+                title='Change Password'
+                style={{ paddingLeft: 0 }}
+                onPress={() => {
+                  setSecretModalVisible(true);
+                }}
+              />
 
-                {/* Payment Info */}
-                <ListItem
-                  title='Shopper Payment Details'
-                  style={{ paddingLeft: 0 }}
-                  onPress={() => navigation.navigate(routes.PAYMENTDETAILS)}
-                />
-                <ListItemSeperator />
-              </>
-            )}
-            {/* Merchant Information */}
-
-            {currentUser.isMerchant == true && (
-              <View>
-                {/* Section Title */}
-                <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
-                  <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                    Merchant Details
-                  </AppText>
+              {currentUser.type == 3 && (
+                <View style={{ alignItems: "center" }}>
+                  <AppButton
+                    title='Close Account'
+                    color='danger'
+                    style={{
+                      paddingVertical: 10,
+                      marginTop: 20,
+                      width: "70%",
+                    }}
+                    onPress={() => setCloseModalVisible3(true)}
+                  />
                 </View>
-                <View style={styles.container}>
-                  <View style={styles.detailsContainer}>
-                    <AppText style={styles.title} numberOfLines={1}>
-                      {"Store Name:   " + currentUser.store_name}
+              )}
+              {currentUser.type != 3 && (
+                <>
+                  <ListItemSeperator />
+                  <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
+                    <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                      Checkout Details
                     </AppText>
                   </View>
+                  {/* Address */}
+                  <ListItemSeperator />
+                  <ListItem
+                    title='Shipping Addresses'
+                    style={{ paddingLeft: 0 }}
+                    onPress={() =>
+                      navigation.navigate(routes.SHIPPINGADDRESSES)
+                    }
+                  />
+                  <ListItemSeperator />
+
+                  {/* Payment Info */}
+                  <ListItem
+                    title='Shopper Payment Details'
+                    style={{ paddingLeft: 0 }}
+                    onPress={() => navigation.navigate(routes.PAYMENTDETAILS)}
+                  />
+                  <ListItemSeperator />
+                  {currentUser.isMerchant != true && (
+                    <View style={{ alignItems: "center" }}>
+                      <AppButton
+                        title='Close Account'
+                        color='danger'
+                        style={{
+                          paddingVertical: 10,
+                          marginTop: 20,
+                          width: "70%",
+                        }}
+                        onPress={() => setCloseModalVisible(true)}
+                      />
+                    </View>
+                  )}
+                </>
+              )}
+              {/* Merchant Information */}
+
+              {currentUser.isMerchant == true && (
+                <View>
+                  {/* Section Title */}
+                  <View style={{ marginVertical: 5, marginHorizontal: 10 }}>
+                    <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                      Merchant Details
+                    </AppText>
+                  </View>
+                  <View style={styles.container}>
+                    <View style={styles.detailsContainer}>
+                      <AppText style={styles.title} numberOfLines={1}>
+                        {"Store Name:   " + currentUser.store_name}
+                      </AppText>
+                    </View>
+                  </View>
+                  <ListItemSeperator />
+                  <ListItem
+                    title={"Bank Account:   " + "********" + fourD}
+                    style={{ paddingLeft: 0 }}
+                    onPress={() => {
+                      setBankModalVisible(true);
+                    }}
+                  />
+                  <ListItemSeperator />
+                  <ListItem
+                    title='Merchant Store Address'
+                    style={{ paddingLeft: 0 }}
+                    onPress={() => {
+                      setAddressModalVisible(true);
+                    }}
+                  />
+                  <ListItemSeperator />
+                  <View style={{ alignItems: "center" }}>
+                    <AppButton
+                      title='Close Account'
+                      color='danger'
+                      style={{
+                        paddingVertical: 10,
+                        marginTop: 20,
+                        width: "70%",
+                      }}
+                      onPress={() => setCloseModalVisible2(true)}
+                    />
+                  </View>
                 </View>
-                <ListItemSeperator />
-                <ListItem
-                  title={"Bank Account:   " + "********" + fourD}
-                  style={{ paddingLeft: 0 }}
-                  onPress={() => {
-                    setBankModalVisible(true);
-                  }}
-                />
-                <ListItemSeperator />
-                <ListItem
-                  title='Merchant Store Address'
-                  style={{ paddingLeft: 0 }}
-                  onPress={() => {
-                    setAddressModalVisible(true);
-                  }}
-                />
-                <ListItemSeperator />
-              </View>
-            )}
-          </View>
-        </Screen>
-      </ScrollView>
+              )}
+            </View>
+          </Screen>
+        </ScrollView>
+      )}
       <AccountMInputModal
         visible={modalVisible}
         onPress={() => setModalVisible(false)}
@@ -375,6 +426,7 @@ function AccountManagementScreen({ navigation }) {
           setSecretModalVisible(false);
         }}
       />
+
       <BankAccountInputModal
         visible={bankModalVisible}
         bank_id={bank_id}
@@ -397,6 +449,27 @@ function AccountManagementScreen({ navigation }) {
           setStore_address(address);
           setAddressModalVisible(false);
         }}
+      />
+      <AuthenticateAndDeleteModal
+        visible={closeModalVisible}
+        onPress={() => {
+          setCloseModalVisible(false);
+        }}
+        navigation={navigation}
+      />
+      <AuthenticateAndDeleteModal2
+        visible={closeModalVisible2}
+        onPress={() => {
+          setCloseModalVisible2(false);
+        }}
+        navigation={navigation}
+      />
+      <AuthenticateAndDeleteModal3
+        visible={closeModalVisible3}
+        onPress={() => {
+          setCloseModalVisible3(false);
+        }}
+        navigation={navigation}
       />
     </>
   );
