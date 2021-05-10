@@ -6,6 +6,7 @@ import {
   View,
   FlatList,
   TouchableHighlight,
+  Text,
 } from "react-native";
 import AppText from "../components/AppText";
 import Screen from "../components/Screen";
@@ -632,215 +633,236 @@ function MerchantToShipScreen() {
   };
   return (
     <Screen style={styles.container}>
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.transaction_id}
-        ListHeaderComponent={renderHeader}
-        renderItem={({ item }) => (
-          <View
+      {transactions.length > 0 || (groupbuy && groupbuy.groupbuyId) ? (
+        <FlatList
+          data={transactions}
+          keyExtractor={(item) => item.transaction_id}
+          ListHeaderComponent={renderHeader}
+          renderItem={({ item }) => (
+            <View
+              style={{
+                marginBottom: 20,
+                backgroundColor: colors.white,
+                paddingVertical: 10,
+                width: "100%",
+                alignSelf: "center",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 30,
+                  marginBottom: 3,
+                }}
+              >
+                <AppText style={{ fontWeight: "bold", fontSize: 18 }}>
+                  {item.product_title}
+                </AppText>
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  {"x" + item.count}
+                </AppText>
+              </View>
+              <ListItemSeperator />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 30,
+                }}
+              >
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  Paid:
+                </AppText>
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  {"$" + item.paid.toFixed(2)}
+                </AppText>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 30,
+                }}
+              >
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  Ship to:
+                </AppText>
+                <AppText
+                  style={{
+                    color: colors.muted,
+                    fontSize: 15,
+                    textAlign: "right",
+                  }}
+                >
+                  {item.buyer_name}
+                </AppText>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 30,
+                }}
+              >
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  Shipping Address:
+                </AppText>
+
+                <AppText
+                  style={{
+                    color: colors.muted,
+                    fontSize: 15,
+                    width: 150,
+                    textAlign: "right",
+                  }}
+                  numberOfLines={3}
+                >
+                  {item.shipping.address}
+                </AppText>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row-reverse",
+                  paddingHorizontal: 30,
+                }}
+              >
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  {"#" + item.shipping.unitno}
+                </AppText>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row-reverse",
+                  paddingHorizontal: 30,
+                }}
+              >
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  {item.shipping.postal_code}
+                </AppText>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 30,
+                }}
+              >
+                <AppText style={{ color: colors.muted, fontSize: 15 }}>
+                  Status:
+                </AppText>
+                <AppText
+                  style={{
+                    color: colors.cyan,
+                    fontSize: 15,
+                    fontWeight: "bold",
+                  }}
+                >
+                  To Ship
+                </AppText>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginTop: 10,
+                  paddingHorizontal: 30,
+                }}
+              >
+                <TouchableHighlight
+                  style={{
+                    padding: 8,
+                    backgroundColor: colors.teal,
+
+                    borderRadius: 10,
+                  }}
+                  onPress={() => shippedOrder(item)}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name='package-variant-closed'
+                      size={15}
+                      color={colors.white}
+                      style={{ marginRight: 5 }}
+                    />
+                    <AppText
+                      style={{
+                        color: colors.white,
+                        fontSize: 15,
+                        fontWeight: "bold",
+                        fontFamily: "sans-serif-medium",
+                      }}
+                    >
+                      Shipped
+                    </AppText>
+                  </View>
+                </TouchableHighlight>
+
+                <TouchableHighlight
+                  style={{
+                    padding: 8,
+                    backgroundColor: colors.brightred,
+
+                    borderRadius: 10,
+                  }}
+                  onPress={() => cancelledOrder(item)}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name='close-circle'
+                      size={15}
+                      color={colors.white}
+                      style={{ marginRight: 5 }}
+                    />
+                    <AppText
+                      style={{
+                        color: colors.white,
+                        fontSize: 15,
+                        fontWeight: "bold",
+                        fontFamily: "sans-serif-medium",
+                      }}
+                    >
+                      Cancel Order
+                    </AppText>
+                  </View>
+                </TouchableHighlight>
+              </View>
+            </View>
+          )}
+        />
+      ) : (
+        <View
+          style={{
+            paddingHorizontal: 30,
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: "50%",
+          }}
+        >
+          <Text
             style={{
-              marginBottom: 20,
-              backgroundColor: colors.white,
-              paddingVertical: 10,
-              width: "100%",
-              alignSelf: "center",
+              fontSize: 30,
+              fontWeight: "bold",
+              color: colors.grey,
             }}
           >
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                paddingHorizontal: 30,
-                marginBottom: 3,
-              }}
-            >
-              <AppText style={{ fontWeight: "bold", fontSize: 18 }}>
-                {item.product_title}
-              </AppText>
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                {"x" + item.count}
-              </AppText>
-            </View>
-            <ListItemSeperator />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                paddingHorizontal: 30,
-              }}
-            >
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                Paid:
-              </AppText>
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                {"$" + item.paid.toFixed(2)}
-              </AppText>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                paddingHorizontal: 30,
-              }}
-            >
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                Ship to:
-              </AppText>
-              <AppText
-                style={{
-                  color: colors.muted,
-                  fontSize: 15,
-                  textAlign: "right",
-                }}
-              >
-                {item.buyer_name}
-              </AppText>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                paddingHorizontal: 30,
-              }}
-            >
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                Shipping Address:
-              </AppText>
-
-              <AppText
-                style={{
-                  color: colors.muted,
-                  fontSize: 15,
-                  width: 150,
-                  textAlign: "right",
-                }}
-                numberOfLines={3}
-              >
-                {item.shipping.address}
-              </AppText>
-            </View>
-            <View
-              style={{
-                flexDirection: "row-reverse",
-                paddingHorizontal: 30,
-              }}
-            >
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                {"#" + item.shipping.unitno}
-              </AppText>
-            </View>
-            <View
-              style={{
-                flexDirection: "row-reverse",
-                paddingHorizontal: 30,
-              }}
-            >
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                {item.shipping.postal_code}
-              </AppText>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                paddingHorizontal: 30,
-              }}
-            >
-              <AppText style={{ color: colors.muted, fontSize: 15 }}>
-                Status:
-              </AppText>
-              <AppText
-                style={{
-                  color: colors.cyan,
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-              >
-                To Ship
-              </AppText>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginTop: 10,
-                paddingHorizontal: 30,
-              }}
-            >
-              <TouchableHighlight
-                style={{
-                  padding: 8,
-                  backgroundColor: colors.teal,
-
-                  borderRadius: 10,
-                }}
-                onPress={() => shippedOrder(item)}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name='package-variant-closed'
-                    size={15}
-                    color={colors.white}
-                    style={{ marginRight: 5 }}
-                  />
-                  <AppText
-                    style={{
-                      color: colors.white,
-                      fontSize: 15,
-                      fontWeight: "bold",
-                      fontFamily: "sans-serif-medium",
-                    }}
-                  >
-                    Shipped
-                  </AppText>
-                </View>
-              </TouchableHighlight>
-
-              <TouchableHighlight
-                style={{
-                  padding: 8,
-                  backgroundColor: colors.brightred,
-
-                  borderRadius: 10,
-                }}
-                onPress={() => cancelledOrder(item)}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name='close-circle'
-                    size={15}
-                    color={colors.white}
-                    style={{ marginRight: 5 }}
-                  />
-                  <AppText
-                    style={{
-                      color: colors.white,
-                      fontSize: 15,
-                      fontWeight: "bold",
-                      fontFamily: "sans-serif-medium",
-                    }}
-                  >
-                    Cancel Order
-                  </AppText>
-                </View>
-              </TouchableHighlight>
-            </View>
-          </View>
-        )}
-      />
+            No Outstanding Orders
+          </Text>
+        </View>
+      )}
     </Screen>
   );
 }

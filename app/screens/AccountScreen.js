@@ -333,7 +333,7 @@ function AccountScreen({ navigation }) {
     return (
       <>
         {currentUser && (
-          <View style={styles.container}>
+          <View style={[styles.container, { marginBottom: 30 }]}>
             <ListItem
               title='Log Out'
               IconComponent={
@@ -420,7 +420,6 @@ const styles = StyleSheet.create({
   screen: {
     backgroundColor: colors.whitegrey,
     paddingTop: 0,
-    marginBottom: 20,
   },
   modal: {
     backgroundColor: "#000000aa",

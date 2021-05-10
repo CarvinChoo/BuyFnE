@@ -7,6 +7,7 @@ import {
   Image,
   Alert,
   TouchableHighlight,
+  Modal,
 } from "react-native";
 
 import ToShipListItem from "../components/lists/ToShipListItem";
@@ -30,7 +31,8 @@ function ToShipScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [loading2, setLoading2] = useState(false);
   const [orders, setOrders] = useState([]);
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [item, setItem] = useState(null);
   useEffect(() => {
     setLoading(true);
     const sub = db
@@ -127,8 +129,9 @@ function ToShipScreen({ navigation }) {
     }
   };
 
-  const handleReleasePayment = (item) => {
+  const handleReleasePayment = () => {
     setLoading2(true);
+    setModalVisible(false);
     db.collection("transactions")
       .doc(item.transaction_id)
       .update({
@@ -198,79 +201,46 @@ function ToShipScreen({ navigation }) {
       <AppActivityIndicator visible={loading2} />
       <AppActivityIndicator visible={loading} />
       <Screen style={styles.container}>
-        <FlatList
-          data={orders}
-          keyExtractor={(item) => item.transaction_id}
-          renderItem={({ item }) => (
-            <>
-              <ToShipListItem item={item} />
-              <ListItemSeperator />
-              <View
-                style={{
-                  backgroundColor: colors.white,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  marginBottom: 20,
-                }}
-              >
-                <TouchableHighlight
+        {orders.length > 0 ? (
+          <FlatList
+            data={orders}
+            keyExtractor={(item) => item.transaction_id}
+            renderItem={({ item }) => (
+              <>
+                <ToShipListItem item={item} />
+                <ListItemSeperator />
+                <View
                   style={{
-                    padding: 8,
-                    backgroundColor: colors.darkslategrey,
-
-                    borderRadius: 10,
+                    backgroundColor: colors.white,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    marginBottom: 20,
                   }}
-                  onPress={() =>
-                    navigation.navigate(routes.RECEIPT, {
-                      ...item,
-                      orderDate: item.orderDate.toDate().toDateString(),
-                      shippedDate: item.shippedDate
-                        ? item.shippedDate.toDate().toDateString()
-                        : null,
-                      estimatedDeliveryTime: item.estimatedDeliveryTime
-                        .toDate()
-                        .toDateString(),
-                      confirmedDeliveryTime: item.confirmedDeliveryTime
-                        ? item.confirmedDeliveryTime.toDate().toDateString()
-                        : item.confirmedDeliveryTime,
-                    })
-                  }
                 >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name='receipt'
-                      size={17}
-                      color={colors.white}
-                      style={{ marginRight: 5 }}
-                    />
-                    <AppText
-                      style={{
-                        color: colors.white,
-                        fontSize: 15,
-                        fontWeight: "bold",
-                        fontFamily: "sans-serif-medium",
-                      }}
-                    >
-                      Receipt
-                    </AppText>
-                  </View>
-                </TouchableHighlight>
-                {item.status == 4 ? (
                   <TouchableHighlight
                     style={{
                       padding: 8,
-                      backgroundColor: colors.teal,
+                      backgroundColor: colors.darkslategrey,
+
                       borderRadius: 10,
                     }}
-                    onPress={() => handleReleasePayment(item)}
+                    onPress={() =>
+                      navigation.navigate(routes.RECEIPT, {
+                        ...item,
+                        orderDate: item.orderDate.toDate().toDateString(),
+                        shippedDate: item.shippedDate
+                          ? item.shippedDate.toDate().toDateString()
+                          : null,
+                        estimatedDeliveryTime: item.estimatedDeliveryTime
+                          .toDate()
+                          .toDateString(),
+                        confirmedDeliveryTime: item.confirmedDeliveryTime
+                          ? item.confirmedDeliveryTime.toDate().toDateString()
+                          : item.confirmedDeliveryTime,
+                      })
+                    }
                   >
                     <View
                       style={{
@@ -280,7 +250,7 @@ function ToShipScreen({ navigation }) {
                       }}
                     >
                       <MaterialCommunityIcons
-                        name='truck-check'
+                        name='receipt'
                         size={17}
                         color={colors.white}
                         style={{ marginRight: 5 }}
@@ -293,20 +263,21 @@ function ToShipScreen({ navigation }) {
                           fontFamily: "sans-serif-medium",
                         }}
                       >
-                        Confirm Delivery
+                        Receipt
                       </AppText>
                     </View>
                   </TouchableHighlight>
-                ) : (
-                  item.viableForRefund &&
-                  !item.groupbuy && (
+                  {item.status == 4 ? (
                     <TouchableHighlight
                       style={{
                         padding: 8,
                         backgroundColor: colors.teal,
                         borderRadius: 10,
                       }}
-                      onPress={() => handleRefund(item)}
+                      onPress={() => {
+                        setItem(item);
+                        setModalVisible(true);
+                      }}
                     >
                       <View
                         style={{
@@ -316,7 +287,7 @@ function ToShipScreen({ navigation }) {
                         }}
                       >
                         <MaterialCommunityIcons
-                          name='credit-card-refund'
+                          name='truck-check'
                           size={17}
                           color={colors.white}
                           style={{ marginRight: 5 }}
@@ -329,16 +300,111 @@ function ToShipScreen({ navigation }) {
                             fontFamily: "sans-serif-medium",
                           }}
                         >
-                          Refund
+                          Confirm Delivery
                         </AppText>
                       </View>
                     </TouchableHighlight>
-                  )
-                )}
+                  ) : (
+                    item.viableForRefund &&
+                    !item.groupbuy && (
+                      <TouchableHighlight
+                        style={{
+                          padding: 8,
+                          backgroundColor: colors.teal,
+                          borderRadius: 10,
+                        }}
+                        onPress={() => handleRefund(item)}
+                      >
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <MaterialCommunityIcons
+                            name='credit-card-refund'
+                            size={17}
+                            color={colors.white}
+                            style={{ marginRight: 5 }}
+                          />
+                          <AppText
+                            style={{
+                              color: colors.white,
+                              fontSize: 15,
+                              fontWeight: "bold",
+                              fontFamily: "sans-serif-medium",
+                            }}
+                          >
+                            Refund
+                          </AppText>
+                        </View>
+                      </TouchableHighlight>
+                    )
+                  )}
+                </View>
+              </>
+            )}
+          />
+        ) : (
+          <View
+            style={{
+              paddingHorizontal: 30,
+              justifyContent: "center",
+              alignItems: "center",
+              marginVertical: "50%",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 30,
+                fontWeight: "bold",
+                color: colors.grey,
+              }}
+            >
+              No Pending Orders
+            </Text>
+          </View>
+        )}
+        <Modal transparent={true} visible={modalVisible}>
+          <View style={styles.modal}>
+            <View style={styles.modalBoxContainer}>
+              <View style={styles.switchTextContainer}>
+                <Text style={styles.switchText}>
+                  Do you want to confirm the delivery of your order and release
+                  payment to the seller?
+                </Text>
               </View>
-            </>
-          )}
-        />
+              <View style={styles.modalButtonContainer}>
+                <TouchableHighlight
+                  underlayColor={colors.sienna}
+                  activeOpacity={0.5}
+                  style={styles.buttonYesContainer}
+                  onPress={() => handleReleasePayment()}
+                >
+                  <Text
+                    style={{ color: colors.darkorange, fontWeight: "bold" }}
+                  >
+                    Yes
+                  </Text>
+                </TouchableHighlight>
+                <TouchableHighlight
+                  underlayColor={colors.brown}
+                  activeOpacity={0.5}
+                  style={styles.buttonNoContainer}
+                  onPress={() => {
+                    setItem(null);
+                    setModalVisible(false);
+                  }}
+                >
+                  <Text style={{ color: colors.brightred, fontWeight: "bold" }}>
+                    No
+                  </Text>
+                </TouchableHighlight>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </Screen>
       {/* <Modal transparent={true} visible={modalVisible}>
         <View style={styles.modal}>
@@ -378,6 +444,49 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 0,
     backgroundColor: colors.whitegrey,
+  },
+
+  modal: {
+    backgroundColor: "#000000aa",
+    flex: 1,
+  },
+  modalBoxContainer: {
+    backgroundColor: colors.white,
+    marginTop: "60%",
+    marginHorizontal: "10%",
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  switchTextContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+  },
+  switchText: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: colors.muted,
+  },
+  buttonYesContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopWidth: 2,
+    borderColor: colors.whitegrey,
+    width: "50%",
+    paddingVertical: 15,
+  },
+  buttonNoContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: colors.whitegrey,
+    width: "50%",
+    paddingVertical: 15,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    width: "100%",
   },
 });
 

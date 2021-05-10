@@ -100,7 +100,6 @@ function AccountManagementScreen({ navigation }) {
       },
     })
       .then(({ _, data }) => {
-        console.log(data.individual.address);
         setStore_address(data.individual.address);
         setLoading(false);
       })

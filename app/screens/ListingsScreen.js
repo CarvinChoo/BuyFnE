@@ -164,6 +164,14 @@ function ListingsScreen({ navigation }) {
     setListings(found);
   };
 
+  const renderFooter = () => {
+    return (
+      <>
+        <View style={{ marginBottom: 30, backgroundColor: colors.whitegrey }} />
+      </>
+    );
+  };
+
   return (
     <>
       <StatusBar backgroundColor={colors.brightred} />
@@ -260,6 +268,7 @@ function ListingsScreen({ navigation }) {
             //!!!!!!!!! IMPLEMENT SEARCH BAR AND CATEGORIES HERE
             //ListHeaderComponent property for single render seperate components on the topp of flat list scrollable
             //https://stackoverflow.com/questions/60341135/react-native-separate-view-component-scrollable-with-flatlist
+            ListFooterComponent={renderFooter}
             renderItem={({ item }) => (
               <ListingsCard
                 item={item}

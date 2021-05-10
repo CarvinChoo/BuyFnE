@@ -164,108 +164,44 @@ function CompleteScreen({ navigation }) {
     <>
       <AppActivityIndicator visible={loading} />
       <Screen style={styles.container}>
-        <FlatList
-          data={orders}
-          keyExtractor={(item) => item.transaction_id}
-          renderItem={({ item }) => (
-            <>
-              <ToShipListItem item={item} />
-              <ListItemSeperator />
-              <View
-                style={{
-                  backgroundColor: colors.white,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  marginBottom: 20,
-                }}
-              >
-                <TouchableHighlight
+        {orders.length > 0 ? (
+          <FlatList
+            data={orders}
+            keyExtractor={(item) => item.transaction_id}
+            renderItem={({ item }) => (
+              <>
+                <ToShipListItem item={item} />
+                <ListItemSeperator />
+                <View
                   style={{
-                    padding: 8,
-                    backgroundColor: colors.darkslategrey,
-
-                    borderRadius: 10,
+                    backgroundColor: colors.white,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    marginBottom: 20,
                   }}
-                  onPress={() =>
-                    navigation.navigate(routes.RECEIPT, {
-                      ...item,
-                      orderDate: item.orderDate.toDate().toDateString(),
-                      shippedDate: item.shippedDate
-                        ? item.shippedDate.toDate().toDateString()
-                        : null,
-                      estimatedDeliveryTime: null,
-                      confirmedDeliveryTime: item.confirmedDeliveryTime
-                        ? item.confirmedDeliveryTime.toDate().toDateString()
-                        : null,
-                    })
-                  }
                 >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name='receipt'
-                      size={17}
-                      color={colors.white}
-                      style={{ marginRight: 5 }}
-                    />
-                    <AppText
-                      style={{
-                        color: colors.white,
-                        fontSize: 15,
-                        fontWeight: "bold",
-                        fontFamily: "sans-serif-medium",
-                      }}
-                    >
-                      Receipt
-                    </AppText>
-                  </View>
-                </TouchableHighlight>
-                {item.review_id ? (
                   <TouchableHighlight
                     style={{
                       padding: 8,
-                      backgroundColor: colors.orange,
+                      backgroundColor: colors.darkslategrey,
+
                       borderRadius: 10,
                     }}
-                    onPress={() => retrieveReview(item)}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <AppText
-                        style={{
-                          color: colors.white,
-                          fontSize: 15,
-                          fontWeight: "bold",
-                          fontFamily: "sans-serif-medium",
-                        }}
-                      >
-                        Reviewed
-                      </AppText>
-                    </View>
-                  </TouchableHighlight>
-                ) : (
-                  <TouchableHighlight
-                    style={{
-                      padding: 8,
-                      backgroundColor: colors.teal,
-                      borderRadius: 10,
-                    }}
-                    onPress={() => {
-                      setItem(item);
-                      setModal(true);
-                    }}
+                    onPress={() =>
+                      navigation.navigate(routes.RECEIPT, {
+                        ...item,
+                        orderDate: item.orderDate.toDate().toDateString(),
+                        shippedDate: item.shippedDate
+                          ? item.shippedDate.toDate().toDateString()
+                          : null,
+                        estimatedDeliveryTime: null,
+                        confirmedDeliveryTime: item.confirmedDeliveryTime
+                          ? item.confirmedDeliveryTime.toDate().toDateString()
+                          : null,
+                      })
+                    }
                   >
                     <View
                       style={{
@@ -275,7 +211,7 @@ function CompleteScreen({ navigation }) {
                       }}
                     >
                       <MaterialCommunityIcons
-                        name='pencil-plus'
+                        name='receipt'
                         size={17}
                         color={colors.white}
                         style={{ marginRight: 5 }}
@@ -288,15 +224,100 @@ function CompleteScreen({ navigation }) {
                           fontFamily: "sans-serif-medium",
                         }}
                       >
-                        Write a review
+                        Receipt
                       </AppText>
                     </View>
                   </TouchableHighlight>
-                )}
-              </View>
-            </>
-          )}
-        />
+                  {item.review_id ? (
+                    <TouchableHighlight
+                      style={{
+                        padding: 8,
+                        backgroundColor: colors.orange,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => retrieveReview(item)}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <AppText
+                          style={{
+                            color: colors.white,
+                            fontSize: 15,
+                            fontWeight: "bold",
+                            fontFamily: "sans-serif-medium",
+                          }}
+                        >
+                          Reviewed
+                        </AppText>
+                      </View>
+                    </TouchableHighlight>
+                  ) : (
+                    <TouchableHighlight
+                      style={{
+                        padding: 8,
+                        backgroundColor: colors.teal,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => {
+                        setItem(item);
+                        setModal(true);
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name='pencil-plus'
+                          size={17}
+                          color={colors.white}
+                          style={{ marginRight: 5 }}
+                        />
+                        <AppText
+                          style={{
+                            color: colors.white,
+                            fontSize: 15,
+                            fontWeight: "bold",
+                            fontFamily: "sans-serif-medium",
+                          }}
+                        >
+                          Write a review
+                        </AppText>
+                      </View>
+                    </TouchableHighlight>
+                  )}
+                </View>
+              </>
+            )}
+          />
+        ) : (
+          <View
+            style={{
+              paddingHorizontal: 30,
+              justifyContent: "center",
+              alignItems: "center",
+              marginVertical: "50%",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 30,
+                fontWeight: "bold",
+                color: colors.grey,
+              }}
+            >
+              No Completed Orders
+            </Text>
+          </View>
+        )}
 
         <Modal visible={modal} transparent={true}>
           <View style={styles.modal}>
