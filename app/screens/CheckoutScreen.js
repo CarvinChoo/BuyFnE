@@ -432,8 +432,53 @@ function CheckoutScreen({ navigation }) {
   const handlePlaceOrder = () => {
     if (paymentOption && currentShipping) {
       setLoading(true);
-      setError(null);
-      makePayment();
+      var promises = [];
+      var stillExist = true;
+      cart.forEach((item) => {
+        if (stillExist) {
+          promises.push(
+            db
+              .collection("all_listings")
+              .doc(item.listingId)
+              .get()
+              .then((doc) => {
+                if (!doc.exists) {
+                  stillExist = false;
+                } else {
+                  if (doc.data().listingStatus != "Active") {
+                    stillExist = false;
+                  }
+                }
+              })
+              .catch((e) => {
+                console.log(e.message);
+                stillExist = false;
+              })
+          );
+        }
+      });
+
+      Promise.all(promises)
+        .then(() => {
+          if (stillExist) {
+            setError(null);
+            makePayment();
+          } else {
+            Alert.alert(
+              "Failed Checkout",
+              "One or more items is no longer available for purchase. Please remove the item before proceeding."
+            );
+            navigation.goBack();
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+          Alert.alert(
+            "Failed Checkout",
+            "One or more items is no longer available for purchase. Please remove the item before proceeding."
+          );
+          navigation.goBack();
+        });
     } else {
       // set error to please pick a payment option and a shipping address
       Alert.alert(

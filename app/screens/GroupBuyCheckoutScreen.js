@@ -384,8 +384,29 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
   const handlePlaceOrder = () => {
     if (paymentOption && currentShipping) {
       setLoading(true);
-      setError(null);
-      makePayment();
+      db.collection("all_listings")
+        .doc(cart[0].listingId)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            if (doc.data().listingStatus == "Active") {
+              setError(null);
+              makePayment();
+            } else {
+              Alert.alert(
+                "Failed Checkout",
+                "Item is no longer available for group buy. Proceeding back to the previous screen."
+              );
+              navigation.goBack();
+            }
+          } else {
+            Alert.alert(
+              "Failed Checkout",
+              "Item is no longer available for group buy. Proceeding back to the previous screen."
+            );
+            navigation.goBack();
+          }
+        });
     } else {
       // set error to please pick a payment option and a shipping address
       Alert.alert(

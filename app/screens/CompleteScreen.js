@@ -92,69 +92,89 @@ function CompleteScreen({ navigation }) {
       setError(null);
       db.collection("all_listings")
         .doc(item.product_id)
-        .update({
-          reviews: firebase.firestore.FieldValue.increment(1),
-          rating: firebase.firestore.FieldValue.increment(currentRating),
-        })
-        .then(() => {
-          const ref = db.collection("reviews").doc();
-          ref
-            .set({
-              review_id: ref.id,
-              author_id: currentUser.uid,
-              author_name: currentUser.displayName,
-              listingId: item.product_id,
-              rating: Number(currentRating),
-              content: review,
-              transaction_id: item.transaction_id,
-              date: firebase.firestore.Timestamp.now(),
-            })
-            .then(() => {
-              db.collection("transactions")
-                .doc(item.transaction_id)
-                .update({
-                  review_id: ref.id,
-                })
-                .then(() => {
-                  setItem(null);
-                  setReview("");
-                  setCurrentRating(5);
-                  Alert.alert("Review added", "Thank you for your review");
-                })
-                .catch((e) => {
-                  setItem(null);
-                  setReview("");
-                  setCurrentRating(5);
-                  console.log(e.message);
-                  Alert.alert(
-                    "Error occurred",
-                    "Failed to update transaction review status."
-                  );
-                  setLoading(false);
-                });
-            })
-            .catch((e) => {
-              setItem(null);
-              setReview("");
-              setCurrentRating(5);
-              console.log(e.message);
-              Alert.alert(
-                "Error occurred",
-                "Failed to add review. Please try again later"
-              );
-              setLoading(false);
-            });
+        .get()
+        .then((listing) => {
+          if (listing.exists) {
+            listing.ref
+              .update({
+                reviews: firebase.firestore.FieldValue.increment(1),
+                rating: firebase.firestore.FieldValue.increment(currentRating),
+              })
+              .then(() => {
+                const ref = db.collection("reviews").doc();
+                ref
+                  .set({
+                    review_id: ref.id,
+                    author_id: currentUser.uid,
+                    author_name: currentUser.displayName,
+                    listingId: item.product_id,
+                    rating: Number(currentRating),
+                    content: review,
+                    transaction_id: item.transaction_id,
+                    date: firebase.firestore.Timestamp.now(),
+                  })
+                  .then(() => {
+                    db.collection("transactions")
+                      .doc(item.transaction_id)
+                      .update({
+                        review_id: ref.id,
+                      })
+                      .then(() => {
+                        setItem(null);
+                        setReview("");
+                        setCurrentRating(5);
+                        Alert.alert(
+                          "Review added",
+                          "Thank you for your review"
+                        );
+                      })
+                      .catch((e) => {
+                        setItem(null);
+                        setReview("");
+                        setCurrentRating(5);
+                        console.log(e.message);
+                        Alert.alert(
+                          "Error occurred",
+                          "Failed to update transaction review status."
+                        );
+                        setLoading(false);
+                      });
+                  })
+                  .catch((e) => {
+                    setItem(null);
+                    setReview("");
+                    setCurrentRating(5);
+                    console.log(e.message);
+                    Alert.alert(
+                      "Error occurred",
+                      "Failed to add review. Please try again later"
+                    );
+                    setLoading(false);
+                  });
+              })
+              .catch((e) => {
+                setItem(null);
+                setReview("");
+                setCurrentRating(5);
+                console.log(e.message);
+                Alert.alert(
+                  "Error occurred",
+                  "Failed to add review. Please try again later"
+                );
+                setLoading(false);
+              });
+          } else {
+            Alert.alert(
+              "Failed to add review",
+              "Listing does not exist anymore."
+            );
+          }
         })
         .catch((e) => {
-          setItem(null);
-          setReview("");
-          setCurrentRating(5);
-          console.log(e.message);
           Alert.alert(
-            "Error occurred",
-            "Failed to add review. Please try again later"
+            "Failed to add review",
+            "Listing does not exist anymore."
           );
-          setLoading(false);
         });
     } else {
       setError("Please type out a review");

@@ -466,7 +466,7 @@ function ListingsHistoryScreen({ navigation }) {
                         borderRadius: 10,
                       }}
                       onPress={() => {
-                        item.groupbuyId
+                        item.groupbuyId && item.listingStatus == "Active"
                           ? Alert.alert(
                               "Ongoing Group Buy is active",
                               "Please wait for active group buy to be over before pausing"
