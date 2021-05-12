@@ -532,35 +532,20 @@ exports.setDefaultSource = functions.https.onRequest((request, response) => {
     });
 });
 
-exports.completePaymentWithStripeUsingBypass = functions.https.onRequest(
-  (request, response) => {
-    return stripe.charges
-      .create({
-        amount: request.body.amount,
-        currency: request.body.currency,
-        customer: request.body.customer,
-        source: "tok_bypassPending",
-        receipt_email: request.body.receipt_email,
-        description: request.body.description,
-        shipping: {
-          address: {
-            line1: request.body.address.address,
-            line2: request.body.address.unitno,
-            postal_code: request.body.address.postal_code,
-          },
-          name: request.body.name,
-        },
-      })
-      .then((charge) => {
-        console.log("Successfully charged customer using bypass");
-        response.send(charge);
-      })
-      .catch((error) => {
-        console.log("Error when chargin customer using bypass: ", error);
-        throw new Error(error);
-      });
-  }
-);
+exports.addBalanceUsingBypass = functions.https.onRequest((data, context) => {
+  return stripe.charges
+    .create({
+      amount: 300000,
+      currency: "sgd",
+      source: "tok_bypassPending",
+    })
+    .then((charge) => {
+      console.log("Successfully added balance using bypass");
+    })
+    .catch((error) => {
+      console.log("Error when adding balance using bypass: ", error);
+    });
+});
 
 exports.completePaymentWithStripe = functions.https.onRequest(
   (request, response) => {
