@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Alert,
   StyleSheet,
@@ -34,6 +34,7 @@ import axios from "axios";
 
 function AccountManagementScreen({ navigation }) {
   const { currentUser } = useContext(AuthApi.AuthContext);
+  const isMounted = useRef(true);
   const [email, setEmail] = useState(null);
   const [first_name, setFirst_name] = useState(null);
   const [last_name, setLast_name] = useState(null);
@@ -56,45 +57,53 @@ function AccountManagementScreen({ navigation }) {
 
   useEffect(() => {
     setLoading(true);
-    if (currentUser.isMerchant == true) {
-      axios({
-        method: "POST",
-        url:
-          "https://us-central1-buyfne-63905.cloudfunctions.net/retreiveBankAccount",
-        data: {
-          stripe_id: currentUser.stripe_id,
-        },
-      })
-        .then(({ _, data }) => {
-          setFourD(data.data[0].last4);
-          setBank_id(data.data[0].id);
+    if (isMounted.current) {
+      if (currentUser.isMerchant == true) {
+        axios({
+          method: "POST",
+          url: "https://us-central1-buyfne-63905.cloudfunctions.net/retreiveBankAccount",
+          data: {
+            stripe_id: currentUser.stripe_id,
+          },
+        })
+          .then(({ _, data }) => {
+            if (isMounted.current) {
+              setFourD(data.data[0].last4);
+              setBank_id(data.data[0].id);
+              setProfilePic(currentUser.profilePic);
+              setEmail(currentUser.email);
+              setFirst_name(currentUser.first_name);
+              setLast_name(currentUser.last_name);
+              setDisplayName(currentUser.displayName);
+              retrieveStoreAddress();
+            }
+          })
+          .catch((error) => {
+            console.log("Error : ", error.message);
+            Alert.alert("Error", error.message);
+            setLoading(false);
+          });
+      } else {
+        if (isMounted.current) {
           setProfilePic(currentUser.profilePic);
           setEmail(currentUser.email);
           setFirst_name(currentUser.first_name);
           setLast_name(currentUser.last_name);
           setDisplayName(currentUser.displayName);
-          retrieveStoreAddress();
-        })
-        .catch((error) => {
-          console.log("Error : ", error.message);
-          Alert.alert("Error", error.message);
           setLoading(false);
-        });
-    } else {
-      setProfilePic(currentUser.profilePic);
-      setEmail(currentUser.email);
-      setFirst_name(currentUser.first_name);
-      setLast_name(currentUser.last_name);
-      setDisplayName(currentUser.displayName);
-      setLoading(false);
+        }
+      }
     }
+
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   const retrieveStoreAddress = () => {
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/retrieveStoreAddress",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/retrieveStoreAddress",
       data: {
         stripe_id: currentUser.stripe_id,
       },

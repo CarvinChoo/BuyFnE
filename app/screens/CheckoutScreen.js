@@ -37,8 +37,6 @@ import * as firebase from "firebase";
 import routes from "../navigation/routes";
 import CheckoutVoucherListItem from "../components/CheckoutVoucherListItem";
 import { Button } from "react-native";
-import { array } from "yup/lib/locale";
-
 const validationSchema = Yup.object().shape({
   address: Yup.string().required("Address is required"),
   unitno: Yup.string().required("Unit Number is required"),
@@ -243,8 +241,7 @@ function CheckoutScreen({ navigation }) {
   const retrieveCustomer = () => {
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/retrieveCustomer",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/retrieveCustomer",
       data: {
         cust_id: currentUser.cus_id, // currentUser.cus_id,
       },
@@ -269,8 +266,7 @@ function CheckoutScreen({ navigation }) {
     console.log("Getting Card sources");
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/listCardSources",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/listCardSources",
       data: {
         cust_id: currentUser.cus_id, // currentUser.cus_id,
       },
@@ -410,8 +406,7 @@ function CheckoutScreen({ navigation }) {
     console.log("Adding to source");
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/addCardToSource",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/addCardToSource",
       data: {
         cust_id: currentUser.cus_id, // currentUser.cus_id,
         cardToken: cardToken,
@@ -500,8 +495,7 @@ function CheckoutScreen({ navigation }) {
     console.log(description);
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
       data: {
         amount: Math.round(((payableTotal * 100) / 100) * 100), // amount = 1000 = SG$10
         currency: "sgd",

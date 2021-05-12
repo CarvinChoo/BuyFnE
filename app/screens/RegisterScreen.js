@@ -131,8 +131,7 @@ function RegisterScreen({ navigation }) {
 
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/createStripeAccount",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/createStripeAccount",
       data: {
         email: registrationDetails.email,
         first_name: registrationDetails.first_name,

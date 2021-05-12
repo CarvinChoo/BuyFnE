@@ -193,8 +193,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
   const retrieveCustomer = () => {
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/retrieveCustomer",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/retrieveCustomer",
       data: {
         cust_id: currentUser.cus_id, // currentUser.cus_id,
       },
@@ -219,8 +218,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
     console.log("Getting Card sources");
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/listCardSources",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/listCardSources",
       data: {
         cust_id: currentUser.cus_id, // currentUser.cus_id,
       },
@@ -362,8 +360,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
     console.log("Adding to source");
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/addCardToSource",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/addCardToSource",
       data: {
         cust_id: currentUser.cus_id, // currentUser.cus_id,
         cardToken: cardToken,
@@ -428,8 +425,7 @@ function GroupBuyCheckoutScreen({ route, navigation }) {
 
     axios({
       method: "POST",
-      url:
-        "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
+      url: "https://us-central1-buyfne-63905.cloudfunctions.net/completePaymentWithStripe",
       data: {
         amount: Math.round(((payableTotal * 100) / 100) * 100), // amount = 1000 = SG$10
         currency: "sgd",

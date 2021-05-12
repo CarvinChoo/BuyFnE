@@ -67,12 +67,30 @@ exports.scheduledLoyaltyIntervalCheck = functions
       .then((users) => {
         if (!users.empty) {
           console.log("Not Empty");
-          var expiry = new Date();
-          const threeMonths = 1; // change to 91
+          var expiry = admin.firestore.Timestamp.fromDate(new Date()).toDate();
+          console.log(
+            "First: ",
+            expiry.toDateString() + " " + expiry.toTimeString()
+          );
+          const threeMonths = 91; // change to 91
           expiry.setDate(expiry.getDate() + threeMonths);
+          console.log(
+            "Second: ",
+            expiry.toDateString() + " " + expiry.toTimeString()
+          );
           expiry.setHours(0, 0, 0, 0);
+          expiry.setHours(expiry.getHours() - 8);
+          console.log(
+            "Third: ",
+            expiry.toDateString() + " " + expiry.toTimeString()
+          );
           var loyalty_interval_end = admin.firestore.Timestamp.fromDate(expiry);
-
+          console.log(
+            "Converted: ",
+            loyalty_interval_end.toDate().toDateString() +
+              " " +
+              loyalty_interval_end.toDate().toTimeString()
+          );
           users.forEach((user) => {
             user.ref
               .update({
@@ -96,6 +114,52 @@ exports.scheduledLoyaltyIntervalCheck = functions
       })
       .catch((error) => {
         console.log("Fail to retrieve users: ", error.message);
+      });
+  });
+
+exports.scheduledUnsuspend = functions
+  .region("asia-southeast2")
+  .pubsub.schedule("0 0 * * *")
+  .timeZone("Asia/Singapore")
+  .onRun(async (context) => {
+    var currentTime = admin.firestore.Timestamp.now();
+    return db
+      .collection("users")
+      .where("suspended_till", "<=", currentTime)
+      .get()
+      .then((users) => {
+        if (!users.empty) {
+          users.forEach((user) => {
+            admin
+              .auth()
+              .updateUser(user.data().uid, { disabled: false })
+              .then(() => {
+                user.ref
+                  .update({
+                    suspended: false,
+                    suspended_till: null,
+                  })
+                  .then(() => {
+                    console.log("Unsuspend user");
+                  })
+                  .catch((e) => {
+                    console.log(
+                      "Error when unsuspending user in database : ",
+                      e.message
+                    );
+                  });
+              })
+              .catch((e) => {
+                console.log(
+                  "Error when unsuspending user in auth : ",
+                  e.message
+                );
+              });
+          });
+        }
+      })
+      .catch((e) => {
+        console.log("Error getting suspended users: ", e.message);
       });
   });
 
@@ -598,7 +662,8 @@ exports.releaseOnScheduleToSeller = functions
                         transaction.ref
                           .update({
                             status: 5,
-                            confirmedDeliveryTime: admin.firestore.Timestamp.now(),
+                            confirmedDeliveryTime:
+                              admin.firestore.Timestamp.now(),
                           })
                           .then(() => {
                             console.log(
@@ -960,51 +1025,6 @@ exports.unsuspendUser = functions.https.onRequest((request, response) => {
     });
 });
 
-exports.scheduledUnsuspend = functions
-  .region("asia-southeast2")
-  .pubsub.schedule("0 0 * * *")
-  .timeZone("Asia/Singapore")
-  .onRun(async (context) => {
-    var currentTime = admin.firestore.Timestamp.now();
-    return db
-      .collection("users")
-      .where("suspended_till", "<=", currentTime)
-      .get()
-      .then((users) => {
-        if (!users.empty) {
-          users.forEach((user) => {
-            admin
-              .auth()
-              .updateUser(request.body.uid, { disabled: false })
-              .then(() => {
-                user.ref
-                  .update({
-                    suspended: false,
-                    suspended_till: null,
-                  })
-                  .then(() => {
-                    console.log("Unsuspend user");
-                  })
-                  .catch((e) => {
-                    console.log(
-                      "Error when unsuspending user in database : ",
-                      e.message
-                    );
-                  });
-              })
-              .catch((e) => {
-                console.log(
-                  "Error when unsuspending user in auth : ",
-                  e.message
-                );
-              });
-          });
-        }
-      })
-      .catch((e) => {
-        console.log("Error getting suspended users: ", e.message);
-      });
-  });
 // exports.addMessage = functions.https.onCall((data, context) => {
 // const ref = db.collection(sellerTransaction).doc()
 //   return .set({
