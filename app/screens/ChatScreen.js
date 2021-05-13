@@ -7,7 +7,7 @@ import MessageTextInput from "../components/MessageTextInput";
 import db from "../api/db";
 import * as firebase from "firebase";
 
-function ChatScreen({ route }) {
+function ChatScreen({ route, navigation }) {
   const chat_id = route.params;
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -31,6 +31,9 @@ function ChatScreen({ route }) {
             });
 
             setMessages(tempMessages.reverse());
+          } else {
+            Alert.alert("Chat room closed", "Message has been deleted");
+            navigation.goBack();
           }
         },
         (error) => {

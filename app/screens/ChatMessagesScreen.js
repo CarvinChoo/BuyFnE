@@ -33,7 +33,6 @@ function ChatMessagesScreen({ navigation }) {
   useEffect(() => {
     setLoading(true);
     if (currentUser.type == 2) {
-      console.log("Hello");
       var sub = db
         .collection("chat")
         .where("seller", "==", currentUser.uid)
@@ -115,6 +114,7 @@ function ChatMessagesScreen({ navigation }) {
           </Text>
         </View>
       )}
+
       {chats.length > 0 ? (
         <FlatList
           data={chats}

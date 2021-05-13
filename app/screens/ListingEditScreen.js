@@ -377,8 +377,8 @@ function ListingEditScreen() {
             <AppFormField
               name='minOrder'
               keyboardType='numeric'
-              placeholder='Minimum Order Requirement'
-              width={300}
+              placeholder='Minimum Members'
+              width={250}
               icon='account-multiple-check'
             />
             <View

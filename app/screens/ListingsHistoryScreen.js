@@ -97,6 +97,31 @@ function ListingsHistoryScreen({ navigation }) {
   const handleYes = () => {
     console.log("Closing Listing");
     setModalVisible(false);
+    db.collection("transactions")
+      .where("product_id", "==", currentItem.listingId)
+      .get()
+      .then((trans) => {
+        if (!trans.empty) {
+          setCurrentItem(null);
+          Alert.alert(
+            "Pending Orders",
+            "There is still orders that require your attention before you can delete this listing. Please resolve them before deleting."
+          );
+        } else {
+          // closeListing();
+          console.log("Hello");
+        }
+      })
+      .catch((e) => {
+        setCurrentItem(null);
+        Alert.alert(
+          "Fail to communicate with database",
+          "Did not delete listing"
+        );
+      });
+  };
+
+  const closeListing = () => {
     db.collection("all_listings")
       .doc(currentItem.listingId)
       .update({
@@ -106,14 +131,14 @@ function ListingsHistoryScreen({ navigation }) {
       .then(() => {
         setCurrentItem(null);
         console.log("Listing has been closed.");
-        Alert.alert("Success", "Listing has been closed.");
+        Alert.alert("Success", "Listing has been deleted.");
       })
       .catch((error) => {
         setCurrentItem(null);
-        console.log("Resume error: ", error.message);
+        console.log("Delete error: ", error.message);
         Alert.alert(
           "Fail to communicate with database",
-          "Did not close listings"
+          "Did not delete listing"
         );
       });
   };
@@ -530,7 +555,7 @@ function ListingsHistoryScreen({ navigation }) {
                           ? onDelete(item)
                           : Alert.alert(
                               "Require listing to be paused",
-                              "Please pause the listing before attempting to close it."
+                              "Please pause the listing before attempting to delete it."
                             );
                       }}
                     >
@@ -557,7 +582,7 @@ function ListingsHistoryScreen({ navigation }) {
                             fontFamily: "sans-serif-medium",
                           }}
                         >
-                          Close
+                          Delete
                         </AppText>
                       </View>
                     </TouchableHighlight>
@@ -609,7 +634,7 @@ function ListingsHistoryScreen({ navigation }) {
           <AppText> You currently have no listings. Please add more.</AppText>
         )}
         <PromptModal
-          title='Are you sure you want to close this listing? You will not be able to access past orders from this listing after closing.'
+          title='Are you sure you want to delete this listing? You will not be able to access past orders from this listing after deleting.'
           visible={modalVisible}
           handleYes={() => handleYes()}
           handleNo={() => handleNo()}
