@@ -108,8 +108,7 @@ function ListingsHistoryScreen({ navigation }) {
             "There is still orders that require your attention before you can delete this listing. Please resolve them before deleting."
           );
         } else {
-          // closeListing();
-          console.log("Hello");
+          closeListing();
         }
       })
       .catch((e) => {
