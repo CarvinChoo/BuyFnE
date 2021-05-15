@@ -118,6 +118,7 @@ function MessagesScreen({ navigation }) {
       .delete()
       .then(() => {
         console.log("Deleted");
+        setRefresh((refresh) => refresh + 1);
       })
       .catch((e) => {
         console.log(e.message);
