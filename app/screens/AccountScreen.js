@@ -317,7 +317,7 @@ function AccountScreen({ navigation }) {
         {userType == 3 && (
           <View style={{ marginTop: 20 }}>
             <ListItem
-              title='Active Vouchers'
+              title='Platform Vouchers'
               IconComponent={
                 <Icon name='ticket-percent' backgroundColor={colors.green} />
               }

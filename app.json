@@ -30,6 +30,7 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "description": "\n"
+    "description": "BuyFnE - Groupbuy Ecommerce Mobile Application",
+    "githubUrl": "https://github.com/CarvinChoo/BuyFnE"
   }
 }

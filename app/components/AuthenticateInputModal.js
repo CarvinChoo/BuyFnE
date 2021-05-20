@@ -155,6 +155,7 @@ function AuthenticateInputModal({
               Retype your password to reauthenticate yourself
             </AppText>
             <AppTextInput
+              autoCapitalize='none'
               color={colors.white}
               placeholder='Password'
               onChangeText={(secret) => {
