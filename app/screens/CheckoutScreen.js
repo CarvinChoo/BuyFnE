@@ -118,10 +118,18 @@ function CheckoutScreen({ navigation }) {
                   // if admin issued voucher or store issued voucer
                   if (e.data().category == 0) {
                     // storewide voucher
-                    voucherlist.push({
-                      ...e.data(),
-                      apply: true,
-                    });
+
+                    if (orderTotal > e.data().minimum_spending) {
+                      voucherlist.push({
+                        ...e.data(),
+                        apply: true,
+                      });
+                    } else {
+                      voucherlist.push({
+                        ...e.data(),
+                        apply: false,
+                      });
+                    }
                   } else {
                     let category = cart.filter(
                       (x) => x.category == e.data().category

@@ -137,7 +137,7 @@ function RegisterScreen({ navigation }) {
         first_name: registrationDetails.first_name,
         last_name: registrationDetails.last_name,
         dob_day: dob.getDate(),
-        dob_month: dob.getMonth(),
+        dob_month: dob.getMonth() + 1,
         dob_year: dob.getFullYear(),
       },
     })
@@ -199,7 +199,7 @@ function RegisterScreen({ navigation }) {
         first_name: registrationDetails.first_name,
         last_name: registrationDetails.last_name,
         dob_day: dob.getDate(),
-        dob_month: dob.getMonth(),
+        dob_month: dob.getMonth() + 1,
         dob_year: dob.getFullYear(),
         displayName: registrationDetails.name,
         email: registrationDetails.email,

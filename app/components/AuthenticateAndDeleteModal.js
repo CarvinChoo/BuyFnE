@@ -73,8 +73,7 @@ function AuthenticateAndDeleteModal({ visible, onPress, navigation }) {
                     axios({
                       // issueing refund using cloud functiosn to communicate with stripe api
                       method: "POST",
-                      url:
-                        "https://us-central1-buyfne-63905.cloudfunctions.net/createRefund",
+                      url: "https://us-central1-buyfne-63905.cloudfunctions.net/createRefund",
                       data: {
                         charge_id: tran.data().charge_id,
                       },
@@ -252,6 +251,7 @@ function AuthenticateAndDeleteModal({ visible, onPress, navigation }) {
             </AppText>
             <AppTextInput
               color={colors.white}
+              autoCapitalize='none'
               placeholder='Password'
               onChangeText={(secret) => {
                 setSecret(secret);

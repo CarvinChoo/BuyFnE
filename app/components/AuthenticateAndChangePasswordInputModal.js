@@ -94,6 +94,7 @@ function AuthenticateAndChangePasswordInputModal({ visible, onPress }) {
             }}
           >
             <AppTextInput
+              autoCapitalize='none'
               color={colors.white}
               placeholder='Old Password'
               onChangeText={(secret) => {
@@ -103,6 +104,7 @@ function AuthenticateAndChangePasswordInputModal({ visible, onPress }) {
             />
 
             <AppTextInput
+              autoCapitalize='none'
               color={colors.white}
               placeholder='New Password'
               onChangeText={(secret) => {

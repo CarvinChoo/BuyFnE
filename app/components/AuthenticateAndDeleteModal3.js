@@ -177,6 +177,7 @@ function AuthenticateAndDeleteModal3({ visible, onPress, navigation }) {
               admin account
             </AppText>
             <AppTextInput
+              autoCapitalize='none'
               color={colors.white}
               placeholder='Password'
               onChangeText={(secret) => {
